@@ -27,12 +27,12 @@ stages:
       steps:
       # ARM Deployment:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/deploy/azure-resource-group-deployment
       - task: AzureResourceGroupDeployment@2
-        displayName:  Deploy AKS
+        displayName:  Deploy Kusto-x
         inputs:
           azureSubscription: kusto-x-dev-ops
           resourceGroupName: kusto-x-dev
           location: eastus
           templateLocation: 'Linked artifact'
-          csmFile: /deployment/public-apps.json
+          csmFile: deployment/public-apps.json
           #csmParametersFile: #Not using it here
           deploymentMode: 'Incremental'
