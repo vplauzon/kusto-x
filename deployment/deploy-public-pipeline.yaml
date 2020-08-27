@@ -1,0 +1,38 @@
+# Help:  https://aka.ms/yaml
+
+resources:
+- repo: self
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - deployment
+
+variables:  []
+
+stages:
+  - stage:  deploy
+    dependsOn:  []
+    variables:  []
+    jobs:
+    - job:  main
+      dependsOn:  []
+      variables:  []
+      continueOnError:  false
+      pool:
+        vmImage: 'ubuntu-latest'
+      steps:
+      # ARM Deployment:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/deploy/azure-resource-group-deployment
+      - task: AzureResourceGroupDeployment@2
+        displayName:  Deploy AKS
+        inputs:
+          azureSubscription: kusto-x-dev-ops
+          resourceGroupName: kusto-x-dev
+          location: eastus
+          templateLocation: 'Linked artifact'
+          csmFile: /deployment/public-apps.json
+          #csmParametersFile: #Not using it here
+          deploymentMode: 'Incremental'
