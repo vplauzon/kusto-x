@@ -45,5 +45,5 @@ jobs:
             inputs:
               containerRegistry:  docker-hub
               repository: ${{ parameters.imageName }}
-              tags: '$(full-version)'
+              tags: ${{ parameters.tag }}
               command:  push
