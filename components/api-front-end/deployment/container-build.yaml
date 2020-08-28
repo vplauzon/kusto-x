@@ -15,6 +15,11 @@ jobs:
           steps:
           # Checkout:  https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/azure-repos-git#checkout
           - checkout: self
+          # Bash script:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/bash?view=azure-devops
+          - task: Bash@3
+            inputs:
+              targetType: inline
+              script: mkdir package
           # Python script:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/python-script
           - task: PythonScript@0
             displayName: 'Manage Version'
