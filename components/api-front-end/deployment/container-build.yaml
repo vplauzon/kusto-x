@@ -51,6 +51,7 @@ jobs:
               containerRegistry:  docker-hub
               repository: ${{ parameters.imageName }}
               command:  buildAndPush
+              buildContext:  build-output
               Dockerfile: 'components/api-front-end/**/Dockerfile'
               tags: '$(full-version)'
           # Publish artefacts:  https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/pipeline-artifacts
