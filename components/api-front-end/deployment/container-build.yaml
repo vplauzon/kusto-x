@@ -26,6 +26,7 @@ jobs:
             inputs:
               scriptPath: 'common/deployment/manage-version.py'
               arguments: '${{ parameters.appVersionTxtPath }} ${{ parameters.appVersionCsPath }} $(Build.BuildId) package/full-version.txt'
+          script:ls -l package
           # .NET Core tests:  https://docs.microsoft.com/en-us/azure/devops/pipelines/ecosystems/dotnet-core#run-your-tests
           - task: DotNetCoreCLI@2
             displayName: 'Run Unit Tests'
