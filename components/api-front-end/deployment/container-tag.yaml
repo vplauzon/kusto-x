@@ -22,8 +22,12 @@ jobs:
           # Bash script:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/bash?view=azure-devops
           - task: Bash@3
             inputs:
-              targetType: filePath
-              filePath:  common/deployment/retrieve-full-version.sh
+              targetType: inline
+              script:  |
+                fullVersionPath=$1
+                fullVersion=$(cat $fullVersionPath)
+                echo "Full Version:  '$fullVersion'"
+                echo "##vso[task.setvariable variable=full-version;]$fullVersion"
               arguments: $(Pipeline.Workspace)/package/full-version.txt
           # Build Docker:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/docker#build-and-push
           - task: Docker@2
