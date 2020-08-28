@@ -17,7 +17,7 @@ stages:
     dependsOn:  []
     jobs:
       # Docker Hub Repo:  https://hub.docker.com/repository/docker/vplauzon/front-end-api-kusto-x
-      - template: container-build.yaml
+      - template: ../../../common/deployment/container-build.yaml
         parameters:
           appVersionTxtPath:  components/api-front-end/deployment/api-version-prefix.txt
           appVersionCsPath:  components/api-front-end/api-front-end-solution/ApiFrontEnd/ApiVersion.cs
@@ -28,7 +28,7 @@ stages:
     displayName: dev
     dependsOn:  build
     jobs:
-      - template: container-tag.yaml
+      - template: ../../../common/deployment/container-tag.yaml
         parameters:
           environment:  dev
           tag:  experimental
