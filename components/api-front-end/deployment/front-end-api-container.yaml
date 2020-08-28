@@ -22,7 +22,6 @@ stages:
           appVersionTxtPath:  components/api-front-end/deployment/api-version-prefix.txt
           appVersionCsPath:  components/api-front-end/api-front-end-solution/ApiFrontEnd/ApiVersion.cs
           imageName: vplauzon/front-end-api-kusto-x
-
   - stage: dev
     displayName: dev
     dependsOn:  build
