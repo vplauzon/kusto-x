@@ -1,0 +1,64 @@
+parameters:
+  environment:  ''
+  chartName:  ''
+jobs:
+  - deployment:  'deploy_helm_${{ parameters.environment }}'
+    displayName: 'Deploy Helm in ${{ parameters.environment }}'
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment:  ${{ parameters.environment }}
+    variables:
+      statefulRg:  'shared-state-${{ parameters.environment }}'
+      statelessRgPrefix:  'shared-stateless-${{ parameters.environment }}'
+      clusterPrefix:  'vpl-cluster-${{ parameters.environment }}'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          # Don't checkout repo:  https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/azure-repos-git#checkout
+          - checkout: none
+          # Download artifact:  https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/pipeline-artifacts#downloading-artifacts
+          - task: DownloadPipelineArtifact@2
+            displayName:  Download artefact
+            inputs:
+              artifact: deployment
+          # Azure CLI:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/deploy/azure-cli
+          - task: AzureCLI@2
+            displayName:  Fetch deployment colour
+            inputs:
+              azureSubscription: shared-infra
+              scriptType:  'bash'
+              scriptLocation: 'scriptPath'
+              scriptPath:  $(Pipeline.Workspace)/deployment/deployment/get-deploy-colour.sh
+          # Azure CLI:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/deploy/azure-cli
+          - task: AzureCLI@2
+            displayName:  Fetch Instrumentation Key
+            inputs:
+              azureSubscription: shared-infra
+              scriptType:  'bash'
+              scriptLocation: 'scriptPath'
+              scriptPath:  $(Pipeline.Workspace)/deployment/deployment/fetch-instrumentation-key.sh
+              arguments:  $(statefulRg)
+          # Bash script:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/bash
+          - task: Bash@3
+            displayName:  Retrieve Full Version
+            inputs:
+              targetType: filePath
+              filePath:  $(Pipeline.Workspace)/deployment/deployment/retrieve-full-version.sh
+              workingDirectory:  $(Pipeline.Workspace)/deployment/deployment
+              arguments:  $(Pipeline.Workspace)/deployment/deployment/FullVersion.txt
+          # Helm deploy:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/deploy/helm-deploy
+          - task: HelmDeploy@0
+            displayName: Helm Deploy
+            inputs:
+              azureSubscriptionEndpoint: shared-infra
+              azureResourceGroup: '$(statelessRgPrefix)-$(colour)'
+              kubernetesCluster: $(clusterPrefix)-$(colour)
+              command: upgrade
+              install:  true
+              chartName:  $(Pipeline.Workspace)/deployment/deployment/${{ parameters.chartName }}-$(full-version).tgz
+              releaseName:  ${{ parameters.chartName }}
+              arguments: --wait
+              overrideValues: applicationInsights.instrumentationKey=$(instrumentationKey)
+              valueFile:  $(Pipeline.Workspace)/deployment/deployment/values-${{ parameters.environment }}-$(colour).yaml
+              timeoutInMinutes: 2
