@@ -9,7 +9,7 @@ trigger:
     - master
   paths:
     include:
-    - deployment
+    - components/shell/*
 
 variables:  []
 
