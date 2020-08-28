@@ -24,7 +24,7 @@ jobs:
             inputs:
               targetType: filePath
               filePath:  common/deployment/retrieve-full-version.sh
-              arguments: $(Pipeline.Workspace)/package/package/full-version.txt
+              arguments: $(Pipeline.Workspace)/package/full-version.txt
           # Build Docker:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/docker#build-and-push
           - task: Docker@2
             displayName: Build and push Docker Image
