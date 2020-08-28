@@ -14,16 +14,11 @@ jobs:
           steps:
           # Don't checkout repo:  https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/azure-repos-git#checkout
           - checkout: none
-          # Download artifact:  https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/pipeline-artifacts#downloading-artifacts
-          - task: DownloadPipelineArtifact@2
-            displayName:  Download artefact package
-            inputs:
-              artifact: package
           # Bash script:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/bash?view=azure-devops
           - task: Bash@3
             displayName:  Retrieve full version
             inputs:
-              targetType: inline
+              targetType: Inline
               script:  |
                 fullVersionPath=$1
                 fullVersion=$(cat $fullVersionPath)
