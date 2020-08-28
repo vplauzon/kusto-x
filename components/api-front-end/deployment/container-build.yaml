@@ -15,8 +15,17 @@ jobs:
           steps:
           # Checkout:  https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/azure-repos-git#checkout
           - checkout: self
+
+          - task: Bash@3
+            displayName:  Test
+            inputs:
+              targetType: Inline
+              script:  |
+                echo hi
+
           # Bash script:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/bash?view=azure-devops
           - task: Bash@3
+            displayName:  mkdir package
             inputs:
               targetType: inline
               script: mkdir package
