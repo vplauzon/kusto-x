@@ -7,7 +7,8 @@
         "Unique ID": "[uniqueString(concat(resourceGroup().id, 'kusto-x'))]",
         "Suffix": "[concat('kusto-x-', variables('Unique ID'))]",
         "VNET": "[concat('vnet-services-', variables('Suffix'))]",
-        "App Plan": "[concat('app-plan-', variables('Suffix'))]"
+        "App Plan": "[concat('app-plan-', variables('Suffix'))]",
+        "API Front End": "[concat('api-front-end-', variables('Suffix'))]"
     },
     "resources": [
         {
@@ -77,6 +78,24 @@
                 "targetWorkerCount": 0,
                 "targetWorkerSizeId": 0
             }
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2019-08-01",
+            "name": "[variables('API Front End')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]"
+            ],
+            "kind": "app,linux,container",
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]",
+                 "siteConfig": {
+                    "linuxFxVersion": "DOCKER|vplauzon/front-end-api-kusto-x:experimental"
+                }
+            },
+            "resources": [
+            ]
         }
     ]
 }
