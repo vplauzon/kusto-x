@@ -1,5 +1,3 @@
-# API Front-end
+# API Status
 
-This solution is the front-end for all APIs.
-
-The front-end is responsible for implementing authentication and hidding the details of micro-services implementation.
+This solution is the status API.

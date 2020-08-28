@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/dotnet/core/aspnet:3.1 AS final
 WORKDIR /work
 
 #	Copy package
-COPY ApiFrontEnd .
+COPY ApiStatus .
 
 # Make port 80 available to the world outside this container
 
@@ -15,4 +15,4 @@ EXPOSE 80
 ENV TODO ""
 
 #	Run console app
-CMD ["dotnet", "ApiFrontEnd.dll"]
+CMD ["dotnet", "ApiStatus.dll"]
