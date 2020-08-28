@@ -38,7 +38,7 @@ jobs:
               containerRegistry:  docker-hub
               command:  tag
               arguments:  ${{ parameters.imageName }}:$(full-version) ${{ parameters.imageName }}:${{ parameters.tag }}
-          -script:  echo ${{ parameters.imageName }}:${{ parameters.tag }}
+          - script:  echo ${{ parameters.imageName }}:${{ parameters.tag }}
           # Build Docker:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/docker#build-and-push
           - task: Docker@2
             displayName: "Docker Image:  Push"
