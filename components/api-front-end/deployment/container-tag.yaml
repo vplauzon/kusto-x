@@ -43,6 +43,5 @@ jobs:
             displayName: "Docker Image:  Push"
             inputs:
               containerRegistry:  docker-hub
-              repository: ${{ parameters.imageName }} 
               command:  push
               arguments:  ${{ parameters.imageName }}:${{ parameters.tag }}
