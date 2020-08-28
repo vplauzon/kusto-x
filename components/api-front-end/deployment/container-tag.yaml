@@ -24,7 +24,8 @@ jobs:
             displayName:  Retrieve full version
             inputs:
               targetType: inline
-              script:  fullVersionPath=$1
+              script:  |
+                fullVersionPath=$1
                 fullVersion=$(cat $fullVersionPath)
                 echo "Full Version:  '$fullVersion'"
                 echo "##vso[task.setvariable variable=full-version;]$fullVersion"
