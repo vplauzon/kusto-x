@@ -1,0 +1,35 @@
+# Help:  https://aka.ms/yaml
+
+resources:
+- repo: self
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - components/api-front-end/*
+
+stages:
+  - stage: build
+    displayName: build
+    dependsOn:  []
+    jobs:
+      # Docker Hub Repo:  https://hub.docker.com/repository/docker/vplauzon/front-end-api-kusto-x
+      - template: ../../../common/deployment/container-build.yaml
+        parameters:
+          appVersionTxtPath:  components/api-front-end/deployment/api-version-prefix.txt
+          appVersionCsPath:  components/api-front-end/api-front-end-solution/ApiFrontEnd/ApiVersion.cs
+          componentName:  api-front-end
+          projectName:  ApiFrontEnd
+          imageName: vplauzon/front-end-api-kusto-x
+  - stage: dev
+    displayName: dev
+    dependsOn:  build
+    jobs:
+      - template: ../../../common/deployment/container-tag.yaml
+        parameters:
+          environment:  dev
+          tag:  experimental
+          imageName: vplauzon/front-end-api-kusto-x
