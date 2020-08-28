@@ -1,0 +1,35 @@
+parameters:
+  environment:  ''
+  tag:  ''
+jobs:
+  - deployment:  'tag_in_${{ parameters.environment }}'
+    displayName: 'Tag Container in ${{ parameters.environment }}'
+    pool:
+      vmImage: 'ubuntu-latest'
+    environment:  ${{ parameters.environment }}
+    variables: []
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          # Don't checkout repo:  https://docs.microsoft.com/en-us/azure/devops/pipelines/repos/azure-repos-git#checkout
+          - checkout: none
+          # Download artifact:  https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/pipeline-artifacts#downloading-artifacts
+          - task: DownloadPipelineArtifact@2
+            displayName:  Download artefact package
+            inputs:
+              artifact: package
+          # Bash script:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/bash?view=azure-devops
+          - task: Bash@3
+            inputs:
+              targetType: filePath
+              filePath:  common/deployment/retrieve-full-version.sh
+              arguments: $(Pipeline.Workspace)/package/package/full-version.txt
+          # Build Docker:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/docker#build-and-push
+          - task: Docker@2
+            displayName: Build and push Docker Image
+            inputs:
+              containerRegistry:  docker-hub
+              repository: ${{ parameters.imageName }}
+              command:  pull
+              tags: '$(full-version)'
