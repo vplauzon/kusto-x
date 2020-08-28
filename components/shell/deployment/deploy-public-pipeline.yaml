@@ -33,6 +33,6 @@ stages:
           resourceGroupName: kusto-x-dev
           location: eastus
           templateLocation: 'Linked artifact'
-          csmFile: deployment/public-apps.json
+          csmFile: components/shell/deployment/public-apps.json
           #csmParametersFile: #Not using it here
           deploymentMode: 'Incremental'
