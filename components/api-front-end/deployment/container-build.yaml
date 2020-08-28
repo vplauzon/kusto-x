@@ -19,22 +19,23 @@ jobs:
           - task: PythonScript@0
             displayName: 'Manage Version'
             inputs:
-              scriptPath: 'deployment/manage-version.py'
-              arguments: '${{ parameters.appVersionTxtPath }} ${{ parameters.appVersionCsPath }} $(Build.BuildId) deployment/FullVersion.txt'
+              scriptPath: 'common/deployment/manage-version.py'
+              arguments: '${{ parameters.appVersionTxtPath }} ${{ parameters.appVersionCsPath }} $(Build.BuildId) package/full-version.txt'
           # .NET Core tests:  https://docs.microsoft.com/en-us/azure/devops/pipelines/ecosystems/dotnet-core#run-your-tests
           - task: DotNetCoreCLI@2
             displayName: 'Run Unit Tests'
             inputs:
               command: test
-              projects: '**/*UnitTest*/*.csproj'
-              arguments: --configuration $(build-configuration)
+              projects: 'components/api-front-end/**/*UnitTest*/*.csproj'
+              arguments: --configuration release
           # .NET Core publish:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/dotnet-core-cli#publish
           - task: DotNetCoreCLI@2
             displayName: 'Build / Publish'
             inputs:
               command: publish
+              projects: 'components/api-front-end/api-front-end-solution/ApiFrontEnd/*.csproj'
               publishWebProjects: True
-              arguments: --configuration $(build-configuration) --output build-output
+              arguments: --configuration release --output build-output
               zipAfterPublish: False
           # Build Docker:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/docker#build-and-push
           - task: Docker@2
@@ -43,29 +44,23 @@ jobs:
               containerRegistry:  docker-hub
               repository: ${{ parameters.imageName }}
               command:  buildAndPush
-              Dockerfile: '**/Dockerfile'
+              Dockerfile: 'components/api-front-end/**/Dockerfile'
               tags: '$(full-version)'
-          # Helm tool installer:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/tool/helm-installer
-          - task: HelmInstaller@1
-            inputs:
-              helmVersionToInstall: 'latest'
-          # Helm deploy:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/deploy/helm-deploy
-          - task: HelmDeploy@0
-            displayName:  Helm Package
-            inputs:
-              command: package
-              chartPath: $(chart-path)
-              chartVersion: '$(full-version)'
-              destination:  $(Build.ArtifactStagingDirectory)/deployment/
-          # Copy files:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/copy-files
-          - task: CopyFiles@2
-            displayName:  Copy deployment directory
-            inputs:
-              sourceFolder: deployment
-              targetFolder: $(Build.ArtifactStagingDirectory)/deployment/
           # Publish artefacts:  https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/pipeline-artifacts
           - task: PublishBuildArtifacts@1
             displayName: 'Publish Artifact'
             inputs:
-              targetPath: $(Build.ArtifactStagingDirectory)/deployment
-              artifactName: deployment
+              targetPath: package
+              artifactName: package
+          # # Copy files:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/utility/copy-files
+          # - task: CopyFiles@2
+          #   displayName:  Copy deployment directory
+          #   inputs:
+          #     sourceFolder: package
+          #     targetFolder: $(Build.ArtifactStagingDirectory)/package/
+          # # Publish artefacts:  https://docs.microsoft.com/en-us/azure/devops/pipelines/artifacts/pipeline-artifacts
+          # - task: PublishBuildArtifacts@1
+          #   displayName: 'Publish Artifact'
+          #   inputs:
+          #     targetPath: $(Build.ArtifactStagingDirectory)/deployment
+          #     artifactName: package
