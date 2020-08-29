@@ -23,6 +23,7 @@ namespace ApiFrontEnd.Controllers
         {
             return new ObjectResult(new
             {
+                Name = "front-end",
                 Version = ApiVersion.FullVersion,
                 Status = "Ready"
             });

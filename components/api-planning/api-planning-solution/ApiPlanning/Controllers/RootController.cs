@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-namespace ApiStatus.Controllers
+namespace ApiPlanning.Controllers
 {
     [ApiController]
     [Route("/")]
@@ -23,7 +23,7 @@ namespace ApiStatus.Controllers
         {
             return new ObjectResult(new
             {
-                Name = "status",
+                Name = "planning",
                 Version = ApiVersion.FullVersion,
                 Status = "Ready"
             });

@@ -1,0 +1,35 @@
+# Help:  https://aka.ms/yaml
+
+resources:
+- repo: self
+
+trigger:
+  branches:
+    include:
+    - master
+  paths:
+    include:
+    - components/api-planning/*
+
+stages:
+  - stage: build
+    displayName: build
+    dependsOn:  []
+    jobs:
+      # Docker Hub Repo:  https://hub.docker.com/repository/docker/vplauzon/planning-api-kusto-x
+      - template: ../../../common/deployment/container-build.yaml
+        parameters:
+          appVersionTxtPath:  components/api-planning/deployment/api-version-prefix.txt
+          appVersionCsPath:  components/api-planning/api-planning-solution/ApiPlanning/ApiVersion.cs
+          componentName:  api-planning
+          projectName:  ApiPlanning
+          imageName: vplauzon/planning-api-kusto-x
+  - stage: dev
+    displayName: dev
+    dependsOn:  build
+    jobs:
+      - template: ../../../common/deployment/container-tag.yaml
+        parameters:
+          environment:  dev
+          tag:  experimental
+          imageName: vplauzon/planning-api-kusto-x
