@@ -6,6 +6,7 @@
     "variables": {
         "Unique ID": "[uniqueString(concat(resourceGroup().id, 'kusto-x'))]",
         "Suffix": "[concat('kusto-x-', variables('Unique ID'))]",
+        "App Insights": "[concat('app-monitor-', variables('Suffix'))]",
         "VNET": "[concat('vnet-services-', variables('Suffix'))]",
         "App Plan": "[concat('app-plan-', variables('Suffix'))]",
         "API Front End": "[concat('api-front-end-', variables('Suffix'))]",
@@ -13,6 +14,20 @@
         "API Planning": "[concat('api-planning-', variables('Suffix'))]"
     },
     "resources": [
+        {
+            "type": "Microsoft.Insights/components",
+            "name": "[variables('App Insights')]",
+            "apiVersion": "2015-05-01",
+            "location": "[resourceGroup().location]",
+            "tags": {
+            },
+            "kind": "web",
+            "properties": {
+                "Application_Type": "web"
+            },
+            "dependsOn": [
+            ]
+        },
         {
             "type": "Microsoft.Network/virtualNetworks",
             "apiVersion": "2020-05-01",
