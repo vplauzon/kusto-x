@@ -11,15 +11,11 @@
         "Storage": "[concat('kustox', variables('Unique ID'))]",
         "VNET": "[concat('vnet-services-', variables('Suffix'))]",
         "App Plan": "[concat('app-plan-', variables('Suffix'))]",
+        "Web Portal": "[concat('web-portal-', variables('Suffix'))]",
         "API Front End": "[concat('api-front-end-', variables('Suffix'))]",
         "API Status": "[concat('api-status-', variables('Suffix'))]",
         "API Planning": "[concat('api-planning-', variables('Suffix'))]",
         "Apps Config": [
-            {
-                "name": "[variables('API Front End')]",
-                "containerImage": "vplauzon/front-end-api-kusto-x:experimental",
-                "alwaysOn": true
-            },
             {
                 "name": "[variables('API Status')]",
                 "containerImage": "vplauzon/status-api-kusto-x:experimental",
@@ -29,6 +25,16 @@
                 "name": "[variables('API Planning')]",
                 "containerImage": "vplauzon/planning-api-kusto-x:experimental",
                 "alwaysOn": false
+            },
+            {
+                "name": "[variables('API Front End')]",
+                "containerImage": "vplauzon/front-end-api-kusto-x:experimental",
+                "alwaysOn": true
+            },
+            {
+                "name": "[variables('Web Portal')]",
+                "containerImage": "vplauzon/web-portal-kusto-x:experimental",
+                "alwaysOn": true
             }
         ]
     },
