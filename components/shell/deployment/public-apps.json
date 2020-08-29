@@ -7,6 +7,7 @@
         "Unique ID": "[uniqueString(concat(resourceGroup().id, 'kusto-x'))]",
         "Suffix": "[concat('kusto-x-', variables('Unique ID'))]",
         "App Insights": "[concat('app-monitor-', variables('Suffix'))]",
+        "Log Analytics": "[concat('infra-monitor-', variables('Suffix'))]",
         "VNET": "[concat('vnet-services-', variables('Suffix'))]",
         "App Plan": "[concat('app-plan-', variables('Suffix'))]",
         "API Front End": "[concat('api-front-end-', variables('Suffix'))]",
@@ -24,6 +25,19 @@
             "kind": "web",
             "properties": {
                 "Application_Type": "web"
+            },
+            "dependsOn": [
+            ]
+        },
+        {
+            "type": "Microsoft.OperationalInsights/workspaces",
+            "name": "[variables('Log Analytics')]",
+            "apiVersion": "2015-11-01-preview",
+            "location": "[resourceGroup().location]",
+            "properties": {
+                "sku": {
+                    "name": "PerGB2018"
+                }
             },
             "dependsOn": [
             ]
