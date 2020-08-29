@@ -27,7 +27,7 @@
             },
             {
                 "name": "[variables('API Planning')]",
-                "containerImage": "planning-api-kusto-x:experimental",
+                "containerImage": "vplauzon/planning-api-kusto-x:experimental",
                 "alwaysOn": false
             }
         ]
