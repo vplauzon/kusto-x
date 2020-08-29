@@ -8,7 +8,7 @@
         "Suffix": "[concat('kusto-x-', variables('Unique ID'))]",
         "App Insights": "[concat('app-monitor-', variables('Suffix'))]",
         "Log Analytics": "[concat('infra-monitor-', variables('Suffix'))]",
-        "Storage": "[concat('storagekustox', variables('Unique ID'))]",
+        "Storage": "[concat('kustox', variables('Unique ID'))]",
         "VNET": "[concat('vnet-services-', variables('Suffix'))]",
         "App Plan": "[concat('app-plan-', variables('Suffix'))]",
         "API Front End": "[concat('api-front-end-', variables('Suffix'))]",
