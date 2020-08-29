@@ -13,7 +13,24 @@
         "App Plan": "[concat('app-plan-', variables('Suffix'))]",
         "API Front End": "[concat('api-front-end-', variables('Suffix'))]",
         "API Status": "[concat('api-status-', variables('Suffix'))]",
-        "API Planning": "[concat('api-planning-', variables('Suffix'))]"
+        "API Planning": "[concat('api-planning-', variables('Suffix'))]",
+        "Apps Config": [
+            {
+                "name": "[variables('API Front End')]",
+                "containerImage": "vplauzon/front-end-api-kusto-x:experimental",
+                "alwaysOn": true
+            },
+            {
+                "name": "[variables('API Status')]",
+                "containerImage": "vplauzon/status-api-kusto-x:experimental",
+                "alwaysOn": false
+            },
+            {
+                "name": "[variables('API Planning')]",
+                "containerImage": "planning-api-kusto-x:experimental",
+                "alwaysOn": false
+            }
+        ]
     },
     "resources": [
         {
@@ -141,7 +158,12 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2019-08-01",
-            "name": "[variables('API Front End')]",
+            "copy": {
+                "name": "app-loop",
+                "count": "[length(variables('Apps Config'))]",
+                "mode": "parallel"
+            },
+            "name": "[variables('Apps Config')[copyIndex()].name]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]"
@@ -150,7 +172,7 @@
             "properties": {
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]",
                 "siteConfig": {
-                    "linuxFxVersion": "DOCKER|vplauzon/front-end-api-kusto-x:experimental"
+                    "linuxFxVersion": "[concat('DOCKER|', variables('Apps Config')[copyIndex()].containerImage)]"
                 },
                 "clientAffinityEnabled": false
             },
@@ -160,10 +182,10 @@
                     "apiVersion": "2018-11-01",
                     "name": "web",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('API Front End'))]"
+                        "[resourceId('Microsoft.Web/sites', variables('Apps Config')[copyIndex()].name)]"
                     ],
                     "properties": {
-                        "alwaysOn": true,
+                        "alwaysOn": "[variables('Apps Config')[copyIndex()].alwaysOn]",
                         "ftpsState": "Disabled"
                     }
                 },
@@ -172,7 +194,7 @@
                     "type": "config",
                     "apiVersion": "2015-08-01",
                     "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('API Front End'))]"
+                        "[resourceId('Microsoft.Web/sites', variables('Apps Config')[copyIndex()].name)]"
                     ],
                     "tags": {
                         "displayName": "appsettings"
@@ -188,66 +210,6 @@
                         "SnapshotDebugger_EXTENSION_VERSION": "~1",
                         "InstrumentationEngine_EXTENSION_VERSION": "~1",
                         "XDT_MicrosoftApplicationInsights_BaseExtensions": "disabled"
-                    }
-                }
-            ]
-        },
-        {
-            "type": "Microsoft.Web/sites",
-            "apiVersion": "2019-08-01",
-            "name": "[variables('API Status')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]"
-            ],
-            "kind": "app,linux,container",
-            "properties": {
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]",
-                "siteConfig": {
-                    "linuxFxVersion": "DOCKER|vplauzon/status-api-kusto-x:experimental"
-                },
-                "clientAffinityEnabled": false
-            },
-            "resources": [
-                {
-                    "type": "config",
-                    "apiVersion": "2018-11-01",
-                    "name": "web",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('API Status'))]"
-                    ],
-                    "properties": {
-                        "ftpsState": "Disabled"
-                    }
-                }
-            ]
-        },
-        {
-            "type": "Microsoft.Web/sites",
-            "apiVersion": "2019-08-01",
-            "name": "[variables('API Planning')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [
-                "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]"
-            ],
-            "kind": "app,linux,container",
-            "properties": {
-                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]",
-                "siteConfig": {
-                    "linuxFxVersion": "DOCKER|vplauzon/planning-api-kusto-x:experimental"
-                },
-                "clientAffinityEnabled": false
-            },
-            "resources": [
-                {
-                    "type": "config",
-                    "apiVersion": "2018-11-01",
-                    "name": "web",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('API Planning'))]"
-                    ],
-                    "properties": {
-                        "ftpsState": "Disabled"
                     }
                 }
             ]
