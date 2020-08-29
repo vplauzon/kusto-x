@@ -9,8 +9,8 @@
         "VNET": "[concat('vnet-services-', variables('Suffix'))]",
         "App Plan": "[concat('app-plan-', variables('Suffix'))]",
         "API Front End": "[concat('api-front-end-', variables('Suffix'))]",
-        "API Status End": "[concat('api-status-', variables('Suffix'))]",
-        "API Planning End": "[concat('api-planning-', variables('Suffix'))]"
+        "API Status": "[concat('api-status-', variables('Suffix'))]",
+        "API Planning": "[concat('api-planning-', variables('Suffix'))]"
     },
     "resources": [
         {
@@ -94,7 +94,8 @@
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]",
                 "siteConfig": {
                     "linuxFxVersion": "DOCKER|vplauzon/front-end-api-kusto-x:experimental"
-                }
+                },
+                "clientAffinityEnabled": false
             },
             "resources": [
                 {
@@ -105,7 +106,8 @@
                         "[resourceId('Microsoft.Web/sites', variables('API Front End'))]"
                     ],
                     "properties": {
-                        "alwaysOn": true
+                        "alwaysOn": true,
+                        "ftpsState": "Disabled"
                     }
                 }
             ]
@@ -113,7 +115,7 @@
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2019-08-01",
-            "name": "[variables('API Status End')]",
+            "name": "[variables('API Status')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]"
@@ -123,15 +125,27 @@
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]",
                 "siteConfig": {
                     "linuxFxVersion": "DOCKER|vplauzon/status-api-kusto-x:experimental"
-                }
+                },
+                "clientAffinityEnabled": false
             },
             "resources": [
+                {
+                    "type": "config",
+                    "apiVersion": "2018-11-01",
+                    "name": "web",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('API Status'))]"
+                    ],
+                    "properties": {
+                        "ftpsState": "Disabled"
+                    }
+                }
             ]
         },
         {
             "type": "Microsoft.Web/sites",
             "apiVersion": "2019-08-01",
-            "name": "[variables('API Planning End')]",
+            "name": "[variables('API Planning')]",
             "location": "[resourceGroup().location]",
             "dependsOn": [
                 "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]"
@@ -141,9 +155,21 @@
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]",
                 "siteConfig": {
                     "linuxFxVersion": "DOCKER|vplauzon/planning-api-kusto-x:experimental"
-                }
+                },
+                "clientAffinityEnabled": false
             },
             "resources": [
+                {
+                    "type": "config",
+                    "apiVersion": "2018-11-01",
+                    "name": "web",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('API Planning'))]"
+                    ],
+                    "properties": {
+                        "ftpsState": "Disabled"
+                    }
+                }
             ]
         }
     ]
