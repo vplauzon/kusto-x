@@ -96,6 +96,17 @@
                 }
             },
             "resources": [
+                {
+                    "type": "config",
+                    "apiVersion": "2018-11-01",
+                    "name": "web",
+                    "dependsOn": [
+                        "[resourceId('Microsoft.Web/sites', variables('API Front End'))]"
+                    ],
+                    "properties": {
+                        "alwaysOn": true
+                    }
+                }
             ]
         },
         {
@@ -114,17 +125,6 @@
                 }
             },
             "resources": [
-                {
-                    "type": "config",
-                    "apiVersion": "2018-11-01",
-                    "name": "web",
-                    "dependsOn": [
-                        "[resourceId('Microsoft.Web/sites', variables('API Status End'))]"
-                    ],
-                    "properties": {
-                        "alwaysOn": true
-                    }
-                }
             ]
         }
     ]
