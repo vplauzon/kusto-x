@@ -8,7 +8,8 @@
         "Suffix": "[concat('kusto-x-', variables('Unique ID'))]",
         "VNET": "[concat('vnet-services-', variables('Suffix'))]",
         "App Plan": "[concat('app-plan-', variables('Suffix'))]",
-        "API Front End": "[concat('api-front-end-', variables('Suffix'))]"
+        "API Front End": "[concat('api-front-end-', variables('Suffix'))]",
+        "API Status End": "[concat('api-status-', variables('Suffix'))]"
     },
     "resources": [
         {
@@ -92,6 +93,24 @@
                 "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]",
                  "siteConfig": {
                     "linuxFxVersion": "DOCKER|vplauzon/front-end-api-kusto-x:experimental"
+                }
+            },
+            "resources": [
+            ]
+        },
+        {
+            "type": "Microsoft.Web/sites",
+            "apiVersion": "2019-08-01",
+            "name": "[variables('API Status End')]",
+            "location": "[resourceGroup().location]",
+            "dependsOn": [
+                "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]"
+            ],
+            "kind": "app,linux,container",
+            "properties": {
+                "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('App Plan'))]",
+                 "siteConfig": {
+                    "linuxFxVersion": "DOCKER|vplauzon/status-api-kusto-x:experimental"
                 }
             },
             "resources": [
