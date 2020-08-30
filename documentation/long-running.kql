@@ -1,0 +1,71 @@
+//  Simple query
+T
+| order by assetId, timestamp
+
+//  Simple pipeline (loop)
+#dataflow
+let ids = T
+| distinct assetId;
+#set-or-append OrderedT <| foreach id in ids
+T
+| where assetId==id
+| order by assetId
+
+//  Simple pipeline (loop) ; alternative syntaxe
+#dataflow
+let ids = T
+| distinct assetId;
+.set-or-append OrderedT <|
+    #foreach id in ids
+    (
+        T
+        | where assetId==id
+        | order by assetId
+    )
+
+//  Simple pipeline (loop) ; other alternative syntaxe, allowing more combinations
+#dataflow
+let ids = T
+| distinct assetId;
+#foreach id in ids
+(
+    .set-or-append OrderedT <|
+        T
+        | where assetId==id
+        | order by assetId
+)
+
+//  Controls:  sequence, condition, for-each, until, if
+
+//  Pipeline with a sequence (separated by #)
+#dataflow
+.drop table OrderedT ifexists
+#
+let ids = T
+| distinct assetId;
+#foreach id in ids
+(
+    .set-or-append OrderedT <|
+        T
+        | where assetId==id
+        | order by assetId
+)
+
+//  Emulating an until-then with for-each and if
+#dataflow
+#foreach i in range(0, 100)
+{
+    let employeeAge = employees
+    | where age==i;
+    #if (toscalar(employeeAge | count) > 0)
+    {
+        .set-or-append OrderedT <|
+            employeeAge
+            | summarize sum(salary) by age
+    }
+    #else
+    {
+        #exit-foreach
+    }
+}
+

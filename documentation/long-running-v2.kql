@@ -1,0 +1,90 @@
+//  Simple data flow (loop)
+dataflow
+{
+    let ids = T
+    | distinct assetId;
+    foreach id in ids with (concurrency=25)
+    {
+        .set-or-append OrderedT <| 
+        T
+        | where assetId==id
+        | order by assetId
+    }
+}
+
+//  Controls:  sequence, condition, for-each, until, if
+
+//  Data flow with a sequence (separated by new lines)
+dataflow
+{
+    sequence with (concurrency=1)
+    {
+        .drop table OrderedT ifexists
+
+        let ids = T
+        | distinct assetId;
+        foreach id in ids with (concurrency=0)
+        {
+            .set-or-append OrderedT <|
+                T
+                | where assetId==id
+                | order by assetId
+        }
+    }
+}
+
+//  For-each simulating an until
+dataflow
+{
+    foreach i in range(0, 100) with (concurrency=1)
+    {
+        let employeeAge = employees
+        | where age==i;
+        if (toscalar(employeeAge | count) > 0)
+        {
+            .set-or-append OrderedT <|
+                employeeAge
+                | summarize sum(salary) by age
+        }
+        else
+        {
+            break
+        }
+    }
+}
+
+//  Until
+dataflow
+{
+    do
+    {
+        ...
+    }
+    until( (...) > 0)
+}
+
+//  Ingestion
+dataflow
+{
+    let blobs = getBlobs('account', 'container', 'directory', 'suffix');
+    foreach blob in blobs
+    {
+        .ingest blob
+    }
+}
+
+//  Big compute, small results
+dataflow
+{
+    sequence
+    {
+        foreach id in ids
+        {
+            let q = <based on id>;
+            .add-to-temp tempQuery <| q
+        }
+        
+        .set-or-append Results <|
+            pull-from-temp tempQuery
+    }
+}
