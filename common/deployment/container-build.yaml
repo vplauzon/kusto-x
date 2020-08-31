@@ -36,6 +36,8 @@ jobs:
               command: test
               projects: 'components/${{ parameters.componentName }}/**/*UnitTest*/*.csproj'
               arguments: --configuration release
+          - script:  echo ${{ parameters.componentName }}
+          - script:  echo ${{ parameters.projectName }}
           # .NET Core publish:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/dotnet-core-cli#publish
           - task: DotNetCoreCLI@2
             displayName: 'Build / Publish'
@@ -45,7 +47,6 @@ jobs:
               publishWebProjects: True
               arguments: --configuration release --output build-output
               zipAfterPublish: False
-          - script:  ls -l build-output
           # Build Docker:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/docker#build-and-push
           - task: Docker@2
             displayName: Build and push Docker Image
