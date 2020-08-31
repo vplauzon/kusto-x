@@ -18,7 +18,7 @@
         "Apps Config": [
             {
                 "name": "[variables('API Status')]",
-                "containerImage": "vplauzon/status-api-kusto-x:experimental",
+                "containerImage": "vplauzon/status-api-kusto-x:dev",
                 "alwaysOn": false,
                 "frontEnd": false,
                 "status": false,
@@ -26,7 +26,7 @@
             },
             {
                 "name": "[variables('API Planning')]",
-                "containerImage": "vplauzon/planning-api-kusto-x:experimental",
+                "containerImage": "vplauzon/planning-api-kusto-x:dev",
                 "alwaysOn": false,
                 "frontEnd": false,
                 "status": false,
@@ -34,7 +34,7 @@
             },
             {
                 "name": "[variables('API Front End')]",
-                "containerImage": "vplauzon/front-end-api-kusto-x:experimental",
+                "containerImage": "vplauzon/front-end-api-kusto-x:dev",
                 "alwaysOn": true,
                 "frontEnd": false,
                 "status": true,
@@ -42,7 +42,7 @@
             },
             {
                 "name": "[variables('Web Portal')]",
-                "containerImage": "vplauzon/web-portal-kusto-x:experimental",
+                "containerImage": "vplauzon/web-portal-kusto-x:dev",
                 "alwaysOn": true,
                 "frontEnd": true,
                 "status": false,

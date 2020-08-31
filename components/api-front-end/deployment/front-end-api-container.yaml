@@ -31,5 +31,5 @@ stages:
       - template: ../../../common/deployment/container-tag.yaml
         parameters:
           environment:  dev
-          tag:  experimental
+          tag:  dev
           imageName: vplauzon/front-end-api-kusto-x
