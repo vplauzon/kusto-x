@@ -41,7 +41,7 @@ jobs:
             displayName: 'Build / Publish'
             inputs:
               command: publish
-              projects: 'components/api-front-end/**/${{ parameters.projectName }}.csproj'
+              projects: 'components/api-front-end/api-front-end-solution/ApiFrontEnd/ApiFrontEnd.csproj'
               # projects: 'components/${{ parameters.componentName }}/**/${{ parameters.projectName }}.csproj'
               publishWebProjects: True
               arguments: --configuration release --output build-output
