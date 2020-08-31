@@ -36,16 +36,13 @@ jobs:
               command: test
               projects: 'components/${{ parameters.componentName }}/**/*UnitTest*/*.csproj'
               arguments: --configuration release
-          - script:  echo ${{ parameters.componentName }}
-          - script:  echo ${{ parameters.projectName }}
-          - script:  ls -l components/${{ parameters.componentName }}
-          - script:  ls -l 'components/${{ parameters.componentName }}/**/*.csproj'
           # .NET Core publish:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/dotnet-core-cli#publish
           - task: DotNetCoreCLI@2
             displayName: 'Build / Publish'
             inputs:
               command: publish
-              projects: 'components/${{ parameters.componentName }}/**/${{ parameters.projectName }}.csproj'
+              projects: 'components/api-front-end/**/${{ parameters.projectName }}.csproj'
+              # projects: 'components/${{ parameters.componentName }}/**/${{ parameters.projectName }}.csproj'
               publishWebProjects: True
               arguments: --configuration release --output build-output
               zipAfterPublish: False
