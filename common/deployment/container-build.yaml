@@ -38,11 +38,11 @@ jobs:
               arguments: --configuration release
           # .NET Core publish:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/dotnet-core-cli#publish
           - task: DotNetCoreCLI@2
-            displayName: 'Build / Publish Web Project'
+            displayName: 'Build / Publish'
             inputs:
               command: publish
-              projects: 'components/api-front-end/api-front-end-solution/ApiFrontEnd/ApiFrontEnd.csproj'
-              # projects: 'components/${{ parameters.componentName }}/**/${{ parameters.projectName }}.csproj'
+              # projects: 'components/api-front-end/api-front-end-solution/ApiFrontEnd/ApiFrontEnd.csproj'
+              projects: 'components/${{ parameters.componentName }}/**/${{ parameters.projectName }}.csproj'
               publishWebProjects: True
               arguments: --configuration release --output build-output
               zipAfterPublish: False
