@@ -25,6 +25,9 @@ namespace ApiFrontEnd
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddControllers();
+            //  From https://microsoft.github.io/reverse-proxy/articles/getting_started.html#update-startup
+            services.AddReverseProxy()
+                .LoadFromConfig(Configuration.GetSection("ReverseProxy"));
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -36,10 +39,11 @@ namespace ApiFrontEnd
             }
 
             app.UseRouting();
-            app.UseAuthorization();
+            //app.UseAuthorization();
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllers();
+                endpoints.MapReverseProxy();
             });
         }
     }

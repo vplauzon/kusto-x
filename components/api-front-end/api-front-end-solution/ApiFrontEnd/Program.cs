@@ -13,7 +13,24 @@ namespace ApiFrontEnd
     {
         public static void Main(string[] args)
         {
+            PatchClusterAddresses("planning", "status");
+
             CreateHostBuilder(args).Build().Run();
+        }
+
+        private static void PatchClusterAddresses(params string[] clusterNames)
+        {
+            foreach (var cluster in clusterNames)
+            {
+                var variableValue = Environment.GetEnvironmentVariable(cluster);
+
+                if (variableValue != null)
+                {
+                    Environment.SetEnvironmentVariable(
+                        $"ReverseProxy__Clusters__{cluster}Cluster__Destinations__{cluster}Cluster/destination1__Address",
+                        variableValue);
+                }
+            }
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
