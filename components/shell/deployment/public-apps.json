@@ -19,22 +19,34 @@
             {
                 "name": "[variables('API Status')]",
                 "containerImage": "vplauzon/status-api-kusto-x:experimental",
-                "alwaysOn": false
+                "alwaysOn": false,
+                "frontEnd": false,
+                "status": false,
+                "planning": false
             },
             {
                 "name": "[variables('API Planning')]",
                 "containerImage": "vplauzon/planning-api-kusto-x:experimental",
-                "alwaysOn": false
+                "alwaysOn": false,
+                "frontEnd": false,
+                "status": false,
+                "planning": false
             },
             {
                 "name": "[variables('API Front End')]",
                 "containerImage": "vplauzon/front-end-api-kusto-x:experimental",
-                "alwaysOn": true
+                "alwaysOn": true,
+                "frontEnd": false,
+                "status": true,
+                "planning": true
             },
             {
                 "name": "[variables('Web Portal')]",
                 "containerImage": "vplauzon/web-portal-kusto-x:experimental",
-                "alwaysOn": true
+                "alwaysOn": true,
+                "frontEnd": true,
+                "status": false,
+                "planning": false
             }
         ]
     },
@@ -215,10 +227,19 @@
                         "APPINSIGHTS_SNAPSHOTFEATURE_VERSION": "1.0.0",
                         "SnapshotDebugger_EXTENSION_VERSION": "~1",
                         "InstrumentationEngine_EXTENSION_VERSION": "~1",
-                        "XDT_MicrosoftApplicationInsights_BaseExtensions": "disabled"
+                        "XDT_MicrosoftApplicationInsights_BaseExtensions": "disabled",
+                        "frontEnd": "[if(variables('Apps Config')[copyIndex()].frontEnd, reference(resourceId('Microsoft.Web/sites', variables('API Front End')), '2019-08-01').defaultHostName, '')]",
+                        "status": "[if(variables('Apps Config')[copyIndex()].status, reference(resourceId('Microsoft.Web/sites', variables('API Status')), '2019-08-01').defaultHostName, '')]",
+                        "planning": "[if(variables('Apps Config')[copyIndex()].planning, reference(resourceId('Microsoft.Web/sites', variables('API Planning')), '2019-08-01').defaultHostName, '')]"
                     }
                 }
             ]
         }
-    ]
+    ],
+    "outputs": {
+        "test": {
+            "type": "string",
+            "value": "[reference(resourceId('Microsoft.Web/sites', variables('API Status')), '2019-08-01').defaultHostName]"
+        }
+    }
 }

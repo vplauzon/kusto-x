@@ -24,7 +24,7 @@ namespace ApiFrontEnd
             {
                 var variableValue = Environment.GetEnvironmentVariable(cluster);
 
-                if (variableValue != null)
+                if (!string.IsNullOrWhiteSpace(variableValue))
                 {
                     Environment.SetEnvironmentVariable(
                         $"ReverseProxy__Clusters__{cluster}Cluster__Destinations__{cluster}Cluster/destination1__Address",
