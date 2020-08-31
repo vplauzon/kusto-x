@@ -38,6 +38,7 @@ jobs:
               arguments: --configuration release
           - script:  echo ${{ parameters.componentName }}
           - script:  echo ${{ parameters.projectName }}
+          - script:  ls -l components/${{ parameters.componentName }}
           # .NET Core publish:  https://docs.microsoft.com/en-us/azure/devops/pipelines/tasks/build/dotnet-core-cli#publish
           - task: DotNetCoreCLI@2
             displayName: 'Build / Publish'
