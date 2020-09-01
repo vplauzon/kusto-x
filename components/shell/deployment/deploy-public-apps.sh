@@ -1,7 +1,7 @@
 #!/bin/bash
 
 ##########################################################################
-##  Deploys sample solution
+##  Deploys shell solution
 ##
 ##  Parameters:
 ##
