@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiPlanning", "ApiPlanning\ApiPlanning.csproj", "{F17C54DF-C0DA-4148-B99D-B707826EFD34}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CorePlanning", "CorePlanning\CorePlanning.csproj", "{4440B81E-00B5-4524-89BA-A63AA4B6B106}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationPlanning", "IntegrationPlanning\IntegrationPlanning.csproj", "{69F5CF1A-8108-4461-AB81-ADC334F4B248}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{F17C54DF-C0DA-4148-B99D-B707826EFD34}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F17C54DF-C0DA-4148-B99D-B707826EFD34}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F17C54DF-C0DA-4148-B99D-B707826EFD34}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4440B81E-00B5-4524-89BA-A63AA4B6B106}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4440B81E-00B5-4524-89BA-A63AA4B6B106}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4440B81E-00B5-4524-89BA-A63AA4B6B106}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4440B81E-00B5-4524-89BA-A63AA4B6B106}.Release|Any CPU.Build.0 = Release|Any CPU
+		{69F5CF1A-8108-4461-AB81-ADC334F4B248}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{69F5CF1A-8108-4461-AB81-ADC334F4B248}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{69F5CF1A-8108-4461-AB81-ADC334F4B248}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{69F5CF1A-8108-4461-AB81-ADC334F4B248}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
