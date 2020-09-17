@@ -14,4 +14,16 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="dataflow-grammar.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="dataflow-grammar.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="PasApiClient" Version="0.1.0" />
+  </ItemGroup>
+
 </Project>
