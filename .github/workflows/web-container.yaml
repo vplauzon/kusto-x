@@ -20,16 +20,6 @@ jobs:
     - name: Patch version
       id:  patch-version
       run: python3 common/deployment/manage-version.py components/web-portal/deployment/app-version-prefix.txt components/web-portal/web-portal-solution/WebPortal/AppVersion.cs ${{ github.run_number }} full-version.txt
-    - name: Retrieve version
-      id: retrieve
-      run: echo "::set-output name=full-version::$(cat full-version.txt)"
-      shell: bash
-    - name: Echo test
-      run: echo 'test'
-    - name: Echo version
-      run: echo '${{ steps.patch-version.ouptuts.full-version }}'
-    - name: Echo version2
-      run: echo '${{ steps.retrieve.ouptuts.full-version }}'
     - name: Install dependencies
       run: dotnet restore components/web-portal/web-portal-solution
     - name: .NET Build
@@ -39,5 +29,5 @@ jobs:
     - name: Docker Login
       run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }} registry-1.docker.io
     - name: Docker Build
-      run:  docker build --file components/web-portal/deployment/Dockerfile --tag ${{ secrets.docker_repo }}/front-end-api-kusto-x:0.42 components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1
+      run:  docker build --file components/web-portal/deployment/Dockerfile --tag ${{ secrets.docker_repo }}/front-end-api-kusto-x:$(cat full-version.txt) components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1
 
