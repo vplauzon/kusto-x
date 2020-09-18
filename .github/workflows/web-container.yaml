@@ -1,4 +1,4 @@
-name:  Continuous Build / Test
+name:  Web Portal continuous Build / Test
 
 on:
   push:
@@ -21,6 +21,7 @@ jobs:
       run: dotnet restore components/web-portal/web-portal-solution
     - name: Build
       run: dotnet build components/web-portal/web-portal-solution --configuration Release --no-restore
-    - name: Test
-      run: dotnet test components/web-portal/web-portal-solution/**/*UnitTest --no-restore --verbosity normal
-    
+    # - name: Test
+    #   run: dotnet test components/web-portal/web-portal-solution/**/*UnitTest --no-restore --verbosity normal
+    - name: Docker Login
+      run:  docker login    
