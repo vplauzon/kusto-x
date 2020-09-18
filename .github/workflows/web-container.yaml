@@ -20,8 +20,6 @@ jobs:
     - name: Patch version
       id:  patch-version
       run: python3 common/deployment/manage-version.py components/web-portal/deployment/app-version-prefix.txt components/web-portal/web-portal-solution/WebPortal/AppVersion.cs ${{ github.run_number }} full-version.txt
-    - name: Test2
-      run: echo ${{ steps.patch-version.outputs.full-version }}
     - name: Install dependencies
       run: dotnet restore components/web-portal/web-portal-solution
     - name: .NET Build
@@ -36,5 +34,6 @@ jobs:
         dockerfile:  components/web-portal/deployment/Dockerfile
         path:  components/web-portal/deployment/web-portal-solutio/WebPortal/bin/Release/netcoreapp3.1
         push:  true
-        tags:  ${{ secrets.docker_repo }}/kusto-x-web-portal:${{ steps.patch-version.outputs.full-version }}
+        repository:  ${{ secrets.docker_repo }}/kusto-x-web-portal:${{ steps.patch-version.outputs.full-version }}
+        tags:  ${{ steps.patch-version.outputs.full-version }}
         tag_with_ref: true
