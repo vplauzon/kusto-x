@@ -30,6 +30,8 @@ jobs:
     - run:  ls -l components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1
     - name: Move bins under Dockerfile
       run: mv components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1 components/web-portal/deployment/bin
+    - run:  ls -l components/web-portal/deployment
+    - run:  ls -l components/web-portal/deployment/bin
     # - name: Test
     #   run: dotnet test components/web-portal/web-portal-solution/**/*UnitTest --no-restore --verbosity normal
     - name: Login to Docker Hub
