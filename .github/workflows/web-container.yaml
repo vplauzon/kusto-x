@@ -23,6 +23,7 @@ jobs:
     - name: Retrieve version
       id: retrieve
       run: echo "::set-output name=full-version::$(cat full-version.txt)"
+      shell: bash
     - name: Echo test
       run: echo 'test'
     - name: Echo version
