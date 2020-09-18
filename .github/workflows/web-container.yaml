@@ -25,7 +25,7 @@ jobs:
     - name: Echo test
       run: echo 'test'
     - name: Echo version
-      run: echo ${{ steps.patch-version.ouptuts.full-version }}
+      run: echo '${{ steps.patch-version.ouptuts.full-version }}'
     - name: Install dependencies
       run: dotnet restore components/web-portal/web-portal-solution
     - name: .NET Build
