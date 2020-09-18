@@ -24,4 +24,4 @@ jobs:
     # - name: Test
     #   run: dotnet test components/web-portal/web-portal-solution/**/*UnitTest --no-restore --verbosity normal
     - name: Docker Login
-      run:  docker login    
+      run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }} cloud.docker.com
