@@ -24,6 +24,8 @@ jobs:
       run: dotnet restore components/web-portal/web-portal-solution
     - name: .NET Build
       run: dotnet build components/web-portal/web-portal-solution --configuration Release --no-restore
+    - name: Move bins under Dockerfile
+      run: mv components/web-portal/web-portal-solution/bin/Debug/netcoreapp3.1/* components/web-portal/deployment/bin
     # - name: Test
     #   run: dotnet test components/web-portal/web-portal-solution/**/*UnitTest --no-restore --verbosity normal
     - name: Login to Docker Hub
@@ -37,4 +39,3 @@ jobs:
         file:  components/web-portal/deployment/Dockerfile
         push:  true
         tags:  ${{ secrets.docker_repo }}/kusto-x-web-portal:${{ steps.patch-version.outputs.full-version }}
-        tag_with_ref: true
