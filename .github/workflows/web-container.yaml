@@ -28,15 +28,16 @@ jobs:
       run: dotnet build components/web-portal/web-portal-solution --configuration Release --no-restore
     # - name: Test
     #   run: dotnet test components/web-portal/web-portal-solution/**/*UnitTest --no-restore --verbosity normal
-    - name: Push to Docker Hub
-      uses: docker/build-push-action@v1
+    - name: Login to DockerHub
+      uses: docker/login-action@v1 
       with:
-        file:  components/web-portal/deployment/Dockerfile
         username: ${{ secrets.docker_login }}
         password: ${{ secrets.docker_password }}
-        repository: ${{ secrets.docker_repo }}/front-end-api-kusto-x
+    - name: Push to Docker Hub
+      uses: docker/build-push-action@v2
+      with:
+        file:  components/web-portal/deployment/Dockerfile
         tags:  ${{ secrets.docker_repo }}/front-end-api-kusto-x:${{ steps.patch-version.outputs.full-version }}
-        tag_with_ref: true
 
     # - name: Docker Login
     #   run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }} https://index.docker.io/v1
