@@ -31,7 +31,7 @@ jobs:
     - name: Docker Build
       run:  docker build --file components/web-portal/deployment/Dockerfile --tag ${{ secrets.docker_repo }}/front-end-api-kusto-x:$(cat full-version.txt) components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1
     - name: Push to Docker Hub
-      uses: docker/build-push-action@v1
+      uses: docker/build-push-action@v2
       with:
         username: ${{ secrets.docker_login }}
         password: ${{ secrets.docker_password }}
