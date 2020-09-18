@@ -21,7 +21,6 @@ jobs:
       id:  version
       run: python3 common/deployment/manage-version.py components/web-portal/deployment/app-version-prefix.txt components/web-portal/web-portal-solution/WebPortal/AppVersion.cs ${{ github.run_number }} full-version.txt
     - name: Retrieve version
-      id:  version
       run: cat full-version.txt
     - name: Echo version
       run: echo ${{ steps.version.ouptuts.version }}
