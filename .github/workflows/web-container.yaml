@@ -24,23 +24,30 @@ jobs:
       run: dotnet restore components/web-portal/web-portal-solution
     - name: .NET Build
       run: dotnet build components/web-portal/web-portal-solution --configuration Release --no-restore
-    - name: Move bins under Dockerfile
-      run: mv components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1 components/web-portal/deployment/bin
+    # - name: Move bins under Dockerfile
+    #   run: mv components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1 components/web-portal/deployment/bin
+
     # - name: Test
     #   run: dotnet test components/web-portal/web-portal-solution/**/*UnitTest --no-restore --verbosity normal
-    - name: Set up QEMU
-      uses: docker/setup-qemu-action@v1
-    - name: Set up Docker Buildx
-      uses: docker/setup-buildx-action@v1
-    - name: Login to Docker Hub
-      uses: docker/login-action@v1
-      with:
-        username: ${{ secrets.docker_login }}
-        password: ${{ secrets.docker_password }}
-    - name: Push to Docker Hub
-      uses: docker/build-push-action@v2
-      with:
-        file:  components/web-portal/deployment/Dockerfile
-        path:  components/web-portal/deployment/
-        push:  true
-        tags:  ${{ secrets.docker_repo }}/kusto-x-web-portal:${{ steps.patch-version.outputs.full-version }}
+    
+    # - name: Set up QEMU
+    #   uses: docker/setup-qemu-action@v1
+    # - name: Set up Docker Buildx
+    #   uses: docker/setup-buildx-action@v1
+    # - name: Login to Docker Hub
+    #   uses: docker/login-action@v1
+    #   with:
+    #     username: ${{ secrets.docker_login }}
+    #     password: ${{ secrets.docker_password }}
+    # - name: Push to Docker Hub
+    #   uses: docker/build-push-action@v2
+    #   with:
+    #     file:  components/web-portal/deployment/Dockerfile
+    #     push:  true
+    #     tags:  ${{ secrets.docker_repo }}/kusto-x-web-portal:${{ steps.patch-version.outputs.full-version }}
+    - name:  Docker Login
+      run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }}
+    - name:  Docker Build
+      run:  docker build --file components/web-portal/deployment/Dockerfile --tags ${{ secrets.docker_repo }}/kusto-x-web-portal:${{ steps.patch-version.outputs.full-version }} components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1
+    - name:  Docker Push
+      run:  docker push ${{ secrets.docker_repo }}/kusto-x-web-portal:${{ steps.patch-version.outputs.full-version }}
