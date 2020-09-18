@@ -20,18 +20,28 @@ jobs:
     - name: Patch version
       id:  patch-version
       run: python3 common/deployment/manage-version.py components/web-portal/deployment/app-version-prefix.txt components/web-portal/web-portal-solution/WebPortal/AppVersion.cs ${{ github.run_number }} full-version.txt
-    - name: Install dependencies
-      run: dotnet restore components/web-portal/web-portal-solution
-    - name: .NET Build
-      run: dotnet build components/web-portal/web-portal-solution --configuration Release --no-restore
+    - name: Retrieve version
+      id:  version
+      run: echo "##[set-output name=version;]$(cat full-version.txt)"
+    - name: Test
+      run: echo ${{ steps.version.outputs.version }}
+    - name: Test2
+      run: echo ${{ steps.patch-version.outputs.full-version }}
+
+      # - name: Install dependencies
+    #   run: dotnet restore components/web-portal/web-portal-solution
+    # - name: .NET Build
+    #   run: dotnet build components/web-portal/web-portal-solution --configuration Release --no-restore
+
     # - name: Test
     #   run: dotnet test components/web-portal/web-portal-solution/**/*UnitTest --no-restore --verbosity normal
-    - name: Docker Login
-      run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }} https://index.docker.io/v1
-    - name: Docker Build
-      run:  docker build --file components/web-portal/deployment/Dockerfile --tag ${{ secrets.docker_repo }}/front-end-api-kusto-x:$(cat full-version.txt) components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1
-    - name: Docker Push
-      run:  docker push ${{ secrets.docker_repo }}/front-end-api-kusto-x:$(cat full-version.txt)
+
+    # - name: Docker Login
+    #   run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }} https://index.docker.io/v1
+    # - name: Docker Build
+    #   run:  docker build --file components/web-portal/deployment/Dockerfile --tag ${{ secrets.docker_repo }}/front-end-api-kusto-x:$(cat full-version.txt) components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1
+    # - name: Docker Push
+    #   run:  docker push ${{ secrets.docker_repo }}/front-end-api-kusto-x:$(cat full-version.txt)
     # - name: Push to Docker Hub
     #   uses: docker/build-push-action@v2
     #   with:
