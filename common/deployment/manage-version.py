@@ -73,3 +73,7 @@ else:
 
     #   Write full version to file
     writeAll(fullVersionPath, fullVersion)
+
+    #   Output variable
+    print('Set the full version in GitHub Action output:')
+    print('::set-output name=vversion::%s' % (fullVersion))
