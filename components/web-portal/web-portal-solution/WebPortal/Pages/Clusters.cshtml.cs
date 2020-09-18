@@ -8,11 +8,11 @@ using Microsoft.Extensions.Logging;
 
 namespace WebPortal.Pages
 {
-    public class NewDataFlowModel : PageModel
+    public class ClustersModel : PageModel
     {
-        private readonly ILogger<NewDataFlowModel> _logger;
+        private readonly ILogger<ClustersModel> _logger;
 
-        public NewDataFlowModel(ILogger<NewDataFlowModel> logger)
+        public ClustersModel(ILogger<ClustersModel> logger)
         {
             _logger = logger;
         }
