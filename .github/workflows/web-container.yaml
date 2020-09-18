@@ -19,9 +19,12 @@ jobs:
         dotnet-version: 3.1.301
     - name: Install dependencies
       run: dotnet restore components/web-portal/web-portal-solution
-    - name: Build
+    - name: .NET Build
       run: dotnet build components/web-portal/web-portal-solution --configuration Release --no-restore
     # - name: Test
     #   run: dotnet test components/web-portal/web-portal-solution/**/*UnitTest --no-restore --verbosity normal
     - name: Docker Login
       run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }} registry-1.docker.io
+    - name: Docker Build
+      run:  docker build -f components/api-front-end/deployment/Dockerfile -t ${{ secrets.docker_repo }}/front-end-api-kusto-x:0.42
+
