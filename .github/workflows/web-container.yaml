@@ -27,7 +27,7 @@ jobs:
     # - name: Test
     #   run: dotnet test components/web-portal/web-portal-solution/**/*UnitTest --no-restore --verbosity normal
     - name: Docker Login
-      run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }} registry-1.docker.io
+      run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }} https://index.docker.io/v1
     - name: Docker Build
       run:  docker build --file components/web-portal/deployment/Dockerfile --tag ${{ secrets.docker_repo }}/front-end-api-kusto-x:$(cat full-version.txt) components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1
     - name: Docker Push
