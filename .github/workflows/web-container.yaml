@@ -19,11 +19,11 @@ jobs:
         dotnet-version: 3.1.301
     - name: Patch version
       run: python3 common/deployment/manage-version.py components/web-portal/deployment/app-version-prefix.txt components/web-portal/web-portal-solution/WebPortal/AppVersion.cs ${{ github.run_number }} full-version.txt
+    - name: Retrieve version
       id:  version
-      with:
-        data:  cat full-version.txt
+      run: cat full-version.txt
     - name: Echo version
-      run: echo ${{ steps.version.outputs.data }}
+      run: echo ${{ steps.version.ouptuts }}
     - name: Install dependencies
       run: dotnet restore components/web-portal/web-portal-solution
     - name: .NET Build
