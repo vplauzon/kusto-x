@@ -13,12 +13,12 @@ jobs:
 
     steps:
     - uses: actions/checkout@v2
-    - name: Setup .NET Core
-      uses: actions/setup-dotnet@v1
-      with:
-        dotnet-version: 3.1.301
+    # - name: Setup .NET Core
+    #   uses: actions/setup-dotnet@v1
+    #   with:
+    #     dotnet-version: 3.1.301
     - name: Patch version
-      id:  patch-version
+      id:  patch
       run: python3 common/deployment/manage-version.py components/web-portal/deployment/app-version-prefix.txt components/web-portal/web-portal-solution/WebPortal/AppVersion.cs ${{ github.run_number }} full-version.txt
     - name: Retrieve version
       id:  version
@@ -26,7 +26,7 @@ jobs:
     - name: Test
       run: echo ${{ steps.version.outputs.version }}
     - name: Test2
-      run: echo ${{ steps.patch-version.outputs.full-version }}
+      run: echo ${{ steps.patch.outputs.version }}
 
       # - name: Install dependencies
     #   run: dotnet restore components/web-portal/web-portal-solution
