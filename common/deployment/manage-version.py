@@ -73,8 +73,3 @@ else:
 
     #   Write full version to file
     writeAll(fullVersionPath, fullVersion)
-
-    #   Output variable
-    print('Set the full version in Azure DevOps variable:')
-
-    print('##vso[task.setvariable variable=full-version;]%s' % (fullVersion))
