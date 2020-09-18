@@ -26,5 +26,5 @@ jobs:
     - name: Docker Login
       run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }} registry-1.docker.io
     - name: Docker Build
-      run:  docker build -f components/api-front-end/deployment/Dockerfile -t ${{ secrets.docker_repo }}/front-end-api-kusto-x:0.42
+      run:  docker build --file components/web-portal/deployment/Dockerfile --tag ${{ secrets.docker_repo }}/front-end-api-kusto-x:0.42 components/web-portal/web-portal-solution/WebPortal/bin/Release/netcoreapp3.1
 
