@@ -76,4 +76,4 @@ else:
 
     #   Output variable
     print('Set the full version in GitHub Action output:')
-    print('::set-output name=version::%s' % (fullVersion))
+    print('::set-output name=full-version::%s' % (fullVersion))
