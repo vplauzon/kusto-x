@@ -1,4 +1,4 @@
-﻿using PasApiClient;
+﻿using PasLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,11 +6,11 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CorePlanning
+namespace CoreDataFlow
 {
     public class Planner
     {
-        private static readonly string GRAMMAR = GetGrammar();
+        private static readonly Grammar GRAMMAR = GetGrammar();
 
         public async Task ProcessRequestAsync(string text)
         {
@@ -19,14 +19,12 @@ namespace CorePlanning
 
         private Task ParseRequestAsync(string text)
         {
-            var client = ParserClient.Create();
-
-            client.SingleParseAsync(GRAMMAR, text);
+            GRAMMAR.Match("main", text);
 
             throw new NotImplementedException();
         }
 
-        private static string GetGrammar()
+        private static Grammar GetGrammar()
         {
             var assembly = typeof(Planner).GetTypeInfo().Assembly;
             var fullResourceName = "CorePlanning.dataflow-grammar.txt";
@@ -35,8 +33,9 @@ namespace CorePlanning
             using (var reader = new StreamReader(stream))
             {
                 var text = reader.ReadToEnd();
+                var grammar = MetaGrammar.ParseGrammar(text);
 
-                return text;
+                return grammar;
             }
         }
     }

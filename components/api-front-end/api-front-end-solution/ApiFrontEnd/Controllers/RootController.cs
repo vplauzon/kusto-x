@@ -23,7 +23,7 @@ namespace ApiFrontEnd.Controllers
         {
             return new ObjectResult(new
             {
-                Name = "front-end",
+                Name = "kusto-x-front-end",
                 Version = ApiVersion.FullVersion,
                 Status = "Ready"
             });

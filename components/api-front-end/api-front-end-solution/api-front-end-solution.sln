@@ -5,6 +5,10 @@ VisualStudioVersion = 16.0.30413.136
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ApiFrontEnd", "ApiFrontEnd\ApiFrontEnd.csproj", "{CB717177-6E2B-42E0-95E2-BC62843D9261}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CoreDataFlow", "CoreDataFlow\CoreDataFlow.csproj", "{A477FDFD-7C54-4488-A708-CE98D54A5334}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IntegrationDataFlow", "IntegrationDataFlow\IntegrationDataFlow.csproj", "{071D6DD7-A13D-4701-BE3E-860813C044DB}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +19,14 @@ Global
 		{CB717177-6E2B-42E0-95E2-BC62843D9261}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CB717177-6E2B-42E0-95E2-BC62843D9261}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CB717177-6E2B-42E0-95E2-BC62843D9261}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A477FDFD-7C54-4488-A708-CE98D54A5334}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A477FDFD-7C54-4488-A708-CE98D54A5334}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A477FDFD-7C54-4488-A708-CE98D54A5334}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A477FDFD-7C54-4488-A708-CE98D54A5334}.Release|Any CPU.Build.0 = Release|Any CPU
+		{071D6DD7-A13D-4701-BE3E-860813C044DB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{071D6DD7-A13D-4701-BE3E-860813C044DB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{071D6DD7-A13D-4701-BE3E-860813C044DB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{071D6DD7-A13D-4701-BE3E-860813C044DB}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
