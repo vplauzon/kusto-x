@@ -37,7 +37,7 @@ jobs:
       uses: docker/build-push-action@v2
       with:
         file:  components/web-portal/deployment/Dockerfile
-        tags:  ${{ secrets.docker_repo }}/front-end-api-kusto-x:${{ steps.patch-version.outputs.full-version }}
+        tags:  ${{ secrets.docker_repo }}/kusto-x-web-portal:${{ steps.patch-version.outputs.full-version }}
 
     # - name: Docker Login
     #   run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }} https://index.docker.io/v1
