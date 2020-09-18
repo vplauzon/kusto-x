@@ -1,0 +1,36 @@
+name:  API continuous Build / Test
+
+on:
+  push:
+    branches:
+      - master
+    #paths:
+
+jobs:
+  build-push-hub:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 3.1.301
+    - name: Patch version
+      id:  patch-version
+      run: python3 common/deployment/manage-version.py components/api-front-end/deployment/app-version-prefix.txt components/api-front-end/api-front-end-solution/ApiFrontEnd/ApiVersion.cs ${{ github.run_number }} full-version.txt
+    - name: Install dependencies
+      run: dotnet restore components/api-front-end/api-front-end-solution
+    - name: .NET Build
+      run: dotnet build components/api-front-end/api-front-end-solution --configuration Release --no-restore
+    # - name: Test
+    #   run: dotnet test components/api-front-end/api-front-end-solution/**/*UnitTest --no-restore --verbosity normal
+
+    # Docker stuff
+    - name:  Docker Login
+      run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }}
+    - name:  Docker Build
+      run:  docker build --file components/api-front-end/deployment/Dockerfile --tag ${{ secrets.docker_repo }}/kusto-x-api:${{ steps.patch-version.outputs.full-version }} components/api-front-end/api-front-end-solution/ApiFrontEnd/bin/Release/netcoreapp3.1
+    - name:  Docker Push
+      run:  docker push ${{ secrets.docker_repo }}/kusto-x-web-portal:${{ steps.patch-version.outputs.full-version }}
