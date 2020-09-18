@@ -33,6 +33,8 @@ jobs:
       with:
         username: ${{ secrets.docker_login }}
         password: ${{ secrets.docker_password }}
-        file:  components/web-portal/deployment/Dockerfile
+        dockerfile:  components/web-portal/deployment/Dockerfile
+        path:  components/web-portal/deployment/web-portal-solutio/WebPortal/bin/Release/netcoreapp3.1
         push:  true
         tags:  ${{ secrets.docker_repo }}/kusto-x-web-portal:${{ steps.patch-version.outputs.full-version }}
+        tag_with_ref: true
