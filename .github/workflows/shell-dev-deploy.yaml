@@ -1,13 +1,7 @@
 name:  Shell Dev Deploy
 
 on:
-  push:
-    branches:
-      - master
-    paths:
-      - components/shell/**
-      - .github/workflows/shell-dev-deploy.yaml
-  # workflow_dispatch
+  workflow_dispatch
 
 jobs:
   deploy:

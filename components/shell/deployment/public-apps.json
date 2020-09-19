@@ -9,44 +9,19 @@
         "App Insights": "[concat('app-monitor-', variables('Suffix'))]",
         "Log Analytics": "[concat('infra-monitor-', variables('Suffix'))]",
         "Storage": "[concat('kustox', variables('Unique ID'))]",
-        "VNET": "[concat('vnet-services-', variables('Suffix'))]",
         "App Plan": "[concat('app-plan-', variables('Suffix'))]",
         "Web Portal": "[concat('web-portal-', variables('Suffix'))]",
         "API Front End": "[concat('api-front-end-', variables('Suffix'))]",
-        "API Status": "[concat('api-status-', variables('Suffix'))]",
-        "API Planning": "[concat('api-planning-', variables('Suffix'))]",
         "Apps Config": [
             {
-                "name": "[variables('API Status')]",
-                "containerImage": "vplauzon/status-api-kusto-x:dev",
-                "alwaysOn": false,
-                "frontEnd": false,
-                "status": false,
-                "planning": false
-            },
-            {
-                "name": "[variables('API Planning')]",
-                "containerImage": "vplauzon/planning-api-kusto-x:dev",
-                "alwaysOn": false,
-                "frontEnd": false,
-                "status": false,
-                "planning": false
-            },
-            {
                 "name": "[variables('API Front End')]",
-                "containerImage": "vplauzon/front-end-api-kusto-x:dev",
-                "alwaysOn": true,
-                "frontEnd": false,
-                "status": true,
-                "planning": true
+                "containerImage": "vplauzon/kusto-x-api:dev",
+                "alwaysOn": true
             },
             {
                 "name": "[variables('Web Portal')]",
-                "containerImage": "vplauzon/web-portal-kusto-x:dev",
-                "alwaysOn": true,
-                "frontEnd": true,
-                "status": false,
-                "planning": false
+                "containerImage": "vplauzon/kusto-x-web-portal:dev",
+                "alwaysOn": true
             }
         ]
     },
@@ -104,49 +79,6 @@
                     }
                 }
             ]
-        },
-        {
-            "type": "Microsoft.Network/virtualNetworks",
-            "apiVersion": "2020-05-01",
-            "name": "[variables('VNET')]",
-            "location": "[resourceGroup().location]",
-            "dependsOn": [],
-            "properties": {
-                "addressSpace": {
-                    "addressPrefixes": [
-                        "10.1.0.0/22"
-                    ]
-                },
-                "subnets": [
-                    {
-                        "name": "services-out",
-                        "properties": {
-                            "addressPrefix": "10.1.0.0/24",
-                            "serviceEndpoints": [
-                                {
-                                    "service": "Microsoft.Web",
-                                    "locations": [
-                                        "*"
-                                    ]
-                                }
-                            ],
-                            "delegations": [
-                                {
-                                    "name": "delegation",
-                                    "properties": {
-                                        "serviceName": "Microsoft.Web/serverfarms"
-                                    }
-                                }
-                            ],
-                            "privateEndpointNetworkPolicies": "Enabled",
-                            "privateLinkServiceNetworkPolicies": "Enabled"
-                        }
-                    }
-                ],
-                "virtualNetworkPeerings": [],
-                "enableDdosProtection": false,
-                "enableVmProtection": false
-            }
         },
         {
             "type": "Microsoft.Web/serverfarms",
@@ -228,18 +160,12 @@
                         "SnapshotDebugger_EXTENSION_VERSION": "~1",
                         "InstrumentationEngine_EXTENSION_VERSION": "~1",
                         "XDT_MicrosoftApplicationInsights_BaseExtensions": "disabled",
-                        "frontEnd": "[if(variables('Apps Config')[copyIndex()].frontEnd, reference(resourceId('Microsoft.Web/sites', variables('API Front End')), '2019-08-01').defaultHostName, '')]",
-                        "status": "[if(variables('Apps Config')[copyIndex()].status, reference(resourceId('Microsoft.Web/sites', variables('API Status')), '2019-08-01').defaultHostName, '')]",
-                        "planning": "[if(variables('Apps Config')[copyIndex()].planning, reference(resourceId('Microsoft.Web/sites', variables('API Planning')), '2019-08-01').defaultHostName, '')]"
+                        "frontEnd": "[if(equals(variables('Apps Config')[copyIndex()].name, variables('API Front End')), '', reference(resourceId('Microsoft.Web/sites', variables('API Front End')), '2019-08-01').defaultHostName)]"
                     }
                 }
             ]
         }
     ],
     "outputs": {
-        "test": {
-            "type": "string",
-            "value": "[reference(resourceId('Microsoft.Web/sites', variables('API Status')), '2019-08-01').defaultHostName]"
-        }
     }
 }
