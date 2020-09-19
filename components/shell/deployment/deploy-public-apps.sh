@@ -12,15 +12,6 @@ rg=$1
 echo "Resource group:  $rg"
 echo "Current directory:  $(pwd)"
 
-if [[ $(az group exists -g $rg) = 'true' ]]
-then
-    echo "Resource Group already exists"
-else
-    echo "Resource Group doesn't exist"
-    echo "Creating Resource group $rg"
-    az group create -n $rg --location eastus
-fi
-
 echo
 echo "Deploying ARM template"
 
