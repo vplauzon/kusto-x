@@ -7,7 +7,7 @@ on:
     paths:
       - components/shell/**
       - .github/workflows/shell-dev-deploy.yaml
-  workflow_dispatch
+  # workflow_dispatch
 
 jobs:
   build-push-hub:
