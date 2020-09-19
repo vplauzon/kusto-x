@@ -1,0 +1,21 @@
+name:  Shell Dev Deploy
+
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - components/shell/**
+      - .github/workflows/shell-dev-deploy.yaml
+  workflow_dispatch
+
+jobs:
+  build-push-hub:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Azure Login
+      run: az login --service-principal -u ${{ secrets.sp_id }} -p ${{ secrets.sp_secret }} --tenant ${{ secrets.tenant_id }}
+      
