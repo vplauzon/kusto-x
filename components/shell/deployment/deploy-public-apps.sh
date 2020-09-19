@@ -10,6 +10,7 @@
 rg=$1
 
 echo "Resource group:  $rg"
+echo "Current directory:  $(pwd)"
 
 if [[ $(az group exists -g $rg) = 'true' ]]
 then
