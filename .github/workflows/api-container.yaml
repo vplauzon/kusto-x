@@ -35,4 +35,4 @@ jobs:
     - name:  Docker Build
       run:  docker build --file components/api-front-end/deployment/Dockerfile --tag ${{ secrets.docker_repo }}/kusto-x-api:${{ steps.patch-version.outputs.full-version }} components/api-front-end/api-front-end-solution/ApiFrontEnd/bin/Release/netcoreapp3.1
     - name:  Docker Push
-      run:  docker push ${{ secrets.docker_repo }}/kusto-x-web-portal:${{ steps.patch-version.outputs.full-version }}
+      run:  docker push ${{ secrets.docker_repo }}/kusto-x-api:${{ steps.patch-version.outputs.full-version }}
