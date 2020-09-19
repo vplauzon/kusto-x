@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - master
-    #paths:
+    paths:
+      - components/api-front-end
+      - .github/workflows/api-container.yaml
 
 jobs:
   build-push-hub:
@@ -19,7 +21,7 @@ jobs:
         dotnet-version: 3.1.301
     - name: Patch version
       id:  patch-version
-      run: python3 common/deployment/manage-version.py components/api-front-end/deployment/app-version-prefix.txt components/api-front-end/api-front-end-solution/ApiFrontEnd/ApiVersion.cs ${{ github.run_number }} full-version.txt
+      run: python3 common/deployment/manage-version.py components/api-front-end/deployment/api-version-prefix.txt components/api-front-end/api-front-end-solution/ApiFrontEnd/ApiVersion.cs ${{ github.run_number }} full-version.txt
     - name: Install dependencies
       run: dotnet restore components/api-front-end/api-front-end-solution
     - name: .NET Build

@@ -4,7 +4,9 @@ on:
   push:
     branches:
       - master
-    #paths:
+    paths:
+      - components/web-portal
+      - .github/workflows/web-container.yaml
 
 jobs:
   build-push-hub:
