@@ -14,4 +14,5 @@ jobs:
       run: az login --service-principal -u ${{ secrets.sp_id }} -p ${{ secrets.sp_secret }} --tenant ${{ secrets.tenant_id }}
     - name: Deploy
       run: |
-        bash components/shell/deployment/deploy-public-apps.sh kusto-x-dev
+        cd components/shell/deployment
+        bash deploy-public-apps.sh kusto-x-dev
