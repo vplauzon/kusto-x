@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - components/api-front-end
+      - components/api-front-end/**
       - .github/workflows/api-container.yaml
 
 jobs:

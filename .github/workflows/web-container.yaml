@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - components/web-portal
+      - components/web-portal/**
       - .github/workflows/web-container.yaml
 
 jobs:
