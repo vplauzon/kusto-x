@@ -26,8 +26,8 @@ jobs:
       run: dotnet restore components/api-front-end/api-front-end-solution
     - name: .NET Build
       run: dotnet build components/api-front-end/api-front-end-solution --configuration Release --no-restore
-    # - name: Test
-    #   run: dotnet test components/api-front-end/api-front-end-solution/**/*UnitTest --no-restore --verbosity normal
+    - name: Test
+      run: dotnet test components/api-front-end/api-front-end-solution/**/*UnitTest --no-restore --verbosity normal
     - name: .NET Publish Web App
       run: dotnet publish components/api-front-end/api-front-end-solution/ApiFrontEnd --configuration Release --no-restore --output api-pack
 
