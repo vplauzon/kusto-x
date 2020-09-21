@@ -1,4 +1,5 @@
-﻿using PasLib;
+﻿using Microsoft.Extensions.FileProviders;
+using PasLib;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -13,10 +14,10 @@ namespace CoreDataFlow
 
         private static Grammar LoadGrammar()
         {
-            var assembly = typeof(Planner).GetTypeInfo().Assembly;
-            var fullResourceName = typeof(GrammarSingleton).Name + ".dataflow-grammar.txt";
+            var assembly = typeof(GrammarSingleton).GetTypeInfo().Assembly;
+            var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 
-            using (var stream = assembly.GetManifestResourceStream(fullResourceName))
+            using (var stream = embeddedProvider.GetFileInfo("dataflow-grammar.txt").CreateReadStream())
             using (var reader = new StreamReader(stream))
             {
                 var text = reader.ReadToEnd();
