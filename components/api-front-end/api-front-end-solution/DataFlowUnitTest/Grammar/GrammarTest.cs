@@ -30,11 +30,11 @@ namespace DataFlowUnitTest.Grammar
         }
 
         [Fact]
-        public void EmptyConcurrent()
+        public void EmptyParallel()
         {
             var test = @"dataflow
             {
-                concurrent
+                parallel
                 {
                 }
             }";

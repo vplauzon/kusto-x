@@ -14,8 +14,8 @@ rule(interleave=false) quotedCharacter = "\"" c:character "\"";
 
 #	rules
 rule sequence = "sequence" "{" "}";
-rule concurrent = "concurrent" "{" "}";
-rule subFlow = sequence | concurrent;
+rule parallel = "parallel" "{" "}";
+rule subFlow = sequence | parallel;
 rule dataflow = "dataflow" "{" subFlow? "}";
 
 #	main rule
