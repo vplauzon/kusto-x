@@ -13,7 +13,10 @@ rule(interleave=false) character = normal::(. - ("\"" | "\r" | "\n" | "\\"))
 rule(interleave=false) quotedCharacter = "\"" c:character "\"";
 
 #	rules
-rule dataflow = "dataflow" "{" "}";
+rule sequence = "sequence" "{" "}";
+rule concurrent = "concurrent" "{" "}";
+rule subFlow = sequence | concurrent;
+rule dataflow = "dataflow" "{" subFlow? "}";
 
 #	main rule
 rule main = dataflow;
