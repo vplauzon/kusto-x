@@ -18,12 +18,23 @@ namespace CoreDataFlow
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 
             using (var stream = embeddedProvider.GetFileInfo("dataflow-grammar.txt").CreateReadStream())
-            using (var reader = new StreamReader(stream))
             {
-                var text = reader.ReadToEnd();
-                var grammar = MetaGrammar.ParseGrammar(text);
+                if (stream == null)
+                {
+                    throw new FileNotFoundException("Can't find grammar file");
+                }
+                using (var reader = new StreamReader(stream))
+                {
+                    var text = reader.ReadToEnd();
+                    var grammar = MetaGrammar.ParseGrammar(text);
 
-                return grammar;
+                    if (grammar == null)
+                    {
+                        throw new NotSupportedException("Grammar couldn't be parsed");
+                    }
+
+                    return grammar;
+                }
             }
         }
     }

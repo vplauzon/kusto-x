@@ -11,12 +11,24 @@ rule(interleave=false) character = normal::(. - ("\"" | "\r" | "\n" | "\\"))
 	| escapeLetter:("\\" l::("n" | "r" | "t" | "v"))
 	| escapeHexa:("\\x" h::("0".."9" | "a".."f" | "A".."F"){1,2});
 rule(interleave=false) quotedCharacter = "\"" c:character "\"";
+rule(interleave=false) integer = number+ => {"integer" : integer(text)};
+rule(interleave=false) boolean = "true" | "false" => {"boolean" : boolean(text)};
 
 #	rules
-rule sequence = "sequence" "{" "}";
-rule parallel = "parallel" "{" "}";
+
+#	command rules
+
+
+#	flow rules
+rule propertyValue = bool:boolean | int:integer;
+rule propertyAssignation = id:identifier "=" value:propertyValue => {"id" : id, "value" : value};
+rule propertyAssignationList = head:propertyAssignation
+	tail:("," pa:propertyAssignation)* => prepend(head, tail);
+rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => list;
+rule sequence = "sequence" withPropertyAssignationList? "{" "}";
+rule parallel = "parallel" withPropertyAssignationList? "{" "}";
 rule subFlow = sequence | parallel;
-rule dataflow = "dataflow" "{" subFlow? "}";
+rule dataflow = "dataflow" props:withPropertyAssignationList? "{" subFlow? "}" => { "properties" : props };
 
 #	main rule
 rule main = dataflow;
