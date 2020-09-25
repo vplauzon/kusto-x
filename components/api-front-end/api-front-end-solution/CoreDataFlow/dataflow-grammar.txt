@@ -3,7 +3,7 @@ rule(interleave=false) comment = "//" (. - ("\r" | "\n"))*;
 interleave = (" " | "\r" | "\n" | "\t") | comment;
 
 #	tokens
-rule(interleave=false, children=false) identifier = ("a".."z" | "A".."Z") ("a".."z" | "A".."Z" | "0".."9")*;
+rule(interleave=false, children=false) identifier = ("a".."z" | "A".."Z") ("a".."z" | "A".."Z" | "0".."9")* => text;
 rule(interleave=false, children=false) number = ("0".."9")+;
 rule(interleave=false) double = "-"? number* ("." number+)?;
 rule(interleave=false) character = normal::(. - ("\"" | "\r" | "\n" | "\\"))
@@ -11,8 +11,8 @@ rule(interleave=false) character = normal::(. - ("\"" | "\r" | "\n" | "\\"))
 	| escapeLetter:("\\" l::("n" | "r" | "t" | "v"))
 	| escapeHexa:("\\x" h::("0".."9" | "a".."f" | "A".."F"){1,2});
 rule(interleave=false) quotedCharacter = "\"" c:character "\"";
-rule(interleave=false) integer = number+ => {"integer" : integer(text)};
-rule(interleave=false) boolean = "true" | "false" => {"boolean" : boolean(text)};
+rule(interleave=false) integer = number+ => integer(text);
+rule(interleave=false) boolean = "true" | "false" => boolean(text);
 
 #	rules
 
@@ -23,12 +23,12 @@ rule(interleave=false) boolean = "true" | "false" => {"boolean" : boolean(text)}
 rule propertyValue = bool:boolean | int:integer;
 rule propertyAssignation = id:identifier "=" value:propertyValue => {"id" : id, "value" : value};
 rule propertyAssignationList = head:propertyAssignation
-	tail:("," pa:propertyAssignation)* => prepend(head, tail);
+	tail:("," pa:propertyAssignation => pa)* => prepend(head, tail);
 rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => list;
 rule sequence = "sequence" withPropertyAssignationList? "{" "}";
 rule parallel = "parallel" withPropertyAssignationList? "{" "}";
 rule subFlow = sequence | parallel;
-rule dataflow = "dataflow" props:withPropertyAssignationList? "{" subFlow? "}" => { "properties" : props };
+rule dataflow = "dataflow" props:withPropertyAssignationList? "{" subFlow:subFlow? "}" => { "properties" : props, "subflow" : subFlow };
 
 #	main rule
 rule main = dataflow;
