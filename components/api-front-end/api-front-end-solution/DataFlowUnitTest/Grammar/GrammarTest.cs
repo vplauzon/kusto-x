@@ -6,6 +6,7 @@ namespace DataFlowUnitTest.Grammar
 {
     public class GrammarTest
     {
+        #region Empty flows
         [Fact]
         public void EmptyDataflow()
         {
@@ -92,6 +93,22 @@ namespace DataFlowUnitTest.Grammar
             {
                 parallel
                 {
+                }
+            }";
+
+            TestText(test);
+        }
+        #endregion
+
+        [Fact]
+        public void SequenceWithOneCommand()
+        {
+            var test = @"dataflow
+            {
+                sequence
+                {
+                    .set-or-replace T <|
+                        datatable (name:string) ['Alice', 'Bob']
                 }
             }";
 

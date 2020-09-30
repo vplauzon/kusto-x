@@ -16,17 +16,24 @@ rule(interleave=false) boolean = "true" | "false" => boolean(text);
 
 #	rules
 
-#	command rules
-
-
-#	flow rules
+#	Property rules
 rule propertyValue = bool:boolean | int:integer;
 rule propertyAssignation = id:identifier "=" value:propertyValue => {"id" : id, "value" : value};
 rule propertyAssignationList = head:propertyAssignation
 	tail:("," pa:propertyAssignation => pa)* => prepend(head, tail);
 rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => list;
-rule sequence = "sequence" withPropertyAssignationList? "{" "}";
-rule parallel = "parallel" withPropertyAssignationList? "{" "}";
+
+#	query rules
+rule query = "datatable (name:string) ['Alice', 'Bob']";
+
+#	command rules
+#https://docs.microsoft.com/en-us/azure/data-explorer/kusto/management/data-ingestion/ingest-from-query
+rule ingestKeywords = ".set" | ".set-or-append" | ".set-or-replace" | ".append";
+rule ingestCommand = ingestKeywords table:identifier properties:withPropertyAssignationList? "<|" query:query;
+
+#	flow rules
+rule sequence = "sequence" withPropertyAssignationList? "{" ingestCommand "}";
+rule parallel = "parallel" withPropertyAssignationList? "{" ingestCommand "}";
 rule subFlow = sequence | parallel;
 rule dataflow = "dataflow" props:withPropertyAssignationList? "{" subFlow:subFlow? "}" => { "properties" : props, "subflow" : subFlow };
 
