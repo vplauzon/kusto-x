@@ -17,7 +17,7 @@ namespace DataFlowUnitTest.Grammar
         }
 
         [Fact]
-        public void EmptyDataflowWithNoProperties()
+        public void EmptyDataflowWithNoProperty()
         {
             var test = @"dataflow with ()
             {
@@ -27,9 +27,19 @@ namespace DataFlowUnitTest.Grammar
         }
 
         [Fact]
-        public void EmptyDataflowWithOneProperties()
+        public void EmptyDataflowWithOneProperty()
         {
             var test = @"dataflow with (a=4)
+            {
+            }";
+
+            TestText(test);
+        }
+
+        [Fact]
+        public void EmptyDataflowWithManyProperties()
+        {
+            var test = @"dataflow with (a=4, ab=true, Z14b=46)
             {
             }";
 
@@ -50,11 +60,24 @@ namespace DataFlowUnitTest.Grammar
         }
 
         [Fact]
-        public void EmptySequenceWithProperties()
+        public void EmptySequenceWithOnePropertyOnFlow()
         {
             var test = @"dataflow with (a=4)
             {
                 sequence
+                {
+                }
+            }";
+
+            TestText(test);
+        }
+
+        [Fact]
+        public void EmptySequenceWithOnePropertiesOnBoth()
+        {
+            var test = @"dataflow with (a=4, banana=true)
+            {
+                sequence with (b42=false)
                 {
                 }
             }";
