@@ -118,9 +118,11 @@ namespace DataFlowUnitTest.Grammar
         private static void TestText(string test)
         {
             var match = GrammarSingleton.Instance.Match("main", test);
-            var output = match.ComputeOutput();
 
             Assert.NotNull(match);
+
+            var output = match.ComputeOutput();
+
             Assert.NotNull(output);
         }
     }

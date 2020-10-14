@@ -32,8 +32,8 @@ rule ingestKeywords = ".set" | ".set-or-append" | ".set-or-replace" | ".append";
 rule ingestCommand = ingestKeywords table:identifier properties:withPropertyAssignationList? "<|" query:query;
 
 #	flow rules
-rule sequence = "sequence" withPropertyAssignationList? "{" ingestCommand "}";
-rule parallel = "parallel" withPropertyAssignationList? "{" ingestCommand "}";
+rule sequence = "sequence" withPropertyAssignationList? "{" ingestCommand* "}";
+rule parallel = "parallel" withPropertyAssignationList? "{" ingestCommand* "}";
 rule subFlow = sequence | parallel;
 rule dataflow = "dataflow" props:withPropertyAssignationList? "{" subFlow:subFlow? "}" => { "properties" : props, "subflow" : subFlow };
 
