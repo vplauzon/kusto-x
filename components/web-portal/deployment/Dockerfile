@@ -15,4 +15,4 @@ EXPOSE 80
 ENV TODO ""
 
 #	Run console app
-CMD ["dotnet", "WebPortal.dll"]
+CMD ["dotnet", "KustoxWebPortal.dll"]

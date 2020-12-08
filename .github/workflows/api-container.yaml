@@ -5,7 +5,7 @@ on:
     branches:
       - master
     paths:
-      - components/api-front-end/**
+      - components/api/**
       - .github/workflows/api-container.yaml
 
 jobs:
@@ -21,21 +21,21 @@ jobs:
         dotnet-version: 3.1.x
     - name: Patch version
       id:  patch-version
-      run: python3 common/deployment/manage-version.py components/api-front-end/deployment/api-version-prefix.txt components/api-front-end/api-front-end-solution/ApiFrontEnd/ApiVersion.cs ${{ github.run_number }} full-version.txt
+      run: python3 common/deployment/manage-version.py components/api/deployment/api-version-prefix.txt components/api/api-solution/KustoxApiFrontEnd/ApiVersion.cs ${{ github.run_number }} full-version.txt
     - name: Install dependencies
-      run: dotnet restore components/api-front-end/api-front-end-solution
+      run: dotnet restore components/api/api-solution
     - name: .NET Build
-      run: dotnet build components/api-front-end/api-front-end-solution --configuration Release --no-restore
+      run: dotnet build components/api/api-solution --configuration Release --no-restore
     - name: Unit Test data flow
-      run: dotnet test components/api-front-end/api-front-end-solution/DataFlowUnitTest --no-restore --verbosity normal
+      run: dotnet test components/api/api-solution/ControlFlowUnitTest --no-restore --verbosity normal
     - name: .NET Publish Web App
-      run: dotnet publish components/api-front-end/api-front-end-solution/ApiFrontEnd --configuration Release --no-restore --output api-pack
+      run: dotnet publish components/api/api-solution/KustoxApiFrontEnd --configuration Release --no-restore --output api-pack
 
     # Docker stuff
     - name:  Docker Login
       run:  docker login -u ${{ secrets.docker_login }} -p ${{ secrets.docker_password }}
     - name:  Docker Build
-      run:  docker build --file components/api-front-end/deployment/Dockerfile --tag ${{ secrets.docker_repo }}/kusto-x-api:${{ steps.patch-version.outputs.full-version }} api-pack
+      run:  docker build --file components/api/deployment/Dockerfile --tag ${{ secrets.docker_repo }}/kusto-x-api:${{ steps.patch-version.outputs.full-version }} api-pack
     - name:  Docker Push ${{ steps.patch-version.outputs.full-version }}
       run:  docker push ${{ secrets.docker_repo }}/kusto-x-api:${{ steps.patch-version.outputs.full-version }}
     - name:  Docker Tag Dev

@@ -21,7 +21,7 @@ jobs:
         dotnet-version: 3.1.x
     - name: Patch version
       id:  patch-version
-      run: python3 common/deployment/manage-version.py components/web-portal/deployment/app-version-prefix.txt components/web-portal/web-portal-solution/WebPortal/AppVersion.cs ${{ github.run_number }} full-version.txt
+      run: python3 common/deployment/manage-version.py components/web-portal/deployment/app-version-prefix.txt components/web-portal/web-portal-solution/KustoxWebPortal/AppVersion.cs ${{ github.run_number }} full-version.txt
     - name: Install dependencies
       run: dotnet restore components/web-portal/web-portal-solution
     - name: .NET Build
@@ -29,7 +29,7 @@ jobs:
     # - name: Test
     #   run: dotnet test components/web-portal/web-portal-solution/**/*UnitTest --no-restore --verbosity normal
     - name: .NET Publish Web App
-      run: dotnet publish components/web-portal/web-portal-solution/WebPortal --configuration Release --no-restore --output web-portal-pack
+      run: dotnet publish components/web-portal/web-portal-solution/KustoxWebPortal --configuration Release --no-restore --output web-portal-pack
 
     # Docker stuff
     - name:  Docker Login
