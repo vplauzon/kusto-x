@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ApiFrontEnd
+namespace KustoxApiFrontEnd
 {
     internal static class ApiVersion
     {

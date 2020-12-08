@@ -1,8 +1,8 @@
-using CoreDataFlow;
+using CoreControlFlow;
 using System;
 using Xunit;
 
-namespace DataFlowUnitTest.Grammar
+namespace ControlFlowUnitTest.Grammar
 {
     public class GrammarTest
     {

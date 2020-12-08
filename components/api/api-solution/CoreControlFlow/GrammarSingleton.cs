@@ -6,7 +6,7 @@ using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace CoreDataFlow
+namespace CoreControlFlow
 {
     public static class GrammarSingleton
     {

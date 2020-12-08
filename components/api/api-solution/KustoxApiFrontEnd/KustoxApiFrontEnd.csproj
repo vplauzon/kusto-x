@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFramework>netcoreapp3.1</TargetFramework>
-    <RootNamespace>ApiFrontEnd</RootNamespace>
+    <RootNamespace>KustoxApiFrontEnd</RootNamespace>
     <LangVersion>9.0</LangVersion>
     <Nullable>enable</Nullable>
   </PropertyGroup>
@@ -16,7 +16,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\IntegrationDataFlow\IntegrationDataFlow.csproj" />
+    <ProjectReference Include="..\IntegrationControlFlow\IntegrationControlFlow.csproj" />
   </ItemGroup>
 
 
