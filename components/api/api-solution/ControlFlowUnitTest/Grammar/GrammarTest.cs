@@ -100,7 +100,7 @@ namespace ControlFlowUnitTest.Grammar
         }
         #endregion
 
-        [Fact]
+        //[Fact]
         public void SequenceWithOneCommand()
         {
             var test = @"dataflow
@@ -115,7 +115,7 @@ namespace ControlFlowUnitTest.Grammar
             TestText(test);
         }
 
-        [Fact]
+        //[Fact]
         public void ParallelWithTwoCommands()
         {
             var test = @"dataflow
