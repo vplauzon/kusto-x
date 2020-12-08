@@ -8,11 +8,11 @@ using Microsoft.Extensions.Logging;
 
 namespace KustoxWebPortal.Pages
 {
-    public class NewDataFlowModel : PageModel
+    public class NewControlFlowModel : PageModel
     {
-        private readonly ILogger<NewDataFlowModel> _logger;
+        private readonly ILogger<NewControlFlowModel> _logger;
 
-        public NewDataFlowModel(ILogger<NewDataFlowModel> logger)
+        public NewControlFlowModel(ILogger<NewControlFlowModel> logger)
         {
             _logger = logger;
         }
