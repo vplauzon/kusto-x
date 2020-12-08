@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
 
-namespace WebPortal.Pages
+namespace KustoxWebPortal.Pages
 {
     public class NewDataFlowModel : PageModel
     {
