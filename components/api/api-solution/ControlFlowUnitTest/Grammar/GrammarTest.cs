@@ -115,6 +115,25 @@ namespace DataFlowUnitTest.Grammar
             TestText(test);
         }
 
+        [Fact]
+        public void ParallelWithTwoCommands()
+        {
+            var test = @"dataflow
+            {
+                sequence
+                {
+                    .set-or-replace T <|
+                        datatable (name:string) ['Alice', 'Bob']
+
+                    .append Table123 <|
+                        TableXyz
+                        | summarize count() by name
+                }
+            }";
+
+            TestText(test);
+        }
+
         private static void TestText(string test)
         {
             var match = GrammarSingleton.Instance.Match("main", test);

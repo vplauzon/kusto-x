@@ -29,11 +29,12 @@ rule query = "datatable (name:string) ['Alice', 'Bob']";
 #	command rules
 #https://docs.microsoft.com/en-us/azure/data-explorer/kusto/management/data-ingestion/ingest-from-query
 rule ingestKeywords = ".set" | ".set-or-append" | ".set-or-replace" | ".append";
-rule ingestCommand = ingestKeywords table:identifier properties:withPropertyAssignationList? "<|" query:query;
+rule(interleave=false) commandBlockSpacer = "\n" (" " | "\t" | "\r")* "\n";
+rule commandBlock = ingestKeywords table:identifier properties:withPropertyAssignationList? "<|" query:query commandBlockSpacer;
 
 #	flow rules
-rule sequence = "sequence" withPropertyAssignationList? "{" ingestCommand* "}";
-rule parallel = "parallel" withPropertyAssignationList? "{" ingestCommand* "}";
+rule sequence = "sequence" withPropertyAssignationList? "{" commandBlock* "}";
+rule parallel = "parallel" withPropertyAssignationList? "{" commandBlock* "}";
 rule subFlow = sequence | parallel;
 rule dataflow = "dataflow" props:withPropertyAssignationList? "{" subFlow:subFlow? "}" => { "properties" : props, "subflow" : subFlow };
 

@@ -1,4 +1,4 @@
-# Web Portal
+# Kusto-X Web Portal
 
 This solution is the User Web Portal application.
 

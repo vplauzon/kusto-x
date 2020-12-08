@@ -1,4 +1,4 @@
-# API Front-end
+# Kusto-X API Front-end
 
 This solution is the front-end for all APIs.
 
