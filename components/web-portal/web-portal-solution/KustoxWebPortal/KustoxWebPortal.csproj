@@ -12,4 +12,8 @@
     <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="GramParser" Version="0.4.1.29-alpha" />
+  </ItemGroup>
+
 </Project>
