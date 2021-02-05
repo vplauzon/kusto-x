@@ -41,7 +41,7 @@ Snapshots are used extensively in Kusto-X.  Here is a simple example:
 
 ```kusto
 @control-flow{
-    snapshot(names){
+    @snapshot(names){
         datatable(name:string) ["Alice", "Bob"]
     }
 
@@ -56,11 +56,11 @@ A powerful feature of snapshots is they can be used in commands where literals (
 
 ```kusto
 @control-flow{
-    snapshot(names){
+    @snapshot(names){
         datatable(name:string) ["Alice", "Bob"]
     }
 
-    snapshot(date) with (scalar=true){
+    @snapshot(date) with (scalar=true){
         print ago(3d)
     }
 
@@ -77,7 +77,7 @@ A snapshot can capture a Kusto query or a Kusto command:
 
 ```kusto
 @control-flow{
-    snapshot(names){
+    @snapshot(names){
         .show tables 
         | project name=TableName
     }
@@ -93,7 +93,7 @@ A grouping allows to run more than one command:
 
 ```kusto
 @control-flow{
-    grouping{
+    @grouping{
         .append sampleTable <|
             datatable(name:string) ["Alice", "Bob"]
 
@@ -111,7 +111,7 @@ By default grouping runs commands sequentially.  They can also run commands in p
 
 ```kusto
 @control-flow{
-    grouping with (concurrency=2){
+    @grouping with (concurrency=2){
         .append sampleTable <|
             datatable(name:string) ["Alice", "Bob"]
 
@@ -129,7 +129,7 @@ The level of concurrency can be any integer.  Zero (0) means no concurrency, whi
 
 ```kusto
 @control-flow{
-    snapshot(tableNotExist) with (scalar=true){
+    @snapshot(tableNotExist) with (scalar=true){
         .show tables 
         | where TableName == "nyc_taxi"
         | count
@@ -155,11 +155,11 @@ A `if` can be by itself (i.e. without `else`) or `else if` can also be used to a
 
 ```kusto
 @control-flow{
-    snapshot(names){
+    @snapshot(names){
         datatable(name:string) ["Alice", "Bob"]
     }
 
-    foreach name in names
+    @foreach name in names
     {
         .append sampleTable <|
             print name=name
