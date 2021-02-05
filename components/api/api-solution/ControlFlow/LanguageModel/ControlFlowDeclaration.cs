@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace ControlFlow
+namespace ControlFlow.LanguageModel
 {
     public class ControlFlowDeclaration
     {

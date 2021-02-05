@@ -10,7 +10,7 @@ namespace ControlFlowUnitTest
         [Fact]
         public void EmptyDataflow()
         {
-            var test = @"control-flow{
+            var test = @"@control-flow{
             }";
          
             AssertDeclaration(test);
@@ -19,7 +19,7 @@ namespace ControlFlowUnitTest
         [Fact]
         public void EmptyDataflowWithNoProperty()
         {
-            var test = @"control-flow with (){
+            var test = @"@control-flow with (){
             }";
 
             AssertDeclaration(test);
@@ -28,7 +28,7 @@ namespace ControlFlowUnitTest
         [Fact]
         public void EmptyDataflowWithOneProperty()
         {
-            var test = @"control-flow with (a=4){
+            var test = @"@control-flow with (a=4){
             }";
 
             AssertDeclaration(test);
@@ -37,17 +37,17 @@ namespace ControlFlowUnitTest
         [Fact]
         public void EmptyDataflowWithManyProperties()
         {
-            var test = @"control-flow with (a=4, ab=true, Z14b=46){
+            var test = @"@control-flow with (a=4, ab=true, Z14b=46){
             }";
 
             AssertDeclaration(test);
         }
 
         [Fact]
-        public void EmptySequence()
+        public void EmptyGrouping()
         {
-            var test = @"control-flow{
-                sequence{
+            var test = @"@control-flow{
+                @grouping{
                 }
             }";
 
@@ -55,10 +55,10 @@ namespace ControlFlowUnitTest
         }
 
         [Fact]
-        public void EmptySequenceWithOnePropertyOnFlow()
+        public void EmptyGroupingWithOnePropertyOnFlow()
         {
-            var test = @"control-flow with (a=4){
-                sequence{
+            var test = @"@control-flow with (a=4){
+                @grouping{
                 }
             }";
 
@@ -66,57 +66,16 @@ namespace ControlFlowUnitTest
         }
 
         [Fact]
-        public void EmptySequenceWithOnePropertiesOnBoth()
+        public void EmptyGroupingWithOnePropertiesOnBoth()
         {
-            var test = @"control-flow with (a=4, banana=true){
-                sequence with (b42=false){
-                }
-            }";
-
-            AssertDeclaration(test);
-        }
-
-        [Fact]
-        public void EmptyParallel()
-        {
-            var test = @"control-flow{
-                parallel{
+            var test = @"@control-flow with (a=4, a=true){
+                @grouping with (concurrency=2){
                 }
             }";
 
             AssertDeclaration(test);
         }
         #endregion
-
-        [Fact]
-        public void SequenceWithOneCommand()
-        {
-            var test = @"control-flow{
-                sequence{
-                    .set-or-replace T <|
-                        datatable (name:string) ['Alice', 'Bob']
-                }
-            }";
-
-            AssertDeclaration(test);
-        }
-
-        [Fact]
-        public void ParallelWithTwoCommands()
-        {
-            var test = @"control-flow{
-                sequence{
-                    .set-or-replace T <|
-                        datatable (name:string) ['Alice', 'Bob']
-
-                    .append Table123 <|
-                        TableXyz
-                        | summarize count() by name
-                }
-            }";
-
-            AssertDeclaration(test);
-        }
 
         private static void AssertDeclaration(string text)
         {

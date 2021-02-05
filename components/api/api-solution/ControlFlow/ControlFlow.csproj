@@ -23,7 +23,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GramParser" Version="0.5.2.30-alpha" />
+    <PackageReference Include="GramParser" Version="0.5.3.31-alpha" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.8" />
   </ItemGroup>
 

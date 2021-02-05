@@ -30,13 +30,16 @@ rule query = "datatable (name:string) ['Alice', 'Bob']";
 #https://docs.microsoft.com/en-us/azure/data-explorer/kusto/management/data-ingestion/ingest-from-query
 rule ingestKeywords = ".set" | ".set-or-append" | ".set-or-replace" | ".append";
 rule(interleave=false) commandBlockSpacer = "\n" (" " | "\t" | "\r")* "\n";
-rule commandBlock = ingestKeywords table:identifier properties:withPropertyAssignationList? "<|" query:query commandBlockSpacer;
+rule ingestionCommand = ingestKeywords table:identifier properties:withPropertyAssignationList? "<|" query:query commandBlockSpacer;
 
-#	flow rules
-rule sequence = "sequence" withPropertyAssignationList? "{" commandBlock* "}";
-rule parallel = "parallel" withPropertyAssignationList? "{" commandBlock* "}";
-rule subFlow = sequence | parallel;
-rule dataflow = "dataflow" props:withPropertyAssignationList? "{" subFlow:subFlow? "}" => { "properties" : flatten(props), "subflow" : subFlow };
+#	instructions
+rule snapshot = "@snapshot" withPropertyAssignationList? groupingContent;
+rule grouping = "@grouping" props:withPropertyAssignationList? groupingContent:groupingContent;
+rule instruction = grouping => { "grouping" : output };
+rule groupingItem = instruction:instruction | ingestionCommand:ingestionCommand;
+rule groupingContent = "{" snapshots:snapshot* groupingItems:groupingItem* "}";
+rule controlFlow = "@control-flow" props:withPropertyAssignationList? groupingContent:groupingContent
+=> { "properties" : flatten(props), "groupingContent" : groupingContent };
 
 #	main rule
-rule main = dataflow;
+rule main = controlFlow;
