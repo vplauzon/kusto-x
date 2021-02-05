@@ -1,12 +1,11 @@
-﻿using PasLib;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CoreControlFlow
+namespace ControlFlow
 {
     public class Planner
     {
@@ -17,7 +16,7 @@ namespace CoreControlFlow
 
         private Task ParseRequestAsync(string text)
         {
-            GrammarSingleton.Instance.Match("main", text);
+            var declaration = LanguageParser.ParseDeclaration(text);
 
             throw new NotImplementedException();
         }

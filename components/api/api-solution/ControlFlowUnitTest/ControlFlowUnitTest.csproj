@@ -14,12 +14,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CoreControlFlow\CoreControlFlow.csproj" />
-    <ProjectReference Include="..\IntegrationControlFlow\IntegrationControlFlow.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Grammar\" />
+    <ProjectReference Include="..\ControlFlow\ControlFlow.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,4 +1,4 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
@@ -15,7 +15,16 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\CoreControlFlow\CoreControlFlow.csproj" />
+    <None Remove="dataflow-grammar.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="dataflow-grammar.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GramParser" Version="0.5.2.30-alpha" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="3.1.8" />
   </ItemGroup>
 
 </Project>

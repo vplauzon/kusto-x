@@ -1,20 +1,36 @@
-﻿using Microsoft.Extensions.FileProviders;
-using PasLib;
+﻿using GramParserLib;
+using Microsoft.Extensions.FileProviders;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Text;
 
-namespace CoreControlFlow
+namespace ControlFlow
 {
-    public static class GrammarSingleton
+    public static class LanguageParser
     {
-        public static Grammar Instance { get; } = LoadGrammar();
+        private static readonly Grammar _grammarInstance = LoadGrammar();
+
+        public static ControlFlowDeclaration? ParseDeclaration(string text)
+        {
+            var match = _grammarInstance.Match("main", text);
+
+            if (match != null)
+            {
+                var declaration = match.ComputeTypedOutput<ControlFlowDeclaration>();
+
+                return declaration;
+            }
+            else
+            {
+                return null;
+            }
+        }
 
         private static Grammar LoadGrammar()
         {
-            var assembly = typeof(GrammarSingleton).GetTypeInfo().Assembly;
+            var assembly = typeof(LanguageParser).GetTypeInfo().Assembly;
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 
             using (var stream = embeddedProvider.GetFileInfo("dataflow-grammar.txt").CreateReadStream())

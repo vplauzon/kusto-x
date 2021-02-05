@@ -1,4 +1,4 @@
-﻿using IntegrationControlFlow;
+﻿using ControlFlow;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using System.IO;
@@ -8,11 +8,11 @@ namespace KustoxApiFrontEnd.Controllers
 {
     [ApiController]
     [Route("/v1")]
-    public class RequestController : ControllerBase
+    public class ControlFlowController : ControllerBase
     {
         private readonly ILogger<RootController> _logger;
 
-        public RequestController(ILogger<RootController> logger)
+        public ControlFlowController(ILogger<RootController> logger)
         {
             _logger = logger;
         }

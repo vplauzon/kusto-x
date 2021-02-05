@@ -1,127 +1,111 @@
-using CoreControlFlow;
+using ControlFlow;
 using System;
 using Xunit;
 
-namespace ControlFlowUnitTest.Grammar
+namespace ControlFlowUnitTest
 {
-    public class GrammarTest
+    public class PossibleDeclarationTest
     {
         #region Empty flows
         [Fact]
         public void EmptyDataflow()
         {
-            var test = @"dataflow
-            {
+            var test = @"control-flow{
             }";
          
-            TestText(test);
+            AssertDeclaration(test);
         }
 
         [Fact]
         public void EmptyDataflowWithNoProperty()
         {
-            var test = @"dataflow with ()
-            {
+            var test = @"control-flow with (){
             }";
 
-            TestText(test);
+            AssertDeclaration(test);
         }
 
         [Fact]
         public void EmptyDataflowWithOneProperty()
         {
-            var test = @"dataflow with (a=4)
-            {
+            var test = @"control-flow with (a=4){
             }";
 
-            TestText(test);
+            AssertDeclaration(test);
         }
 
         [Fact]
         public void EmptyDataflowWithManyProperties()
         {
-            var test = @"dataflow with (a=4, ab=true, Z14b=46)
-            {
+            var test = @"control-flow with (a=4, ab=true, Z14b=46){
             }";
 
-            TestText(test);
+            AssertDeclaration(test);
         }
 
         [Fact]
         public void EmptySequence()
         {
-            var test = @"dataflow
-            {
-                sequence
-                {
+            var test = @"control-flow{
+                sequence{
                 }
             }";
 
-            TestText(test);
+            AssertDeclaration(test);
         }
 
         [Fact]
         public void EmptySequenceWithOnePropertyOnFlow()
         {
-            var test = @"dataflow with (a=4)
-            {
-                sequence
-                {
+            var test = @"control-flow with (a=4){
+                sequence{
                 }
             }";
 
-            TestText(test);
+            AssertDeclaration(test);
         }
 
         [Fact]
         public void EmptySequenceWithOnePropertiesOnBoth()
         {
-            var test = @"dataflow with (a=4, banana=true)
-            {
-                sequence with (b42=false)
-                {
+            var test = @"control-flow with (a=4, banana=true){
+                sequence with (b42=false){
                 }
             }";
 
-            TestText(test);
+            AssertDeclaration(test);
         }
 
         [Fact]
         public void EmptyParallel()
         {
-            var test = @"dataflow
-            {
-                parallel
-                {
+            var test = @"control-flow{
+                parallel{
                 }
             }";
 
-            TestText(test);
+            AssertDeclaration(test);
         }
         #endregion
 
-        //[Fact]
+        [Fact]
         public void SequenceWithOneCommand()
         {
-            var test = @"dataflow
-            {
-                sequence
-                {
+            var test = @"control-flow{
+                sequence{
                     .set-or-replace T <|
                         datatable (name:string) ['Alice', 'Bob']
                 }
             }";
 
-            TestText(test);
+            AssertDeclaration(test);
         }
 
-        //[Fact]
+        [Fact]
         public void ParallelWithTwoCommands()
         {
-            var test = @"dataflow
-            {
-                sequence
-                {
+            var test = @"control-flow{
+                sequence{
                     .set-or-replace T <|
                         datatable (name:string) ['Alice', 'Bob']
 
@@ -131,18 +115,14 @@ namespace ControlFlowUnitTest.Grammar
                 }
             }";
 
-            TestText(test);
+            AssertDeclaration(test);
         }
 
-        private static void TestText(string test)
+        private static void AssertDeclaration(string text)
         {
-            var match = GrammarSingleton.Instance.Match("main", test);
+            var declaration = LanguageParser.ParseDeclaration(text);
 
-            Assert.NotNull(match);
-
-            var output = match.ComputeOutput();
-
-            Assert.NotNull(output);
+            Assert.NotNull(declaration);
         }
     }
 }
