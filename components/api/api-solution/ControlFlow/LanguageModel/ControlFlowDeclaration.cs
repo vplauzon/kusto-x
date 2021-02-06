@@ -4,7 +4,8 @@ using System.Text;
 
 namespace ControlFlow.LanguageModel
 {
-    public class ControlFlowDeclaration
+    public class ControlFlowDeclaration : PropertiesHolderBase
     {
+        public GroupingContentDeclaration GroupingContent { get; set; } = GroupingContentDeclaration.Empty;
     }
 }

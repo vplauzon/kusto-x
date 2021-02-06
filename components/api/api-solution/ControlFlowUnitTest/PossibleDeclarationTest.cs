@@ -6,43 +6,6 @@ namespace ControlFlowUnitTest
 {
     public class PossibleDeclarationTest
     {
-        #region Empty flows
-        [Fact]
-        public void EmptyDataflow()
-        {
-            var test = @"@control-flow{
-            }";
-         
-            AssertDeclaration(test);
-        }
-
-        [Fact]
-        public void EmptyDataflowWithNoProperty()
-        {
-            var test = @"@control-flow with (){
-            }";
-
-            AssertDeclaration(test);
-        }
-
-        [Fact]
-        public void EmptyDataflowWithOneProperty()
-        {
-            var test = @"@control-flow with (a=4){
-            }";
-
-            AssertDeclaration(test);
-        }
-
-        [Fact]
-        public void EmptyDataflowWithManyProperties()
-        {
-            var test = @"@control-flow with (a=4, ab=true, Z14b=46){
-            }";
-
-            AssertDeclaration(test);
-        }
-
         [Fact]
         public void EmptyGrouping()
         {
@@ -75,7 +38,6 @@ namespace ControlFlowUnitTest
 
             AssertDeclaration(test);
         }
-        #endregion
 
         private static void AssertDeclaration(string text)
         {
