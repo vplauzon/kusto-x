@@ -35,7 +35,7 @@ rule ingestionCommand = ingestKeywords table:identifier properties:withPropertyA
 #	instructions
 rule snapshot = "@snapshot" withPropertyAssignationList? groupingContent;
 rule grouping = "@grouping" props:withPropertyAssignationList? groupingContent:groupingContent;
-rule instruction = grouping => { "grouping" : output };
+rule instruction = grouping => { "grouping" : defaultOutput };
 rule groupingItem = instruction:instruction | ingestionCommand:ingestionCommand;
 rule groupingContent = "{" snapshots:snapshot* groupingItems:groupingItem* "}";
 rule controlFlow = "@control-flow" props:withPropertyAssignationList? groupingContent:groupingContent
