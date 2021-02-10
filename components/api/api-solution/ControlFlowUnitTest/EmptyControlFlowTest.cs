@@ -65,11 +65,12 @@ namespace ControlFlowUnitTest
 
         private static ControlFlowDeclaration ParseDeclaration(string text)
         {
-            var declaration = LanguageParser.ParseDeclaration(text);
+            var declaration = LanguageParser.ParseExtendedCommand(text);
 
             Assert.NotNull(declaration);
+            Assert.NotNull(declaration!.AdHocControlFlow);
 
-            return declaration!;
+            return declaration.AdHocControlFlow!;
         }
     }
 }

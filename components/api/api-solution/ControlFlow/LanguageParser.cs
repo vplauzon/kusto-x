@@ -13,13 +13,13 @@ namespace ControlFlow
     {
         private static readonly Grammar _grammarInstance = LoadGrammar();
 
-        public static ControlFlowDeclaration? ParseDeclaration(string text)
+        public static ExtendedCommandDeclaration? ParseExtendedCommand(string text)
         {
             var match = _grammarInstance.Match("main", text);
 
             if (match != null)
             {
-                var declaration = match.ComputeTypedOutput<ControlFlowDeclaration>();
+                var declaration = match.ComputeTypedOutput<ExtendedCommandDeclaration>();
 
                 return declaration;
             }

@@ -42,4 +42,4 @@ rule controlFlow = "@control-flow" props:withPropertyAssignationList? groupingCo
 => { "properties" : flatten(props), "groupingContent" : groupingContent };
 
 #	main rule
-rule main = controlFlow;
+rule main = controlFlow => { "adHocControlFlow" : defaultOutput };

@@ -41,7 +41,7 @@ namespace ControlFlowUnitTest
 
         private static void AssertDeclaration(string text)
         {
-            var declaration = LanguageParser.ParseDeclaration(text);
+            var declaration = LanguageParser.ParseExtendedCommand(text);
 
             Assert.NotNull(declaration);
         }

@@ -16,7 +16,7 @@ namespace ControlFlow
 
         private Task ParseRequestAsync(string text)
         {
-            var declaration = LanguageParser.ParseDeclaration(text);
+            var declaration = LanguageParser.ParseExtendedCommand(text);
 
             throw new NotImplementedException();
         }
