@@ -17,11 +17,11 @@ rule(interleave=false) boolean = "true" | "false" => boolean(text);
 #	rules
 
 #	Property rules
-rule propertyValue = bool:boolean | int:integer;
-rule propertyAssignation = id:identifier "=" value:propertyValue => {"id" : id, "value" : value};
+rule propertyValue = boolean:boolean | integer:integer;
+rule propertyAssignation = id:identifier "=" value:propertyValue => merge({"id" : id}, value);
 rule propertyAssignationList = head:propertyAssignation
 	tail:("," pa:propertyAssignation => pa)* => prepend(head, tail);
-rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => list;
+rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => flatten(list);
 
 #	query rules
 rule query = "datatable (name:string) ['Alice', 'Bob']";
