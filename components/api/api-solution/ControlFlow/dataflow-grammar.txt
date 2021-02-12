@@ -25,12 +25,16 @@ rule propertyAssignationList = head:propertyAssignation
 rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => flatten(list);
 
 #	query rules
-rule query = "datatable(name:string) ['Alice', 'Bob']";
+rule(interleave=false) queryCharacter = . - ("[" | "]" | "{" | "}" | "(" | ")" | "'" | '"' | ";");
+rule singleQuoted = "'" ((. - "'") | "\'")* "'";
+rule doubleQuoted = '"' ((. - '"') | '\"')* '"';
+rule queryPart = queryCharacter+ | ("[" query "]") | ("(" query ")") | ("{" query "}") | singleQuoted | doubleQuoted;
+rule(recursive=true) query = queryPart+ => text;
 
 #	command rules
 #https://docs.microsoft.com/en-us/azure/data-explorer/kusto/management/data-ingestion/ingest-from-query
-rule ingestKeywords = ".set" | ".set-or-append" | ".set-or-replace" | ".append";
-rule ingestCommand = ingestKeywords "async"? table:identifier properties:withPropertyAssignationList? "<|" query:query;
+rule ingestKeywords = "set" | "set-or-append" | "set-or-replace" | "append";
+rule ingestCommand = "." command:ingestKeywords "async"? table:identifier properties:withPropertyAssignationList? "<|" query:query;
 
 #	instructions
 rule snapshot = "@snapshot" withPropertyAssignationList? groupingContent;

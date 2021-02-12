@@ -16,6 +16,16 @@ namespace ControlFlowUnitTest
             Assert.Empty(declaration.Properties);
             Assert.Single(declaration.GroupingContent.GroupingItems);
             Assert.NotNull(declaration.GroupingContent.GroupingItems[0].IngestCommand);
+            Assert.Empty(declaration.GroupingContent.GroupingItems[0].IngestCommand!.Properties);
+            Assert.Equal(
+                "set",
+                declaration.GroupingContent.GroupingItems[0].IngestCommand!.Command);
+            Assert.Equal(
+                "sampleTable",
+                declaration.GroupingContent.GroupingItems[0].IngestCommand!.Table);
+            Assert.Equal(
+                "datatable(name:string) ['Alice', 'Bob']",
+                declaration.GroupingContent.GroupingItems[0].IngestCommand!.Query);
         }
     }
 }
