@@ -13,7 +13,6 @@ namespace ControlFlowUnitTest
             var declaration = ParseDeclaration(text);
 
             Assert.Empty(declaration.Properties);
-            Assert.Empty(declaration.GroupingContent.Snapshots);
             Assert.Empty(declaration.GroupingContent.GroupingItems);
         }
 
@@ -25,7 +24,6 @@ namespace ControlFlowUnitTest
             var declaration = ParseDeclaration(text);
 
             Assert.Empty(declaration.Properties);
-            Assert.Empty(declaration.GroupingContent.Snapshots);
             Assert.Empty(declaration.GroupingContent.GroupingItems);
         }
 
@@ -39,7 +37,6 @@ namespace ControlFlowUnitTest
 
             Assert.Equal("a", property.Id);
             Assert.Equal(4, property.Integer);
-            Assert.Empty(declaration.GroupingContent.Snapshots);
             Assert.Empty(declaration.GroupingContent.GroupingItems);
         }
 
@@ -57,7 +54,6 @@ namespace ControlFlowUnitTest
             Assert.Equal(true, declaration.Properties[1].Boolean);
             Assert.Equal("Z14b", declaration.Properties[2].Id);
             Assert.Equal(46, declaration.Properties[2].Integer);
-            Assert.Empty(declaration.GroupingContent.Snapshots);
             Assert.Empty(declaration.GroupingContent.GroupingItems);
         }
     }

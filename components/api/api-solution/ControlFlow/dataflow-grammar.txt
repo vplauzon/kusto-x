@@ -13,6 +13,7 @@ rule(interleave=false) character = normal:(. - ("\"" | "\r" | "\n" | "\\"))
 rule(interleave=false) quotedCharacter = "\"" c:character "\"";
 rule(interleave=false) integer = number+ => integer(text);
 rule(interleave=false) boolean = "true" | "false" => boolean(text);
+rule(interleave=false) blockSpacer = "\n" (" " | "\t" | "\r")* "\n";
 
 #	rules
 
@@ -24,20 +25,21 @@ rule propertyAssignationList = head:propertyAssignation
 rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => flatten(list);
 
 #	query rules
-rule query = "datatable (name:string) ['Alice', 'Bob']";
+rule query = "datatable(name:string) ['Alice', 'Bob']";
 
 #	command rules
 #https://docs.microsoft.com/en-us/azure/data-explorer/kusto/management/data-ingestion/ingest-from-query
 rule ingestKeywords = ".set" | ".set-or-append" | ".set-or-replace" | ".append";
-rule(interleave=false) commandBlockSpacer = "\n" (" " | "\t" | "\r")* "\n";
-rule ingestionCommand = ingestKeywords table:identifier properties:withPropertyAssignationList? "<|" query:query commandBlockSpacer;
+rule ingestCommand = ingestKeywords "async"? table:identifier properties:withPropertyAssignationList? "<|" query:query;
 
 #	instructions
 rule snapshot = "@snapshot" withPropertyAssignationList? groupingContent;
 rule grouping = "@grouping" props:withPropertyAssignationList? groupingContent:groupingContent;
 rule instruction = grouping => { "grouping" : defaultOutput };
-rule groupingItem = instruction:instruction | ingestionCommand:ingestionCommand;
-rule groupingContent = "{" snapshots:snapshot* groupingItems:groupingItem* "}";
+rule groupingItem = snapshot:snapshot | instruction:instruction | ingestCommand:ingestCommand;
+rule groupingItemList = head:groupingItem
+	tail:("," i:groupingItem => i)* => prepend(head, tail);
+rule groupingContent = "{" groupingItems:(groupingItemList? => flatten(defaultOutput)) "}";
 rule controlFlow = "@control-flow" props:withPropertyAssignationList? groupingContent:groupingContent
 => { "properties" : flatten(props), "groupingContent" : groupingContent };
 

@@ -50,7 +50,7 @@ Snapshots are used extensively in Kusto-X.  Here is a simple example:
 }
 ```
 
-Snapshots are special instructions.  They need to be at the beginning of a scope.  They are executed first, in order and sequentially (regardless of the concurrency level).
+Snapshots are special instructions.  **They need to be at the beginning of a scope**.  They are executed first, in order and sequentially (regardless of the concurrency level).
 
 A powerful feature of snapshots is they can be used in commands where literals (i.e. constants) are expected.  For instance:
 
@@ -59,7 +59,6 @@ A powerful feature of snapshots is they can be used in commands where literals (
     @snapshot(names){
         datatable(name:string) ["Alice", "Bob"]
     }
-
     @snapshot(date) with (scalar=true){
         print ago(3d)
     }
@@ -95,7 +94,7 @@ A grouping allows to run more than one command:
 @control-flow{
     @grouping{
         .append sampleTable <|
-            datatable(name:string) ["Alice", "Bob"]
+            datatable(name:string) ["Alice", "Bob"];
 
         .append sampleTable <|
             datatable(name:string) ["Carl"]
@@ -105,6 +104,8 @@ A grouping allows to run more than one command:
 
 This control flow would first run the first command than the second one, sequentially.
 
+We notice a semicolon (`;`) at the end of the first ingestion command.  **This is mandatory in Kusto-X to separate the ingestion commands and / or instructions within a grouping**.  The empty line between the two isn't mandatory but possible.
+
 ### Concurrency
 
 By default grouping runs commands sequentially.  They can also run commands in parallel:
@@ -113,7 +114,7 @@ By default grouping runs commands sequentially.  They can also run commands in p
 @control-flow{
     @grouping with (concurrency=2){
         .append sampleTable <|
-            datatable(name:string) ["Alice", "Bob"]
+            datatable(name:string) ["Alice", "Bob"];
 
         .append sampleTable <|
             datatable(name:string) ["Carl"]
@@ -163,7 +164,6 @@ A `if` can be by itself (i.e. without `else`) or `else if` can also be used to a
     {
         .append sampleTable <|
             print name=name
-
     }
 }
 ```

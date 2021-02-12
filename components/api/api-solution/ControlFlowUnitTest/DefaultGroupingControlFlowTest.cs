@@ -14,7 +14,6 @@ namespace ControlFlowUnitTest
             var declaration = ParseDeclaration(text);
 
             Assert.Empty(declaration.Properties);
-            Assert.Empty(declaration.GroupingContent.Snapshots);
             Assert.Single(declaration.GroupingContent.GroupingItems);
             Assert.NotNull(declaration.GroupingContent.GroupingItems[0].IngestCommand);
         }
