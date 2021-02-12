@@ -1,11 +1,9 @@
-using ControlFlow;
-using ControlFlow.LanguageModel;
 using System;
 using Xunit;
 
 namespace ControlFlowUnitTest
 {
-    public class EmptyControlFlowTest
+    public class EmptyControlFlowTest : ControlFlowTestBase
     {
         [Fact]
         public void EmptyControlflow()
@@ -61,16 +59,6 @@ namespace ControlFlowUnitTest
             Assert.Equal(46, declaration.Properties[2].Integer);
             Assert.Empty(declaration.GroupingContent.Snapshots);
             Assert.Empty(declaration.GroupingContent.GroupingItems);
-        }
-
-        private static ControlFlowDeclaration ParseDeclaration(string text)
-        {
-            var declaration = LanguageParser.ParseExtendedCommand(text);
-
-            Assert.NotNull(declaration);
-            Assert.NotNull(declaration!.AdHocControlFlow);
-
-            return declaration.AdHocControlFlow!;
         }
     }
 }
