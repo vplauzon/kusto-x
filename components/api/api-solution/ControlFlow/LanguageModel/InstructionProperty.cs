@@ -5,6 +5,8 @@
         public static InstructionProperty[] Empty { get; } = new InstructionProperty[0];
 
         public string Id { get; set; } = string.Empty;
+        
+        public string? String { get; set; }
 
         public bool? Boolean { get; set; }
 
