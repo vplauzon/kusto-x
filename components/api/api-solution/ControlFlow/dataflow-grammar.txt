@@ -10,8 +10,8 @@ rule(interleave=false) character = normal:(. - ("\"" | "\r" | "\n" | "\\"))
 	| escapeQuote:("\\" "\"") | escapeBackslash:"\\\\"
 	| escapeLetter:("\\" l:("n" | "r" | "t" | "v"))
 	| escapeHexa:("\\x" h:("0".."9" | "a".."f" | "A".."F"){1,2});
-rule(interleave=false) singleQuotableString = ((. - "'") | "\'")* => text;
-rule(interleave=false) doubleQuotableString = ((. - '"') | '\"')* => text;
+rule(interleave=false) singleQuotableString = ((. - "'") | "\\'")* => text;
+rule(interleave=false) doubleQuotableString = ((. - '"') | '\\"')* => text;
 rule(interleave=false) singleQuotedString = "'" quotedString:singleQuotableString "'" => quotedString;
 rule(interleave=false) doubleQuotedString = '"' quotedString:doubleQuotableString '"' => quotedString;
 rule(interleave=false) quotedString = doubleQuotedString | singleQuotedString;
@@ -31,9 +31,7 @@ rule optionalWithPropertyAssignationList = withPropertyAssignationList? => flatt
 
 #	query rules
 rule(interleave=false) queryCharacter = . - ("[" | "]" | "{" | "}" | "(" | ")" | "'" | '"' | ";");
-rule singleQuoted = "'" ((. - "'") | "\'")* "'";
-rule doubleQuoted = '"' ((. - '"') | '\"')* '"';
-rule queryPart = queryCharacter+ | singleQuoted | doubleQuoted | ("(" query ")") | ("[" query "]") | ("{" query "}");
+rule queryPart = queryCharacter+ | quotedString | ("(" query ")") | ("[" query "]") | ("{" query "}");
 rule(recursive=true) query = queryPart+ => text;
 
 #	command rules
@@ -53,7 +51,7 @@ rule grouping = "@grouping" properties:optionalWithPropertyAssignationList group
 rule instruction = grouping => { "grouping" : defaultOutput };
 rule groupingItem = snapshot:snapshot | instruction:instruction | ingestCommand:ingestCommand;
 rule groupingItemList = head:groupingItem
-	tail:("," i:groupingItem => i)* => prepend(head, tail);
+	tail:(";" i:groupingItem => i)* => prepend(head, tail);
 rule groupingContent = "{" groupingItems:(groupingItemList? => flatten(defaultOutput)) "}";
 rule controlFlow
 	= "@control-flow" properties:optionalWithPropertyAssignationList groupingContent:groupingContent;
