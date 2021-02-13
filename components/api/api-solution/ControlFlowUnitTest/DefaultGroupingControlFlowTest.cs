@@ -58,5 +58,42 @@ namespace ControlFlowUnitTest
                 "datatable(name:string) ['Alice', 'Bob']",
                 declaration.GroupingContent.GroupingItems[0].IngestCommand!.Query);
         }
+
+        [Fact]
+        public void TwoIngestCommands()
+        {
+            var text = @"@control-flow{
+                .set sampleTable <| datatable(name:string) ['Alice', 'Bob'];
+                .append sampleTable2 <| sampleTable
+            }";
+            var declaration = ParseDeclaration(text);
+
+            Assert.Empty(declaration.Properties);
+            Assert.Equal(2, declaration.GroupingContent.GroupingItems.Length);
+
+            Assert.NotNull(declaration.GroupingContent.GroupingItems[0].IngestCommand);
+            Assert.Empty(declaration.GroupingContent.GroupingItems[0].IngestCommand!.Properties);
+            Assert.Equal(
+                "set",
+                declaration.GroupingContent.GroupingItems[0].IngestCommand!.Command);
+            Assert.Equal(
+                "sampleTable",
+                declaration.GroupingContent.GroupingItems[0].IngestCommand!.Table);
+            Assert.Equal(
+                "datatable(name:string) ['Alice', 'Bob']",
+                declaration.GroupingContent.GroupingItems[0].IngestCommand!.Query);
+
+            Assert.NotNull(declaration.GroupingContent.GroupingItems[1].IngestCommand);
+            Assert.Empty(declaration.GroupingContent.GroupingItems[1].IngestCommand!.Properties);
+            Assert.Equal(
+                "append",
+                declaration.GroupingContent.GroupingItems[1].IngestCommand!.Command);
+            Assert.Equal(
+                "sampleTable2",
+                declaration.GroupingContent.GroupingItems[1].IngestCommand!.Table);
+            Assert.Equal(
+                "sampleTable",
+                declaration.GroupingContent.GroupingItems[1].IngestCommand!.Query);
+        }
     }
 }

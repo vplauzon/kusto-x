@@ -33,7 +33,7 @@ rule optionalWithPropertyAssignationList = withPropertyAssignationList? => flatt
 rule(interleave=false) queryCharacter = . - ("[" | "]" | "{" | "}" | "(" | ")" | "'" | '"' | ";");
 rule singleQuoted = "'" ((. - "'") | "\'")* "'";
 rule doubleQuoted = '"' ((. - '"') | '\"')* '"';
-rule queryPart = queryCharacter+ | ("[" query "]") | ("(" query ")") | ("{" query "}") | singleQuoted | doubleQuoted;
+rule queryPart = queryCharacter+ | singleQuoted | doubleQuoted | ("(" query ")") | ("[" query "]") | ("{" query "}");
 rule(recursive=true) query = queryPart+ => text;
 
 #	command rules
