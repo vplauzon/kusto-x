@@ -120,6 +120,7 @@ Captures are used extensively in Kusto-X.  Here are different examples:
 
     @capture bigBlobsTable = @get blob list
         | where BlobSize > 1000000
+}
 ```
 
 Captures can't be declared in a grouping of concurrency higher than 1 since that would bring uncertainty between a capture happening and its value being referenced.
