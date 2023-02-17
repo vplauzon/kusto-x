@@ -35,8 +35,8 @@ rule(interleave=false) command = "." (. - "}")+ => text;
 
 #	Control flows
 rule captureScalar = "@capture-scalar" id:identifier "="
-	queryOrCommand:(query:query | command:command);
-rule captureTable = "@capture" id:identifier "=" queryOrCommand:(query:query | command:command);
+	runnable:(query:query | command:command);
+rule captureTable = "@capture" id:identifier "=" runnable:(query:query | command:command);
 rule groupingItem = captureScalar:captureScalar | captureTable:captureTable;
 rule groupingItemList = head:groupingItem
 	tail:(";" i:groupingItem => i)* => prepend(head, tail);

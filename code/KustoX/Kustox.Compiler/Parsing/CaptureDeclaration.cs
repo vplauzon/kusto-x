@@ -4,7 +4,7 @@
     {
         public string Id { get; set; } = string.Empty;
 
-        public QueryOrCommandDeclaration QueryOrCommand { get; set; }
-            = new QueryOrCommandDeclaration();
+        public RunnableDeclaration Runnable { get; set; }
+            = new RunnableDeclaration();
     }
 }
