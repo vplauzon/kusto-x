@@ -6,7 +6,8 @@ namespace Kustox.Compiler.Tests
         public void CaptureConstant()
         {
             var script = @"@control-flow{
-    @capture-scalar myConstant = print 2";
+    @capture-scalar myConstant = print 2
+}";
             var plan = new Compiler().Compile(script);
         }
     }
