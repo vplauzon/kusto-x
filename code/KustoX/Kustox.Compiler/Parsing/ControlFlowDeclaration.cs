@@ -1,6 +1,10 @@
-﻿namespace Kustox.Compiler.Parsing
+﻿using System.Collections.Immutable;
+
+namespace Kustox.Compiler.Parsing
 {
-    public class ControlFlowDeclaration
+    internal class ControlFlowDeclaration
     {
+        public IImmutableList<GroupingItemDeclaration> GroupingContent { get; set; }
+            = new ImmutableArray<GroupingItemDeclaration>();
     }
 }

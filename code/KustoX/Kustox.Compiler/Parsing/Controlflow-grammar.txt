@@ -29,32 +29,22 @@ rule propertyAssignationList = head:propertyAssignation
 rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => flatten(list);
 rule optionalWithPropertyAssignationList = withPropertyAssignationList? => flatten(defaultOutput);
 
-#	query rules
-rule(interleave=false) queryCharacter = . - ("[" | "]" | "{" | "}" | "(" | ")" | "'" | '"' | ";");
-rule queryPart = queryCharacter+ | quotedString | ("(" query ")") | ("[" query "]") | ("{" query "}");
-rule(recursive=true) query = queryPart+ => text;
+# queries
+rule(interleave=false) query = ((. - ".") - "}") (. - "}")* => text;
+rule(interleave=false) command = "." (. - "}")+ => text;
 
-#	command rules
-#https://docs.microsoft.com/en-us/azure/data-explorer/kusto/management/data-ingestion/ingest-from-query
-rule ingestKeywords = "set" | "set-or-append" | "set-or-replace" | "append";
-rule ingestCommand = "."
-	command:ingestKeywords
-	"async"?
-	table:identifier
-	properties:optionalWithPropertyAssignationList
-	"<|"
-	query:query;
-
-#	instructions
-rule snapshot = "@snapshot" optionalWithPropertyAssignationList groupingContent;
-rule grouping = "@grouping" properties:optionalWithPropertyAssignationList groupingContent:groupingContent;
-rule instruction = grouping => { "grouping" : defaultOutput };
-rule groupingItem = snapshot:snapshot | instruction:instruction | ingestCommand:ingestCommand;
+#	Control flows
+rule captureScalar = "@capture-scalar" id:identifier "="
+	queryOrCommand:(query:query | command:command);
+rule captureTable = "@capture" id:identifier "=" queryOrCommand:(query:query | command:command);
+rule groupingItem = captureScalar:captureScalar | captureTable:captureTable;
 rule groupingItemList = head:groupingItem
 	tail:(";" i:groupingItem => i)* => prepend(head, tail);
-rule groupingContent = "{" groupingItems:(groupingItemList? => flatten(defaultOutput)) "}";
-rule controlFlow
-	= "@control-flow" properties:optionalWithPropertyAssignationList groupingContent:groupingContent;
+rule groupingContent = "{" groupingItems:groupingItemList? "}"
+	=> flatten(groupingItems);
+rule controlFlow = "@control-flow"
+	properties:optionalWithPropertyAssignationList
+	groupingContent:groupingContent;
 
 #	main rule
-rule main = controlFlow => { "adHocControlFlow" : defaultOutput };
+rule main = controlFlow;
