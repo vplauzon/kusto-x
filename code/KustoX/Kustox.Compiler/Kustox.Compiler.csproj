@@ -6,4 +6,17 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <None Remove="Parsing\controlflow-grammar.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Include="Parsing\Controlflow-grammar.txt" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="GramParser" Version="0.6.1.1" />
+    <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.3" />
+  </ItemGroup>
+
 </Project>

@@ -1,0 +1,60 @@
+﻿#	Comments & interleaves
+rule(interleave=false) comment = "//" (. - ("\r" | "\n"))*;
+interleave = (" " | "\r" | "\n" | "\t") | comment;
+
+#	tokens
+rule(interleave=false) identifier = ("a".."z" | "A".."Z") ("a".."z" | "A".."Z" | "0".."9")* => text;
+rule(interleave=false) number = ("0".."9")+;
+rule(interleave=false) double = "-"? number* ("." number+)?;
+rule(interleave=false) character = normal:(. - ("\"" | "\r" | "\n" | "\\"))
+	| escapeQuote:("\\" "\"") | escapeBackslash:"\\\\"
+	| escapeLetter:("\\" l:("n" | "r" | "t" | "v"))
+	| escapeHexa:("\\x" h:("0".."9" | "a".."f" | "A".."F"){1,2});
+rule(interleave=false) singleQuotableString = ((. - "'") | "\\'")* => text;
+rule(interleave=false) doubleQuotableString = ((. - '"') | '\\"')* => text;
+rule(interleave=false) singleQuotedString = "'" quotedString:singleQuotableString "'" => quotedString;
+rule(interleave=false) doubleQuotedString = '"' quotedString:doubleQuotableString '"' => quotedString;
+rule(interleave=false) quotedString = doubleQuotedString | singleQuotedString;
+rule(interleave=false) integer = number+ => integer(text);
+rule(interleave=false) boolean = "true" | "false" => boolean(text);
+rule(interleave=false) blockSpacer = "\n" (" " | "\t" | "\r")* "\n";
+
+#	rules
+
+#	Property rules
+rule propertyValue = boolean:boolean | integer:integer | string:quotedString;
+rule propertyAssignation = id:identifier "=" value:propertyValue => merge({"id" : id}, value);
+rule propertyAssignationList = head:propertyAssignation
+	tail:("," pa:propertyAssignation => pa)* => prepend(head, tail);
+rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => flatten(list);
+rule optionalWithPropertyAssignationList = withPropertyAssignationList? => flatten(defaultOutput);
+
+#	query rules
+rule(interleave=false) queryCharacter = . - ("[" | "]" | "{" | "}" | "(" | ")" | "'" | '"' | ";");
+rule queryPart = queryCharacter+ | quotedString | ("(" query ")") | ("[" query "]") | ("{" query "}");
+rule(recursive=true) query = queryPart+ => text;
+
+#	command rules
+#https://docs.microsoft.com/en-us/azure/data-explorer/kusto/management/data-ingestion/ingest-from-query
+rule ingestKeywords = "set" | "set-or-append" | "set-or-replace" | "append";
+rule ingestCommand = "."
+	command:ingestKeywords
+	"async"?
+	table:identifier
+	properties:optionalWithPropertyAssignationList
+	"<|"
+	query:query;
+
+#	instructions
+rule snapshot = "@snapshot" optionalWithPropertyAssignationList groupingContent;
+rule grouping = "@grouping" properties:optionalWithPropertyAssignationList groupingContent:groupingContent;
+rule instruction = grouping => { "grouping" : defaultOutput };
+rule groupingItem = snapshot:snapshot | instruction:instruction | ingestCommand:ingestCommand;
+rule groupingItemList = head:groupingItem
+	tail:(";" i:groupingItem => i)* => prepend(head, tail);
+rule groupingContent = "{" groupingItems:(groupingItemList? => flatten(defaultOutput)) "}";
+rule controlFlow
+	= "@control-flow" properties:optionalWithPropertyAssignationList groupingContent:groupingContent;
+
+#	main rule
+rule main = controlFlow => { "adHocControlFlow" : defaultOutput };
