@@ -35,7 +35,12 @@ rule(interleave=false) command = "." (. - "}")+ => text;
 
 #	Control flows
 rule captureScalar = "@capture-scalar" id:identifier "="
-	runnable:(query:query | command:command);
+	runnable:(query:query | command:command)
+	=> {
+		"id":id,
+		"runnable":runnable,
+		"code":text
+	};
 rule captureTable = "@capture" id:identifier "=" runnable:(query:query | command:command);
 rule groupingItem = captureScalar:captureScalar | captureTable:captureTable;
 rule groupingItemList = head:groupingItem
