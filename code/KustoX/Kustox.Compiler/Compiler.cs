@@ -6,12 +6,16 @@ namespace Kustox.Compiler
     {
         private readonly LanguageParser _parser = new LanguageParser();
 
-        public ControlFlowPlan Compile(string controlFlowScript)
+        public ControlFlowDeclaration? CompileScript(string controlFlowScript)
         {
             var declaration = _parser.ParseControlFlow(controlFlowScript);
-            //var plan = new 
 
-            throw new NotImplementedException();
+            if(declaration != null)
+            {
+                declaration.Validate();
+            }
+
+            return declaration;
         }
     }
 }

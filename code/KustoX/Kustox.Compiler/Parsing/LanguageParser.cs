@@ -19,9 +19,9 @@ namespace Kustox.Compiler.Parsing
 
             if (match != null)
             {
-                var declaration = match.ComputeTypedOutput<ControlFlowDeclaration>();
+                var plan = match.ComputeTypedOutput<ControlFlowDeclaration>();
 
-                return declaration;
+                return plan;
             }
             else
             {

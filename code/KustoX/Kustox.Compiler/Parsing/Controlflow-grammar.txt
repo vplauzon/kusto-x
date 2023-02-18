@@ -35,21 +35,33 @@ rule(interleave=false) command = "." (. - "}")+ => text;
 
 #	Control flows
 rule captureScalar = "@capture-scalar" id:identifier "="
-	runnable:(query:query | command:command)
-	=> {
-		"id":id,
+	runnable:(query:query | command:command) => {
+		"captureName":id,
+		"isScalarCapture":true,
 		"runnable":runnable,
 		"code":text
 	};
-rule captureTable = "@capture" id:identifier "=" runnable:(query:query | command:command);
-rule groupingItem = captureScalar:captureScalar | captureTable:captureTable;
+rule captureTable = "@capture" id:identifier "=" runnable:(query:query | command:command) => {
+		"captureName":id,
+		"isScalarCapture":false,
+		"runnable":runnable,
+		"code":text
+	};
+rule groupingItem = captureScalar | captureTable => {
+		"capturable":defaultOutput
+	};
 rule groupingItemList = head:groupingItem
 	tail:(";" i:groupingItem => i)* => prepend(head, tail);
 rule groupingContent = "{" groupingItems:groupingItemList? "}"
 	=> flatten(groupingItems);
 rule controlFlow = "@control-flow"
 	properties:optionalWithPropertyAssignationList
-	groupingContent:groupingContent;
+	rootGrouping:groupingContent => {
+		"rootGrouping":{
+			"blocks":rootGrouping,
+			"code":text
+		}
+	};
 
 #	main rule
 rule main = controlFlow;

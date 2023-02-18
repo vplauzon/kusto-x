@@ -7,9 +7,13 @@ using System.Threading.Tasks;
 
 namespace Kustox.Compiler
 {
-    public class ControlFlowPlan : PlanBase
+    public class ControlFlowDeclaration : DeclarationBase
     {
-        public GroupingPlan? RootGrouping { get; set; }
+        public ControlFlowDeclaration() : base(false)
+        {
+        }
+
+        public GroupingDeclaration RootGrouping { get; set; } = new GroupingDeclaration();
 
         public override void Validate()
         {
@@ -19,6 +23,7 @@ namespace Kustox.Compiler
             {
                 throw new InvalidDataException($"No '{nameof(RootGrouping)}'");
             }
+            RootGrouping.Validate();
         }
     }
 }
