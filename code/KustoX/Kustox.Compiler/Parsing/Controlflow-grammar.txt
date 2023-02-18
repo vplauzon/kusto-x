@@ -47,7 +47,13 @@ rule captureTable = "@capture" id:identifier "=" runnable:(query:query | command
 		"runnable":runnable,
 		"code":text
 	};
-rule groupingItem = captureScalar | captureTable => {
+rule execCommand = command => {
+		"runnable":{
+			"command":defaultOutput
+		},
+		"code":text
+	};
+rule groupingItem = captureScalar | captureTable | execCommand => {
 		"capturable":defaultOutput
 	};
 rule groupingItemList = head:groupingItem
