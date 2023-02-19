@@ -17,7 +17,7 @@ rule(interleave=false) doubleQuotedString = '"' quotedString:doubleQuotableStrin
 rule(interleave=false) quotedString = doubleQuotedString | singleQuotedString;
 rule(interleave=false) integer = number+ => integer(text);
 rule(interleave=false) boolean = "true" | "false" => boolean(text);
-rule(interleave=false) blockSpacer = "\n" (" " | "\t" | "\r")* "\n";
+rule(interleave=false) blockSpacer = " " | "\t" | "\r";
 
 #	rules
 
@@ -30,8 +30,9 @@ rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" 
 rule optionalWithPropertyAssignationList = withPropertyAssignationList? => flatten(defaultOutput);
 
 # queries
-rule(interleave=false) query = ((. - ".") - "}") (. - "}")* => text;
-rule(interleave=false) command = "." (. - "}")+ => text;
+rule(interleave=false) kqlLine = ((. - "\n")* - blockSpacer*) "\n"=> text;
+rule(interleave=false) query = (. - ".") kqlLine* => text;
+rule(interleave=false) command = "." kqlLine+ => text;
 
 #	Control flows
 rule captureScalar = "@capture-scalar" id:identifier "="
@@ -57,7 +58,7 @@ rule groupingItem = captureScalar | captureTable | execCommand => {
 		"capturable":defaultOutput
 	};
 rule groupingItemList = head:groupingItem
-	tail:(";" i:groupingItem => i)* => prepend(head, tail);
+	tail:groupingItem* => prepend(head, tail);
 rule groupingContent = "{" groupingItems:groupingItemList? "}"
 	=> flatten(groupingItems);
 rule controlFlow = "@control-flow"
