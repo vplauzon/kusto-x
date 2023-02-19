@@ -29,6 +29,9 @@ namespace Kustox.UnitTests.Runtime
             var runtime = new ControlFlowRuntime(jobId, mockPersistency.Object);
 
             await runtime.RunAsync();
+            mockPersistency.Verify(
+                p => p.GetControlFlowDeclarationAsync(jobId),
+                Times.Once());
         }
     }
 }
