@@ -8,4 +8,8 @@
     <WarningLevel>9999</WarningLevel>
   </PropertyGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\Kustox.Compiler\Kustox.Compiler.csproj" />
+  </ItemGroup>
+
 </Project>
