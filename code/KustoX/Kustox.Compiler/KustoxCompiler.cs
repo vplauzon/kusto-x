@@ -2,9 +2,9 @@
 
 namespace Kustox.Compiler
 {
-    public class Compiler
+    public class KustoxCompiler
     {
-        private readonly LanguageParser _parser = new LanguageParser();
+        private readonly KustoxParser _parser = new KustoxParser();
 
         public ControlFlowDeclaration? CompileScript(string controlFlowScript)
         {

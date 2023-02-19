@@ -1,4 +1,6 @@
-namespace Kustox.Compiler.Tests
+using Kustox.Compiler;
+
+namespace Kustox.UnitTests.Compiler
 {
     public class OneLinersTest
     {
@@ -6,7 +8,7 @@ namespace Kustox.Compiler.Tests
         public void Empty()
         {
             var script = @"@control-flow{  }";
-            var controlFlow = new Compiler().CompileScript(script);
+            var controlFlow = new KustoxCompiler().CompileScript(script);
 
             Assert.NotNull(controlFlow);
             Assert.Empty(controlFlow.RootGrouping.Blocks);
@@ -18,7 +20,7 @@ namespace Kustox.Compiler.Tests
             var script = @"@control-flow{
     @capture-scalar myConstant = print 2
 }";
-            var controlFlow = new Compiler().CompileScript(script);
+            var controlFlow = new KustoxCompiler().CompileScript(script);
 
             Assert.NotNull(controlFlow);
             Assert.Single(controlFlow.RootGrouping.Blocks);
@@ -36,7 +38,7 @@ namespace Kustox.Compiler.Tests
             var script = @"@control-flow{
     @capture-scalar myVersionTable = .show version
 }";
-            var controlFlow = new Compiler().CompileScript(script);
+            var controlFlow = new KustoxCompiler().CompileScript(script);
 
             Assert.NotNull(controlFlow);
             Assert.Single(controlFlow.RootGrouping.Blocks);
@@ -54,7 +56,7 @@ namespace Kustox.Compiler.Tests
             var script = @"@control-flow{
     .create table T(Id:string)
 }";
-            var controlFlow = new Compiler().CompileScript(script);
+            var controlFlow = new KustoxCompiler().CompileScript(script);
 
             Assert.NotNull(controlFlow);
             Assert.Single(controlFlow.RootGrouping.Blocks);

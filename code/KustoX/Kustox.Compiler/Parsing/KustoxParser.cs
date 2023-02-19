@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace Kustox.Compiler.Parsing
 {
-    internal class LanguageParser
+    internal class KustoxParser
     {
         private readonly Grammar _grammarInstance = LoadGrammar();
 
@@ -31,7 +31,7 @@ namespace Kustox.Compiler.Parsing
 
         private static Grammar LoadGrammar()
         {
-            var assembly = typeof(LanguageParser).GetTypeInfo().Assembly;
+            var assembly = typeof(KustoxParser).GetTypeInfo().Assembly;
             var embeddedProvider = new EmbeddedFileProvider(Assembly.GetExecutingAssembly());
 
             using (var stream = embeddedProvider

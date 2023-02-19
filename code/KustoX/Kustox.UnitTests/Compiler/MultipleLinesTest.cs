@@ -1,4 +1,6 @@
-namespace Kustox.Compiler.Tests
+using Kustox.Compiler;
+
+namespace Kustox.UnitTests.Compiler
 {
     public class MultipleLinesTest
     {
@@ -10,7 +12,7 @@ namespace Kustox.Compiler.Tests
 
     @capture-scalar myConstant2 = print 4
 }";
-            var controlFlow = new Compiler().CompileScript(script);
+            var controlFlow = new KustoxCompiler().CompileScript(script);
 
             Assert.NotNull(controlFlow);
             Assert.Equal(2, controlFlow.RootGrouping.Blocks.Count());
