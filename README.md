@@ -19,6 +19,8 @@ The Kusto-X language is a super set of the Kusto language.  Here is the most min
 
 The '@' announces a Kusto-X specific command, like a '.' announces a Kusto command.
 
+That control flow script is empty and doesn't do anything.
+
 ## Trivial Control Flow
 
 Having a single Kusto ingestion command in a control flow results in a *trivial* control flow equilvalent to simply running the command:
@@ -80,6 +82,8 @@ The level of `concurrency` can be any integer.  Zero (0) means no concurrency.  
 ## Kusto-X commands
 
 Here are a couple of commands unique to Kusto-X.
+
+### @execute command-text
 
 ### @get blob list
 

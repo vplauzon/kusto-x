@@ -4,6 +4,8 @@ namespace Kustox.Runtime
 {
     public interface IControlFlowPersistency
     {
-        Task<ControlFlowDeclaration> GetControlFlowDeclarationAsync(long jobId);
+        Task<ControlFlowDeclaration> SetupAsync(ControlFlowDeclaration declaration);
+
+        Task<ControlFlowDeclaration> GetDeclarationAsync();
     }
 }
