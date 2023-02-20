@@ -19,18 +19,17 @@ namespace Kustox.UnitTests.Runtime
 
             Assert.NotNull(controlFlowDeclaration);
 
-            var jobId = 42;
-            var mockPersistency = new Mock<IControlFlowPersistency>();
+            var mockPersistency = new Mock<IControlFlowInstance>();
 
             mockPersistency
-                .Setup(p => p.GetControlFlowDeclarationAsync(jobId))
+                .Setup(p => p.GetDeclarationAsync())
                 .Returns(Task.FromResult(controlFlowDeclaration));
 
-            var runtime = new ControlFlowRuntime(jobId, mockPersistency.Object);
+            var runtime = new ControlFlowRuntime(mockPersistency.Object);
 
             await runtime.RunAsync();
             mockPersistency.Verify(
-                p => p.GetControlFlowDeclarationAsync(jobId),
+                p => p.GetDeclarationAsync(),
                 Times.Once());
         }
     }
