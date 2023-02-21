@@ -4,10 +4,10 @@ namespace Kustox.Runtime.State
 {
     public interface IControlFlowInstance
     {
-        Task CreateInstanceAsync(ControlFlowDeclaration declaration);
+        Task CreateInstanceAsync(ControlFlowDeclaration declaration, CancellationToken ct);
         
-        Task DeleteAsync();
+        Task DeleteAsync(CancellationToken ct);
 
-        Task<ControlFlowDeclaration> GetDeclarationAsync();
+        Task<ControlFlowDeclaration> GetDeclarationAsync(CancellationToken ct);
     }
 }

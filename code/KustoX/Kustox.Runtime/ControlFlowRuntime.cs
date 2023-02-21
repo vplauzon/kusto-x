@@ -13,7 +13,7 @@ namespace Kustox.Runtime
 
         public async Task RunAsync(CancellationToken ct = default(CancellationToken))
         {
-            var declaration = await _controlFlowInstance.GetDeclarationAsync();
+            var declaration = await _controlFlowInstance.GetDeclarationAsync(ct);
 
             foreach(var controlFlow in declaration.RootGrouping.Blocks)
             {

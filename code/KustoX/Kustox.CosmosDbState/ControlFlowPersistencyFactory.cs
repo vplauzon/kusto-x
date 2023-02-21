@@ -53,7 +53,8 @@ namespace Kustox.CosmosDbState
             {
                 SerializerOptions = new CosmosSerializationOptions
                 {
-                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
+                    IgnoreNullValues = true
                 }
             };
         }
