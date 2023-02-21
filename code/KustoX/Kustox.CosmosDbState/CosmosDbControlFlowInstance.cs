@@ -20,8 +20,8 @@ namespace Kustox.CosmosDbState
         {
             var declarationData = new DeclarationData(_jobId, declaration);
             var stateData = new ControlFlowStateData(_jobId, ControlFlowState.Running);
-            var batch =
-                _container.CreateTransactionalBatch(new PartitionKey(declarationData.JobId));
+            var batch = _container.CreateTransactionalBatch(
+                ControlFlowDataHelper.JobIdToPartitionKey(_jobId));
 
             batch.CreateItem(declarationData);
             batch.CreateItem(stateData);
@@ -36,10 +36,20 @@ namespace Kustox.CosmosDbState
             throw new NotImplementedException();
         }
 
-        Task<ControlFlowDeclaration> IControlFlowInstance.GetDeclarationAsync()
+        async Task<ControlFlowDeclaration> IControlFlowInstance.GetDeclarationAsync()
         {
-            //declaration.Validate();
-            throw new NotImplementedException();
+            var response = await _container.ReadItemAsync<DeclarationData>(
+                DeclarationData.GetId(_jobId),
+                ControlFlowDataHelper.JobIdToPartitionKey(_jobId));
+            var declaration = response.Resource.Declaration;
+
+            if (declaration == null)
+            {
+                throw new InvalidDataException($"No declaration for job ID '{_jobId}'");
+            }
+            declaration.Validate();
+
+            return declaration;
         }
     }
 }
