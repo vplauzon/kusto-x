@@ -1,8 +1,7 @@
-﻿using Kustox.Compiler;
-using Kustox.Runtime;
+﻿using Kustox.Runtime.State;
 using Microsoft.Azure.Cosmos;
 
-namespace Kustox.CosmosDbPersistency
+namespace Kustox.CosmosDbState
 {
     internal class CosmosDbControlFlowList : IControlFlowList
     {

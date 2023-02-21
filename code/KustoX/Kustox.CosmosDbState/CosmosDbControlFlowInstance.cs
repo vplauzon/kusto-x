@@ -1,9 +1,9 @@
 ﻿using Kustox.Compiler;
-using Kustox.CosmosDbPersistency.DataObjects;
-using Kustox.Runtime;
+using Kustox.CosmosDbState.DataObjects;
+using Kustox.Runtime.State;
 using Microsoft.Azure.Cosmos;
 
-namespace Kustox.CosmosDbPersistency
+namespace Kustox.CosmosDbState
 {
     internal class CosmosDbControlFlowInstance : IControlFlowInstance
     {
@@ -16,14 +16,16 @@ namespace Kustox.CosmosDbPersistency
             _jobId = jobId;
         }
 
-        async Task IControlFlowInstance.SetupAsync(ControlFlowDeclaration declaration)
+        async Task IControlFlowInstance.CreateInstanceAsync(ControlFlowDeclaration declaration)
         {
-            var data = new JobData(
-                null,
-                _jobId.ToString(),
-                declaration);
+            var declarationData = new DeclarationData(_jobId, declaration);
+            var stateData = new ControlFlowStateData(_jobId, ControlFlowState.Running);
+            var batch =
+                _container.CreateTransactionalBatch(new PartitionKey(declarationData.JobId));
 
-            await _container.CreateItemAsync(data, new PartitionKey(_jobId.ToString()));
+            batch.CreateItem(declarationData);
+            batch.CreateItem(stateData);
+            await batch.ExecuteAsync();
         }
 
         Task IControlFlowInstance.DeleteAsync()

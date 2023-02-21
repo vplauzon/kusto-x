@@ -9,9 +9,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kustox.UnitTests", "Kustox.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kustox.Runtime", "Kustox.Runtime\Kustox.Runtime.csproj", "{64B5F137-8625-41B8-8986-E2C4D6A07BB9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kustox.CosmosDbPersistency", "Kustox.CosmosDbPersistency\Kustox.CosmosDbPersistency.csproj", "{CC9120D0-30C3-470D-ACA7-13C56B71DD3D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kustox.IntegratedTests", "Kustox.IntegratedTests\Kustox.IntegratedTests.csproj", "{DDCE4399-2FD9-43E1-895C-31D7FAB7A3AA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kustox.IntegratedTests", "Kustox.IntegratedTests\Kustox.IntegratedTests.csproj", "{DDCE4399-2FD9-43E1-895C-31D7FAB7A3AA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kustox.CosmosDbState", "Kustox.CosmosDbState\Kustox.CosmosDbState.csproj", "{BB5C8585-9419-4E62-8B7C-6D87C9993D69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -31,14 +31,14 @@ Global
 		{64B5F137-8625-41B8-8986-E2C4D6A07BB9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{64B5F137-8625-41B8-8986-E2C4D6A07BB9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{64B5F137-8625-41B8-8986-E2C4D6A07BB9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{CC9120D0-30C3-470D-ACA7-13C56B71DD3D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{CC9120D0-30C3-470D-ACA7-13C56B71DD3D}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{CC9120D0-30C3-470D-ACA7-13C56B71DD3D}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{CC9120D0-30C3-470D-ACA7-13C56B71DD3D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DDCE4399-2FD9-43E1-895C-31D7FAB7A3AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{DDCE4399-2FD9-43E1-895C-31D7FAB7A3AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDCE4399-2FD9-43E1-895C-31D7FAB7A3AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDCE4399-2FD9-43E1-895C-31D7FAB7A3AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB5C8585-9419-4E62-8B7C-6D87C9993D69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB5C8585-9419-4E62-8B7C-6D87C9993D69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB5C8585-9419-4E62-8B7C-6D87C9993D69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB5C8585-9419-4E62-8B7C-6D87C9993D69}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

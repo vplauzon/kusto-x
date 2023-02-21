@@ -1,10 +1,10 @@
 ﻿using Kustox.Compiler;
 
-namespace Kustox.Runtime
+namespace Kustox.Runtime.State
 {
     public interface IControlFlowInstance
     {
-        Task SetupAsync(ControlFlowDeclaration declaration);
+        Task CreateInstanceAsync(ControlFlowDeclaration declaration);
         
         Task DeleteAsync();
 

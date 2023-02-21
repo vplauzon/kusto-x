@@ -1,5 +1,6 @@
-﻿using Kustox.CosmosDbPersistency;
+﻿using Kustox.CosmosDbState;
 using Kustox.Runtime;
+using Kustox.Runtime.State;
 using System;
 using System.Collections.Generic;
 using System.Linq;

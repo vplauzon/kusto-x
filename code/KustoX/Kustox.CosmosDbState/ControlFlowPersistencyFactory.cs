@@ -1,4 +1,4 @@
-﻿using Kustox.Runtime;
+﻿using Kustox.Runtime.State;
 using Microsoft.Azure.Cosmos;
 using System;
 using System.Collections.Generic;
@@ -6,7 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kustox.CosmosDbPersistency
+namespace Kustox.CosmosDbState
 {
     public static class ControlFlowPersistencyFactory
     {
@@ -16,7 +16,8 @@ namespace Kustox.CosmosDbPersistency
             string databaseName,
             string containerName)
         {
-            var client = new CosmosClient(accountEndpoint, accessKey);
+            var client =
+                new CosmosClient(accountEndpoint, accessKey, CreateCosmosClientOptions());
             var container = client.GetContainer(databaseName, containerName);
 
             return new CosmosDbControlFlowList(container);
@@ -44,6 +45,17 @@ namespace Kustox.CosmosDbPersistency
             {
                 return value;
             }
+        }
+
+        private static CosmosClientOptions CreateCosmosClientOptions()
+        {
+            return new CosmosClientOptions
+            {
+                SerializerOptions = new CosmosSerializationOptions
+                {
+                    PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase
+                }
+            };
         }
     }
 }

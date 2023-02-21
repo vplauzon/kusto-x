@@ -12,7 +12,7 @@ namespace Kustox.IntegratedTests
             var flowInstance = CreateControlFlowInstance();
 
             Assert.NotNull(controlFlow);
-            await flowInstance.SetupAsync(controlFlow);
+            await flowInstance.CreateInstanceAsync(controlFlow);
         }
     }
 }
