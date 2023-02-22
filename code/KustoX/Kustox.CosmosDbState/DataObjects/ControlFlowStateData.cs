@@ -16,9 +16,14 @@ namespace Kustox.CosmosDbState.DataObjects
 
         public ControlFlowStateData(long jobId, ControlFlowState state)
         {
-            Id = $"{jobId}.state";
+            Id = GetId(jobId);
             JobId = jobId.ToString();
             State = state.ToString();
+        }
+
+        public static string GetId(long jobId)
+        {
+            return $"{jobId}.state";
         }
 
         public string Id { get; set; } = string.Empty;
@@ -26,5 +31,21 @@ namespace Kustox.CosmosDbState.DataObjects
         public string JobId { get; set; } = string.Empty;
 
         public string State { get; set; } = ControlFlowState.Pending.ToString();
+
+        public long _ts { get; set; }
+
+        public ControlFlowState GetState()
+        {
+            ControlFlowState strongState;
+
+            if (!Enum.TryParse<ControlFlowState>(State, out strongState))
+            {
+                throw new InvalidDataException($"Invalid control state:  '{State}'");
+            }
+            else
+            {
+                return strongState;
+            }
+        }
     }
 }

@@ -1,4 +1,6 @@
-﻿using Kustox.Runtime.State;
+﻿using Kustox.Compiler;
+using Kustox.Runtime.State;
+using System.Xml.Linq;
 
 namespace Kustox.Runtime
 {
@@ -13,11 +15,24 @@ namespace Kustox.Runtime
 
         public async Task RunAsync(CancellationToken ct = default(CancellationToken))
         {
-            var declaration = await _controlFlowInstance.GetDeclarationAsync(ct);
+            var runtimeContext = await RuntimeContext.LoadContextAsync(_controlFlowInstance, ct);
 
-            foreach(var controlFlow in declaration.RootGrouping.Blocks)
+            await RunGroupingAsync(
+                runtimeContext.Declaration.RootGrouping,
+                runtimeContext,
+                ct);
+        }
+
+        private async Task RunGroupingAsync(
+            GroupingDeclaration rootGrouping,
+            RuntimeContext runtimeContext,
+            CancellationToken ct)
+        {
+            foreach (var controlFlow in rootGrouping.Blocks)
             {
             }
+
+            await Task.CompletedTask;
         }
     }
 }

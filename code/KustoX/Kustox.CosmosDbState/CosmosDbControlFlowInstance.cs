@@ -2,6 +2,7 @@
 using Kustox.CosmosDbState.DataObjects;
 using Kustox.Runtime.State;
 using Microsoft.Azure.Cosmos;
+using System.Collections.Immutable;
 
 namespace Kustox.CosmosDbState
 {
@@ -16,12 +17,14 @@ namespace Kustox.CosmosDbState
             _jobId = jobId;
         }
 
+        long IControlFlowInstance.JobId => _jobId;
+
         async Task IControlFlowInstance.CreateInstanceAsync(
             ControlFlowDeclaration declaration,
             CancellationToken ct)
         {
             var declarationData = new DeclarationData(_jobId, declaration);
-            var stateData = new ControlFlowStateData(_jobId, ControlFlowState.Pending);
+            var stateData = new ControlFlowStateData(_jobId, ControlFlowState.Running);
             var batch = _container.CreateTransactionalBatch(
                 ControlFlowDataHelper.JobIdToPartitionKey(_jobId));
 
@@ -55,6 +58,47 @@ namespace Kustox.CosmosDbState
             declaration.Validate();
 
             return declaration;
+        }
+
+        async Task<TimestampedData<ControlFlowState>> IControlFlowInstance.GetControlFlowStateAsync(
+            CancellationToken ct)
+        {
+            var response = await _container.ReadItemAsync<ControlFlowStateData>(
+                ControlFlowStateData.GetId(_jobId),
+                ControlFlowDataHelper.JobIdToPartitionKey(_jobId),
+                null,
+                ct);
+            var stateData = response.Resource;
+
+            if (stateData == null)
+            {
+                throw new InvalidDataException($"No control flow state data for job ID '{_jobId}'");
+            }
+
+            var result = TimestampedData.Create(stateData.GetState(), response.Resource._ts);
+
+            return result;
+        }
+
+        async Task IControlFlowInstance.SetControlFlowStateAsync(
+            ControlFlowState state,
+            CancellationToken ct)
+        {
+            var data = new ControlFlowStateData(_jobId, state);
+            
+            await _container.UpsertItemAsync(
+                data,
+                ControlFlowDataHelper.JobIdToPartitionKey(_jobId),
+                null,
+                ct);
+        }
+
+        async Task<IImmutableList<ControlFlowStep>> IControlFlowInstance.GetStepsAsync(
+            CancellationToken ct)
+        {
+            await Task.CompletedTask;
+
+            return ImmutableArray<ControlFlowStep>.Empty;
         }
     }
 }
