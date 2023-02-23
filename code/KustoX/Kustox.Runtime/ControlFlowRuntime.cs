@@ -61,7 +61,7 @@ namespace Kustox.Runtime
             {
                 var instuction = blocks[i];
 
-                await RunInstructionAsync(instuction, levelContext, ct);
+                await RunInstructionAsync(instuction, levelContext.DiveOneLevel(i), ct);
             }
         }
 

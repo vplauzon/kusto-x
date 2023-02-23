@@ -89,5 +89,14 @@ namespace Kustox.Runtime
                 table,
                 ct);
         }
+
+        public RuntimeLevelContext DiveOneLevel(int index)
+        {
+            return new RuntimeLevelContext(
+                _controlFlowInstance,
+                Declaration,
+                _levelPrefixes.Add(index),
+                ImmutableArray<ControlFlowStep>.Empty);
+        }
     }
 }

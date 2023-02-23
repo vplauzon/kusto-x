@@ -24,6 +24,7 @@ namespace Kustox.CosmosDbState.DataObjects
         {
             Id = GetId(jobId, indexes);
             JobId = jobId.ToString();
+            Indexes = indexes;
             CaptureName = captureName;
             IsScalarCapture = isScalarCapture;
             CaptureTable = captureTable;
@@ -39,6 +40,8 @@ namespace Kustox.CosmosDbState.DataObjects
         public string Id { get; set; } = string.Empty;
 
         public string JobId { get; set; } = string.Empty;
+
+        public IImmutableList<int> Indexes { get; set; } = ImmutableArray<int>.Empty;
 
         public string? CaptureName { get; set; }
 
