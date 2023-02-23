@@ -4,11 +4,16 @@ namespace Kustox.Runtime.State
 {
     public class ControlFlowStep
     {
-        public ControlFlowStep(IImmutableList<long> stepBreadcrumb, StepState state, int retry)
+        public ControlFlowStep(
+            IImmutableList<long> stepBreadcrumb,
+            StepState state,
+            int retry,
+            long timestamp)
         {
             StepBreadcrumb = stepBreadcrumb;
             State = state;
             Retry = retry;
+            Timestamp = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime;
         }
 
         public IImmutableList<long> StepBreadcrumb { get; }
@@ -16,5 +21,7 @@ namespace Kustox.Runtime.State
         public StepState State { get; }
 
         public int Retry { get; }
+     
+        public DateTime Timestamp { get; }
     }
 }

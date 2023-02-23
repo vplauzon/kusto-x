@@ -1,6 +1,7 @@
 ﻿using Kustox.Compiler;
 using Kustox.Runtime.State;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
@@ -12,21 +13,27 @@ namespace Kustox.Runtime
 {
     internal class RuntimeLevelContext
     {
+        #region Inner Types
+        private record A();
+        #endregion
+
         private readonly IControlFlowInstance _controlFlowInstance;
-        private readonly IImmutableList<int> _stepPrefixes;
-        private readonly IImmutableList<ControlFlowStep> _steps;
+        private readonly IImmutableList<int> _levelPrefixes;
+        private readonly List<ControlFlowStep> _currentLevelSteps;
+        //private readonly ConcurrentDictionary<string, IImmutableList<ControlFlowStep>>
+        //    _loadedAheadIndexedSteps;
 
         #region Constructors
         private RuntimeLevelContext(
             IControlFlowInstance controlFlowInstance,
             ControlFlowDeclaration declaration,
-            IImmutableList<int> stepPrefixes,
-            IImmutableList<ControlFlowStep> steps)
+            IImmutableList<int> levelPrefixes,
+            IImmutableList<ControlFlowStep> currentLevelSteps)
         {
             _controlFlowInstance = controlFlowInstance;
             Declaration = declaration;
-            _stepPrefixes = stepPrefixes;
-            _steps = steps;
+            _levelPrefixes = levelPrefixes;
+            _currentLevelSteps = currentLevelSteps.ToList();
         }
 
         public async static Task<RuntimeLevelContext> LoadContextAsync(
@@ -63,13 +70,9 @@ namespace Kustox.Runtime
 
         public ControlFlowDeclaration Declaration { get; }
 
-        public async Task EnsureStepsAsync(int stepCount, CancellationToken ct)
+        public IImmutableList<ControlFlowStep> GetSteps()
         {
-            if(!_steps.Any())
-            {
-                //await  _controlFlowInstance.CreateStepsAsync(ct);
-            }
-            await Task.CompletedTask;
+            return _currentLevelSteps.ToImmutableList();
         }
     }
 }

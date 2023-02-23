@@ -24,16 +24,43 @@ namespace Kustox.Runtime
                 ct);
         }
 
+        private async Task RunInstructionAsync(
+            BlockDeclaration instuction,
+            RuntimeLevelContext levelContext,
+            CancellationToken ct)
+        {
+            if (instuction.Capturable != null)
+            {
+                await RunCapturableAsync(instuction.Capturable, levelContext, ct);
+            }
+            else
+            {
+                throw new NotSupportedException("Block declaration");
+            }
+        }
+
         private async Task RunSequenceAsync(
             SequenceDeclaration sequence,
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
-            await levelContext.EnsureStepsAsync(sequence.Blocks.Count(), ct);
-         
-            foreach (var instruction in sequence.Blocks)
+            //var steps = levelContext.GetSteps();
+            var blocks = sequence.Blocks;
+
+            for (int i = 0; i != blocks.Count(); ++i)
             {
+                var instuction = blocks[i];
+
+                await RunInstructionAsync(instuction, levelContext, ct);
             }
+        }
+
+        private Task RunCapturableAsync(
+            CaptureDeclaration capturable,
+            RuntimeLevelContext levelContext,
+            CancellationToken ct)
+        {
+            throw new NotImplementedException();
         }
     }
 }
