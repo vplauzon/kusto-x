@@ -1,6 +1,6 @@
 using Kustox.Compiler;
 
-namespace Kustox.UnitTests.Compiler
+namespace Kustox.UnitTests
 {
     public class MultipleLinesTest
     {
