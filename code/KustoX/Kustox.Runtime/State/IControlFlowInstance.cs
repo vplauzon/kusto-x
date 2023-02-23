@@ -18,5 +18,7 @@ namespace Kustox.Runtime.State
         Task<IImmutableList<ControlFlowStep>> GetStepsAsync(CancellationToken ct);
         
         Task SetControlFlowStateAsync(ControlFlowState state, CancellationToken ct);
+        
+        //Task CreateStepsAsync(CancellationToken ct);
     }
 }

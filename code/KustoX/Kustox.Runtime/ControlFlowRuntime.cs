@@ -24,15 +24,15 @@ namespace Kustox.Runtime
         }
 
         private async Task RunGroupingAsync(
-            GroupingDeclaration rootGrouping,
+            GroupingDeclaration grouping,
             RuntimeContext runtimeContext,
             CancellationToken ct)
         {
-            foreach (var controlFlow in rootGrouping.Blocks)
+            await runtimeContext.EnsureStepsAsync(grouping.Blocks.Count(), ct);
+         
+            foreach (var instruction in grouping.Blocks)
             {
             }
-
-            await Task.CompletedTask;
         }
     }
 }

@@ -62,5 +62,13 @@ namespace Kustox.Runtime
         #endregion
 
         public ControlFlowDeclaration Declaration { get; }
+
+        public async Task EnsureStepsAsync(int stepCount, CancellationToken ct)
+        {
+            if(!_steps.Any())
+            {
+                await  _controlFlowInstance.CreateStepsAsync(ct);
+            }
+        }
     }
 }
