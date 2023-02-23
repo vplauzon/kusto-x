@@ -56,11 +56,22 @@ namespace Kustox.Runtime
         }
 
         private Task RunCapturableAsync(
-            CaptureDeclaration capturable,
+            CaptureDeclaration declaration,
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
-            throw new NotImplementedException();
+            if (declaration.Runnable.Query != null)
+            {
+                throw new NotImplementedException();
+            }
+            else if (declaration.Runnable.Command != null)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                throw new NotSupportedException("runnable must be either query or command");
+            }
         }
     }
 }
