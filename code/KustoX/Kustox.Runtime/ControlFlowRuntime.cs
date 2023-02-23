@@ -15,22 +15,22 @@ namespace Kustox.Runtime
 
         public async Task RunAsync(CancellationToken ct = default(CancellationToken))
         {
-            var runtimeContext = await RuntimeLevelContext.LoadContextAsync(_controlFlowInstance, ct);
+            var levelContext = await RuntimeLevelContext.LoadContextAsync(_controlFlowInstance, ct);
 
-            await RunGroupingAsync(
-                runtimeContext.Declaration.RootSequence,
-                runtimeContext,
+            await RunSequenceAsync(
+                levelContext.Declaration.RootSequence,
+                levelContext,
                 ct);
         }
 
-        private async Task RunGroupingAsync(
-            SequenceDeclaration grouping,
-            RuntimeLevelContext runtimeContext,
+        private async Task RunSequenceAsync(
+            SequenceDeclaration sequence,
+            RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
-            await runtimeContext.EnsureStepsAsync(grouping.Blocks.Count(), ct);
+            await levelContext.EnsureStepsAsync(sequence.Blocks.Count(), ct);
          
-            foreach (var instruction in grouping.Blocks)
+            foreach (var instruction in sequence.Blocks)
             {
             }
         }
