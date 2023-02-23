@@ -15,7 +15,8 @@ namespace Kustox.Runtime
 
         public async Task RunAsync(CancellationToken ct = default(CancellationToken))
         {
-            var levelContext = await RuntimeLevelContext.LoadContextAsync(_controlFlowInstance, ct);
+            var levelContext =
+                await RuntimeLevelContext.LoadContextAsync(_controlFlowInstance, ct);
 
             await RunSequenceAsync(
                 levelContext.Declaration.RootSequence,
