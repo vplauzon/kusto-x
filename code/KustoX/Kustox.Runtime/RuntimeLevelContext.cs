@@ -10,14 +10,14 @@ using System.Threading.Tasks;
 
 namespace Kustox.Runtime
 {
-    internal class RuntimeContext
+    internal class RuntimeLevelContext
     {
         private readonly IControlFlowInstance _controlFlowInstance;
         private readonly IImmutableList<int> _stepPrefixes;
         private readonly IImmutableList<ControlFlowStep> _steps;
 
         #region Constructors
-        private RuntimeContext(
+        private RuntimeLevelContext(
             IControlFlowInstance controlFlowInstance,
             ControlFlowDeclaration declaration,
             IImmutableList<int> stepPrefixes,
@@ -29,7 +29,7 @@ namespace Kustox.Runtime
             _steps = steps;
         }
 
-        public async static Task<RuntimeContext> LoadContextAsync(
+        public async static Task<RuntimeLevelContext> LoadContextAsync(
             IControlFlowInstance controlFlowInstance,
             CancellationToken ct)
         {
@@ -53,7 +53,7 @@ namespace Kustox.Runtime
                         $"Control flow (job id = '{controlFlowInstance.JobId}')");
             }
 
-            return new RuntimeContext(
+            return new RuntimeLevelContext(
                 controlFlowInstance,
                 declaration,
                 ImmutableArray<int>.Empty,

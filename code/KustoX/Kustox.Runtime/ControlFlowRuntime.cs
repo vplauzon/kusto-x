@@ -15,7 +15,7 @@ namespace Kustox.Runtime
 
         public async Task RunAsync(CancellationToken ct = default(CancellationToken))
         {
-            var runtimeContext = await RuntimeContext.LoadContextAsync(_controlFlowInstance, ct);
+            var runtimeContext = await RuntimeLevelContext.LoadContextAsync(_controlFlowInstance, ct);
 
             await RunGroupingAsync(
                 runtimeContext.Declaration.RootSequence,
@@ -25,7 +25,7 @@ namespace Kustox.Runtime
 
         private async Task RunGroupingAsync(
             SequenceDeclaration grouping,
-            RuntimeContext runtimeContext,
+            RuntimeLevelContext runtimeContext,
             CancellationToken ct)
         {
             await runtimeContext.EnsureStepsAsync(grouping.Blocks.Count(), ct);
