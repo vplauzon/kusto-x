@@ -2,7 +2,7 @@
 
 namespace Kustox.Compiler
 {
-    public class GroupingDeclaration : DeclarationBase
+    public class SequenceDeclaration : DeclarationBase
     {
         public IImmutableList<BlockDeclaration> Blocks { get; set; }
             = new ImmutableArray<BlockDeclaration>();

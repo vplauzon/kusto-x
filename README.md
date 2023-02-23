@@ -33,25 +33,9 @@ Having a single Kusto ingestion command in a control flow results in a *trivial*
 
 The only difference between running this control flow and running the command directly is retry upon.
 
-## Grouping
+## Sequence
 
-A grouping allows to run more than one command:
-
-```kusto
-@control-flow{
-    @grouping{
-        .create table T1(Id:string)
-
-        .create table T2(Id:string)
-    }
-}
-```
-
-This control flow would first run the first command than the second one, sequentially.
-
-We notice an empty line between commands:  **this is mandatory in Kusto-X to separate the ingestion commands and / or instructions within a grouping**.
-
-A control flow is a grouping by default.  That means the control flow above is equivalent to:
+A sequence allows to run more than one command:
 
 ```kusto
 @control-flow{
@@ -60,6 +44,12 @@ A control flow is a grouping by default.  That means the control flow above is e
     .create table T2(Id:string)
 }
 ```
+
+This control flow would first run the first command than the second one, sequentially.
+
+We notice an empty line between commands:  **this is mandatory in Kusto-X to separate the ingestion commands and / or instructions within a sequence**.
+
+Sequences are present at the root of a control flow, in an if-else statement and foreach-loops.
 
 ### Concurrency
 

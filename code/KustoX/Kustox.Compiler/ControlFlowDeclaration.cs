@@ -13,17 +13,17 @@ namespace Kustox.Compiler
         {
         }
 
-        public GroupingDeclaration RootGrouping { get; set; } = new GroupingDeclaration();
+        public SequenceDeclaration RootSequence { get; set; } = new SequenceDeclaration();
 
         public override void Validate()
         {
             base.Validate();
 
-            if (RootGrouping == null)
+            if (RootSequence == null)
             {
-                throw new InvalidDataException($"No '{nameof(RootGrouping)}'");
+                throw new InvalidDataException($"No '{nameof(RootSequence)}'");
             }
-            RootGrouping.Validate();
+            RootSequence.Validate();
         }
     }
 }

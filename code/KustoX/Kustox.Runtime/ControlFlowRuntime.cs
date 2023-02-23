@@ -18,13 +18,13 @@ namespace Kustox.Runtime
             var runtimeContext = await RuntimeContext.LoadContextAsync(_controlFlowInstance, ct);
 
             await RunGroupingAsync(
-                runtimeContext.Declaration.RootGrouping,
+                runtimeContext.Declaration.RootSequence,
                 runtimeContext,
                 ct);
         }
 
         private async Task RunGroupingAsync(
-            GroupingDeclaration grouping,
+            SequenceDeclaration grouping,
             RuntimeContext runtimeContext,
             CancellationToken ct)
         {

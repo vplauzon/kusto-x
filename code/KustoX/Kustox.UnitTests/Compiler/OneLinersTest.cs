@@ -11,7 +11,7 @@ namespace Kustox.UnitTests.Compiler
             var controlFlow = new KustoxCompiler().CompileScript(script);
 
             Assert.NotNull(controlFlow);
-            Assert.Empty(controlFlow.RootGrouping.Blocks);
+            Assert.Empty(controlFlow.RootSequence.Blocks);
         }
 
         [Fact]
@@ -23,13 +23,13 @@ namespace Kustox.UnitTests.Compiler
             var controlFlow = new KustoxCompiler().CompileScript(script);
 
             Assert.NotNull(controlFlow);
-            Assert.Single(controlFlow.RootGrouping.Blocks);
-            Assert.NotNull(controlFlow.RootGrouping.Blocks.First().Capturable);
-            Assert.True(controlFlow.RootGrouping.Blocks.First().Capturable!.IsScalarCapture);
+            Assert.Single(controlFlow.RootSequence.Blocks);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable);
+            Assert.True(controlFlow.RootSequence.Blocks.First().Capturable!.IsScalarCapture);
             Assert.Equal(
                 "myConstant",
-                controlFlow.RootGrouping.Blocks.First().Capturable!.CaptureName);
-            Assert.NotNull(controlFlow.RootGrouping.Blocks.First().Capturable!.Runnable.Query);
+                controlFlow.RootSequence.Blocks.First().Capturable!.CaptureName);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable!.Runnable.Query);
         }
 
         [Fact]
@@ -41,13 +41,13 @@ namespace Kustox.UnitTests.Compiler
             var controlFlow = new KustoxCompiler().CompileScript(script);
 
             Assert.NotNull(controlFlow);
-            Assert.Single(controlFlow.RootGrouping.Blocks);
-            Assert.NotNull(controlFlow.RootGrouping.Blocks.First().Capturable);
-            Assert.True(controlFlow.RootGrouping.Blocks.First().Capturable!.IsScalarCapture);
+            Assert.Single(controlFlow.RootSequence.Blocks);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable);
+            Assert.True(controlFlow.RootSequence.Blocks.First().Capturable!.IsScalarCapture);
             Assert.Equal(
                 "myVersionTable",
-                controlFlow.RootGrouping.Blocks.First().Capturable!.CaptureName);
-            Assert.NotNull(controlFlow.RootGrouping.Blocks.First().Capturable!.Runnable.Command);
+                controlFlow.RootSequence.Blocks.First().Capturable!.CaptureName);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable!.Runnable.Command);
         }
 
         [Fact]
@@ -59,11 +59,11 @@ namespace Kustox.UnitTests.Compiler
             var controlFlow = new KustoxCompiler().CompileScript(script);
 
             Assert.NotNull(controlFlow);
-            Assert.Single(controlFlow.RootGrouping.Blocks);
-            Assert.NotNull(controlFlow.RootGrouping.Blocks.First().Capturable);
-            Assert.Null(controlFlow.RootGrouping.Blocks.First().Capturable!.CaptureName);
-            Assert.Null(controlFlow.RootGrouping.Blocks.First().Capturable!.IsScalarCapture);
-            Assert.NotNull(controlFlow.RootGrouping.Blocks.First().Capturable!.Runnable.Command);
+            Assert.Single(controlFlow.RootSequence.Blocks);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable);
+            Assert.Null(controlFlow.RootSequence.Blocks.First().Capturable!.CaptureName);
+            Assert.Null(controlFlow.RootSequence.Blocks.First().Capturable!.IsScalarCapture);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable!.Runnable.Command);
         }
     }
 }

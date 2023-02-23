@@ -69,6 +69,7 @@ namespace Kustox.Runtime
             {
                 //await  _controlFlowInstance.CreateStepsAsync(ct);
             }
+            await Task.CompletedTask;
         }
     }
 }

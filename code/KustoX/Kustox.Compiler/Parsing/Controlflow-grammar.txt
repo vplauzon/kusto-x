@@ -54,18 +54,18 @@ rule execCommand = command => {
 		},
 		"code":text
 	};
-rule groupingItem = captureScalar | captureTable | execCommand => {
+rule sequenceItem = captureScalar | captureTable | execCommand => {
 		"capturable":defaultOutput
 	};
-rule groupingItemList = head:groupingItem
-	tail:groupingItem* => prepend(head, tail);
-rule groupingContent = "{" groupingItems:groupingItemList? "}"
-	=> flatten(groupingItems);
+rule sequenceItemList = head:sequenceItem
+	tail:sequenceItem* => prepend(head, tail);
+rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"
+	=> flatten(sequenceItems);
 rule controlFlow = "@control-flow"
 	properties:optionalWithPropertyAssignationList
-	rootGrouping:groupingContent => {
-		"rootGrouping":{
-			"blocks":rootGrouping,
+	rootSequence:sequenceContent => {
+		"rootSequence":{
+			"blocks":rootSequence,
 			"code":text
 		}
 	};
