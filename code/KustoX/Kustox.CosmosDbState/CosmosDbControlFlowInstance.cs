@@ -3,6 +3,7 @@ using Kustox.CosmosDbState.DataObjects;
 using Kustox.Runtime.State;
 using Microsoft.Azure.Cosmos;
 using System.Collections.Immutable;
+using System.Data;
 
 namespace Kustox.CosmosDbState
 {
@@ -99,6 +100,22 @@ namespace Kustox.CosmosDbState
             await Task.CompletedTask;
 
             return ImmutableArray<ControlFlowStep>.Empty;
+        }
+
+        async Task IControlFlowInstance.CompleteStepAsync(
+            IImmutableList<int> indexes,
+            string captureName,
+            bool isScalarCapture,
+            DataTable captureTable,
+            CancellationToken ct)
+        {
+            var data = new StepData(_jobId, indexes, captureName, isScalarCapture, captureTable);
+
+            await _container.CreateItemAsync(
+                data,
+                ControlFlowDataHelper.JobIdToPartitionKey(_jobId),
+                null,
+                ct);
         }
     }
 }

@@ -4,6 +4,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
+using System.Data;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Text;
@@ -73,6 +74,20 @@ namespace Kustox.Runtime
         public IImmutableList<ControlFlowStep> GetSteps()
         {
             return _currentLevelSteps.ToImmutableList();
+        }
+
+        public async Task CompleteStepAsync(
+            string captureName,
+            bool isScalarCapture,
+            DataTable table,
+            CancellationToken ct)
+        {
+            await _controlFlowInstance.CompleteStepAsync(
+                _levelPrefixes,
+                captureName,
+                isScalarCapture,
+                table,
+                ct);
         }
     }
 }

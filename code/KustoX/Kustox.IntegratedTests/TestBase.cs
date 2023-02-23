@@ -1,4 +1,7 @@
-﻿using Kustox.CosmosDbState;
+﻿using Kusto.Data;
+using Kusto.Data.Common;
+using Kusto.Data.Net.Client;
+using Kustox.CosmosDbState;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
 using System;
@@ -51,7 +54,12 @@ namespace Kustox.IntegratedTests
         static TestBase()
         {
             ReadEnvironmentVariables();
+
+            var builder = CreateKustoBuilder();
+
             ControlFlowList = ControlFlowPersistencyFactory.FromEnvironmentVariables();
+            QueryProvider = KustoClientFactory.CreateCslQueryProvider(builder);
+            CommandProvider = KustoClientFactory.CreateCslAdminProvider(builder);
         }
 
         #region Environment variables
@@ -97,6 +105,7 @@ namespace Kustox.IntegratedTests
         }
         #endregion
 
+        #region IControlFlowList
         protected static IControlFlowList ControlFlowList { get; }
 
         protected static IControlFlowInstance CreateControlFlowInstance()
@@ -107,5 +116,24 @@ namespace Kustox.IntegratedTests
 
             return ControlFlowList.GetInstance(jobId);
         }
+        #endregion
+
+        #region Kusto
+        protected static ICslQueryProvider QueryProvider { get; }
+
+        protected static ICslAdminProvider CommandProvider { get; }
+
+        private static KustoConnectionStringBuilder CreateKustoBuilder()
+        {
+            var kustoCluster = GetEnvironmentVariable("kustoCluster");
+            var kustoDb = GetEnvironmentVariable("kustoDb");
+            var kustoTenantId = GetEnvironmentVariable("kustoTenantId");
+            var kustoClientId = GetEnvironmentVariable("kustoClientId");
+            var kustoClientKey = GetEnvironmentVariable("kustoClientKey");
+
+            return new KustoConnectionStringBuilder(kustoCluster, kustoDb)
+                .WithAadApplicationKeyAuthentication(kustoClientId, kustoClientKey, kustoTenantId);
+        }
+        #endregion
     }
 }

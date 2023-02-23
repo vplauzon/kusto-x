@@ -15,7 +15,7 @@ namespace Kustox.IntegratedTests
             Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(controlFlow, CancellationToken.None);
 
-            var runtime = new ControlFlowRuntime(flowInstance);
+            var runtime = new ControlFlowRuntime(flowInstance, QueryProvider, CommandProvider);
 
             await runtime.RunAsync();
         }
@@ -32,7 +32,7 @@ namespace Kustox.IntegratedTests
             Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(controlFlow, CancellationToken.None);
 
-            var runtime = new ControlFlowRuntime(flowInstance);
+            var runtime = new ControlFlowRuntime(flowInstance, QueryProvider, CommandProvider);
 
             await runtime.RunAsync();
         }

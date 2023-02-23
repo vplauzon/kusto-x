@@ -1,5 +1,6 @@
 ﻿using Kustox.Compiler;
 using System.Collections.Immutable;
+using System.Data;
 
 namespace Kustox.Runtime.State
 {
@@ -18,7 +19,12 @@ namespace Kustox.Runtime.State
         Task<IImmutableList<ControlFlowStep>> GetStepsAsync(CancellationToken ct);
         
         Task SetControlFlowStateAsync(ControlFlowState state, CancellationToken ct);
-        
-        //Task CreateStepsAsync(CancellationToken ct);
+
+        Task CompleteStepAsync(
+            IImmutableList<int> indexes,
+            string captureName,
+            bool isScalarCapture,
+            DataTable captureTable,
+            CancellationToken ct);
     }
 }
