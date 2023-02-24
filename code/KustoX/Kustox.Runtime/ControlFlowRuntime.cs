@@ -83,7 +83,7 @@ namespace Kustox.Runtime
             {
                 var reader = await _commandProvider.ExecuteControlCommandAsync(
                     string.Empty,
-                    declaration.Runnable.Query,
+                    declaration.Runnable.Command,
                     new ClientRequestProperties());
 
                 await CaptureResultAsync(declaration, reader, levelContext, ct);
