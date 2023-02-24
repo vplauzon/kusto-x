@@ -20,13 +20,14 @@ namespace Kustox.CosmosDbState.DataObjects
             long jobId,
             IImmutableList<long> indexes,
             int retry,
+            StepState state,
             string? captureName,
             bool? isScalarCapture,
             DataTable? captureTable)
         {
             Id = GetId(jobId, indexes);
             JobId = jobId.ToString();
-            State = StepState.Completed.ToString();
+            State = state.ToString();
             Retry = retry;
             Indexes = indexes;
             CaptureName = captureName;

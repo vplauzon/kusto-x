@@ -131,6 +131,7 @@ AND STARTSWITH(c.id, '{StepData.GetIdPrefix(_jobId)}', false)";
                 _jobId,
                 indexes,
                 retry,
+                state,
                 captureName,
                 isScalarCapture,
                 captureTable);
