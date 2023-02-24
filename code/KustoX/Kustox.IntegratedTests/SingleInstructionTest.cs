@@ -53,5 +53,22 @@ namespace Kustox.IntegratedTests
 
             await runtime.RunAsync();
         }
+
+        [Fact]
+        public async Task NoCaptureShowVersion()
+        {
+            var script = @"@control-flow{
+    .show version
+}";
+            var controlFlow = new KustoxCompiler().CompileScript(script);
+            var flowInstance = CreateControlFlowInstance();
+
+            Assert.NotNull(controlFlow);
+            await flowInstance.CreateInstanceAsync(controlFlow, CancellationToken.None);
+
+            var runtime = new ControlFlowRuntime(flowInstance, QueryProvider, CommandProvider);
+
+            await runtime.RunAsync();
+        }
     }
 }

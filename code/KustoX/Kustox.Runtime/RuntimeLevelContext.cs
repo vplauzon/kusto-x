@@ -102,8 +102,8 @@ namespace Kustox.Runtime
         }
 
         public async Task CompleteStepAsync(
-            string captureName,
-            bool isScalarCapture,
+            string? captureName,
+            bool? isScalarCapture,
             DataTable table,
             CancellationToken ct)
         {

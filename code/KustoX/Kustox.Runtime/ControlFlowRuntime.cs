@@ -121,7 +121,7 @@ namespace Kustox.Runtime
 
             await levelContext.CompleteStepAsync(
                 declaration.CaptureName,
-                declaration.IsScalarCapture!.Value,
+                declaration.IsScalarCapture,
                 table,
                 ct);
         }
