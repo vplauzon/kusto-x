@@ -16,15 +16,19 @@ namespace Kustox.Runtime.State
         
         Task<TimestampedData<ControlFlowState>> GetControlFlowStateAsync(CancellationToken ct);
         
-        Task<IImmutableList<ControlFlowStep>> GetStepsAsync(CancellationToken ct);
+        Task<IImmutableList<ControlFlowStep>> GetStepsAsync(
+            IImmutableList<long> levelPrefix,
+            CancellationToken ct);
         
         Task SetControlFlowStateAsync(ControlFlowState state, CancellationToken ct);
 
-        Task CompleteStepAsync(
-            IImmutableList<int> indexes,
-            string captureName,
-            bool isScalarCapture,
-            DataTable captureTable,
+        Task<ControlFlowStep> SetStepAsync(
+            IImmutableList<long> indexes,
+            StepState state,
+            int retry,
+            string? captureName,
+            bool? isScalarCapture,
+            DataTable? captureTable,
             CancellationToken ct);
     }
 }

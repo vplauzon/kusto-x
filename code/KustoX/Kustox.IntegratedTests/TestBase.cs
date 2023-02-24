@@ -135,5 +135,20 @@ namespace Kustox.IntegratedTests
                 .WithAadApplicationKeyAuthentication(kustoClientId, kustoClientKey, kustoTenantId);
         }
         #endregion
+
+        protected static async Task RunInPiecesAsync(
+            IControlFlowInstance flowInstance,
+            int? maximumNumberOfSteps = null)
+        {
+            var done = false;
+
+            while (!done)
+            {
+                var runtime =
+                    new ControlFlowRuntime(flowInstance, QueryProvider, CommandProvider);
+
+                done = await runtime.RunAsync(maximumNumberOfSteps);
+            }
+        }
     }
 }

@@ -23,15 +23,31 @@ namespace Kustox.Runtime
             _commandProvider = commandProvider;
         }
 
-        public async Task RunAsync(CancellationToken ct = default(CancellationToken))
+        public async Task<bool> RunAsync(
+            int? maximumNumberOfSteps = null,
+            CancellationToken ct = default(CancellationToken))
         {
-            var levelContext =
-                await RuntimeLevelContext.LoadContextAsync(_controlFlowInstance, ct);
-
-            await RunSequenceAsync(
-                levelContext.Declaration.RootSequence,
-                levelContext,
+            var levelContext = await RuntimeLevelContext.LoadContextAsync(
+                _controlFlowInstance,
+                maximumNumberOfSteps,
                 ct);
+
+            try
+            {
+                await RunSequenceAsync(
+                    levelContext.Declaration.RootSequence,
+                    levelContext,
+                    ct);
+                await _controlFlowInstance.SetControlFlowStateAsync(
+                    ControlFlowState.Completed,
+                    ct);
+
+                return true;
+            }
+            catch (TaskCanceledException)
+            {   //  Do nothing, it will need to run again
+                return false;
+            }
         }
 
         private async Task RunInstructionAsync(
@@ -60,8 +76,9 @@ namespace Kustox.Runtime
             for (int i = 0; i != blocks.Count(); ++i)
             {
                 var instuction = blocks[i];
+                var newContext = await levelContext.GoToOneStepAsync(i, ct);
 
-                await RunInstructionAsync(instuction, levelContext.DiveOneLevel(i), ct);
+                await RunInstructionAsync(instuction, newContext, ct);
             }
         }
 

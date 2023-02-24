@@ -86,7 +86,7 @@ namespace Kustox.CosmosDbState
             CancellationToken ct)
         {
             var data = new ControlFlowStateData(_jobId, state);
-            
+
             await _container.UpsertItemAsync(
                 data,
                 ControlFlowDataHelper.JobIdToPartitionKey(_jobId),
@@ -95,27 +95,69 @@ namespace Kustox.CosmosDbState
         }
 
         async Task<IImmutableList<ControlFlowStep>> IControlFlowInstance.GetStepsAsync(
+            IImmutableList<long> levelPrefix,
             CancellationToken ct)
         {
-            await Task.CompletedTask;
+            var query = $@"SELECT *
+FROM c
+WHERE
+ARRAY_LENGTH(c.indexes)=1
+AND STARTSWITH(c.id, '{StepData.GetIdPrefix(_jobId)}', false)";
+            var iterator = _container.GetItemQueryIterator<StepData>(
+                new QueryDefinition(query),
+                null,
+                new QueryRequestOptions
+                {
+                    PartitionKey = ControlFlowDataHelper.JobIdToPartitionKey(_jobId)
+                });
+            var stepDatas = await ListAsync(iterator, ct);
+            var steps = stepDatas
+                .Select(d => d.ToControlFlowStep())
+                .ToImmutableArray();
 
-            return ImmutableArray<ControlFlowStep>.Empty;
+            return steps;
         }
 
-        async Task IControlFlowInstance.CompleteStepAsync(
-            IImmutableList<int> indexes,
-            string captureName,
-            bool isScalarCapture,
-            DataTable captureTable,
+        async Task<ControlFlowStep> IControlFlowInstance.SetStepAsync(
+            IImmutableList<long> indexes,
+            StepState state,
+            int retry,
+            string? captureName,
+            bool? isScalarCapture,
+            DataTable? captureTable,
             CancellationToken ct)
         {
-            var data = new StepData(_jobId, indexes, captureName, isScalarCapture, captureTable);
+            var data = new StepData(
+                _jobId,
+                indexes,
+                retry,
+                captureName,
+                isScalarCapture,
+                captureTable);
 
-            await _container.CreateItemAsync(
+            await _container.UpsertItemAsync(
                 data,
                 ControlFlowDataHelper.JobIdToPartitionKey(_jobId),
                 null,
                 ct);
+
+            return data.ToControlFlowStep();
+        }
+
+        private async Task<IImmutableList<T>> ListAsync<T>(
+            FeedIterator<T> iterator,
+            CancellationToken ct)
+        {
+            var list = ImmutableArray<T>.Empty.ToBuilder();
+
+            while (iterator.HasMoreResults)
+            {
+                var response = await iterator.ReadNextAsync(ct);
+
+                list.AddRange(response);
+            }
+
+            return list.ToImmutable();
         }
     }
 }

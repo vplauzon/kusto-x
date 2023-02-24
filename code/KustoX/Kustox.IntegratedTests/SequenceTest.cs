@@ -1,5 +1,6 @@
 using Kustox.Compiler;
 using Kustox.Runtime;
+using Kustox.Runtime.State;
 
 namespace Kustox.IntegratedTests
 {
@@ -18,10 +19,7 @@ namespace Kustox.IntegratedTests
 
             Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(controlFlow, CancellationToken.None);
-
-            var runtime = new ControlFlowRuntime(flowInstance, QueryProvider, CommandProvider);
-
-            await runtime.RunAsync();
+            await RunInPiecesAsync(flowInstance);
         }
     }
 }
