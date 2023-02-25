@@ -44,6 +44,7 @@ namespace Kustox.Runtime
         private readonly IImmutableList<long> _levelPrefixes;
         private readonly List<ControlFlowStep> _levelSteps;
         private readonly StepCounter _stepCounter;
+        //private readonly IDictionary _stepCounter;
 
         #region Constructors
         private RuntimeLevelContext(

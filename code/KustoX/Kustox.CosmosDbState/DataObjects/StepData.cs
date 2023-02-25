@@ -87,6 +87,9 @@ namespace Kustox.CosmosDbState.DataObjects
                 Indexes,
                 GetState(),
                 Retry,
+                CaptureName,
+                IsScalarCapture,
+                CaptureTable,
                 _ts);
         }
     }

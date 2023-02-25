@@ -12,7 +12,7 @@ namespace Kustox.IntegratedTests
             var script = @"@control-flow{
     @capture-scalar myConstant = print 2
 
-    @capture-scalar myConstant2 = print 3
+    @capture-scalar myConstant2 = print dynamic({'Name':'Test', 'Quantity':45.4})
 }";
             var controlFlow = new KustoxCompiler().CompileScript(script);
             var flowInstance = CreateControlFlowInstance();

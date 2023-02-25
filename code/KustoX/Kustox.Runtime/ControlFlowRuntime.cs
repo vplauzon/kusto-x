@@ -50,7 +50,7 @@ namespace Kustox.Runtime
             }
         }
 
-        private async Task RunInstructionAsync(
+        private async Task RunBlockAsync(
             BlockDeclaration instuction,
             RuntimeLevelContext levelContext,
             CancellationToken ct)
@@ -70,15 +70,18 @@ namespace Kustox.Runtime
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
-            //var steps = levelContext.GetSteps();
+            var steps = levelContext.GetSteps();
             var blocks = sequence.Blocks;
 
             for (int i = 0; i != blocks.Count(); ++i)
             {
-                var instuction = blocks[i];
-                var newContext = await levelContext.GoToOneStepAsync(i, ct);
+                if (steps.Count() <= i || steps[i].State != StepState.Completed)
+                {
+                    var block = blocks[i];
+                    var newContext = await levelContext.GoToOneStepAsync(i, ct);
 
-                await RunInstructionAsync(instuction, newContext, ct);
+                    await RunBlockAsync(block, newContext, ct);
+                }
             }
         }
 

@@ -138,7 +138,7 @@ namespace Kustox.IntegratedTests
 
         protected static async Task RunInPiecesAsync(
             IControlFlowInstance flowInstance,
-            int? maximumNumberOfSteps = null)
+            int? maximumNumberOfSteps = 1)
         {
             var done = false;
 
