@@ -29,11 +29,11 @@ namespace Kustox.Runtime.State
 
         public int Retry { get; }
 
-        public string? CaptureName { get; set; }
+        public string? CaptureName { get; }
 
-        public bool? IsScalarCapture { get; set; }
+        public bool? IsScalarCapture { get; }
 
-        public DataTable? CaptureTable { get; set; }
+        public DataTable? CaptureTable { get; }
 
         public DateTime Timestamp { get; }
     }
