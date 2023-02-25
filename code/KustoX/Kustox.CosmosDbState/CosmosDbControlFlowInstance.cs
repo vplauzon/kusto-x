@@ -124,7 +124,7 @@ AND STARTSWITH(c.id, '{StepData.GetIdPrefix(_jobId)}', false)";
             int retry,
             string? captureName,
             bool? isScalarCapture,
-            DataTable? captureTable,
+            DataTable? result,
             CancellationToken ct)
         {
             var data = new StepData(
@@ -134,7 +134,7 @@ AND STARTSWITH(c.id, '{StepData.GetIdPrefix(_jobId)}', false)";
                 state,
                 captureName,
                 isScalarCapture,
-                captureTable);
+                result);
 
             await _container.UpsertItemAsync(
                 data,

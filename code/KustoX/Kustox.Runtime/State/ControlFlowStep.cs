@@ -11,7 +11,7 @@ namespace Kustox.Runtime.State
             int retry,
             string? captureName,
             bool? isScalarCapture,
-            DataTable? captureTable,
+            DataTable? result,
             long timestamp)
         {
             StepBreadcrumb = stepBreadcrumb;
@@ -19,7 +19,7 @@ namespace Kustox.Runtime.State
             Retry = retry;
             CaptureName = captureName;
             IsScalarCapture = isScalarCapture;
-            CaptureTable = captureTable;
+            Result = result;
             Timestamp = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime;
         }
 
@@ -33,7 +33,7 @@ namespace Kustox.Runtime.State
 
         public bool? IsScalarCapture { get; }
 
-        public DataTable? CaptureTable { get; }
+        public DataTable? Result { get; }
 
         public DateTime Timestamp { get; }
     }

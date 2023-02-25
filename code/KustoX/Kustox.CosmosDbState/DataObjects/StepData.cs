@@ -23,7 +23,7 @@ namespace Kustox.CosmosDbState.DataObjects
             StepState state,
             string? captureName,
             bool? isScalarCapture,
-            DataTable? captureTable)
+            DataTable? result)
         {
             Id = GetId(jobId, indexes);
             JobId = jobId.ToString();
@@ -32,7 +32,7 @@ namespace Kustox.CosmosDbState.DataObjects
             Indexes = indexes;
             CaptureName = captureName;
             IsScalarCapture = isScalarCapture;
-            CaptureTable = captureTable;
+            Result = result;
         }
 
         public static string GetIdPrefix(long jobId)
@@ -63,7 +63,7 @@ namespace Kustox.CosmosDbState.DataObjects
 
         public bool? IsScalarCapture { get; set; }
 
-        public DataTable? CaptureTable { get; set; }
+        public DataTable? Result { get; set; }
 
         public long _ts { get; set; }
 
@@ -89,7 +89,7 @@ namespace Kustox.CosmosDbState.DataObjects
                 Retry,
                 CaptureName,
                 IsScalarCapture,
-                CaptureTable,
+                Result,
                 _ts);
         }
     }

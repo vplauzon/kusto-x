@@ -105,7 +105,7 @@ namespace Kustox.Runtime
         public async Task CompleteStepAsync(
             string? captureName,
             bool? isScalarCapture,
-            DataTable table,
+            DataTable result,
             CancellationToken ct)
         {
             if (_levelSteps.Count != 1)
@@ -119,7 +119,7 @@ namespace Kustox.Runtime
                 _levelSteps.First().Retry,
                 captureName,
                 isScalarCapture,
-                table,
+                result,
                 ct);
 
             if (!_stepCounter.IncreaseStep())
