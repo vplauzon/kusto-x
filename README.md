@@ -51,37 +51,19 @@ We notice an empty line between commands:  **this is mandatory in Kusto-X to sep
 
 Sequences are present at the root of a control flow, in an if-else statement and foreach-loops.
 
-### Concurrency
-
-By default grouping runs commands sequentially.  They can also run commands in parallel:
-
-```kusto
-@control-flow{
-    @grouping with (concurrency=2){
-        .append sampleTable <|
-            datatable(name:string) ["Alice", "Bob"];
-
-        .append sampleTable <|
-            datatable(name:string) ["Carl"]
-    }
-}
-```
-
-The level of `concurrency` can be any integer.  Zero (0) means no concurrency.  It is equivalent to one (1) and is the default.  The effective concurrency level will obviously be subject to resource availability.
-
 ## Kusto-X commands
 
 Here are a couple of commands unique to Kusto-X.
 
-### @execute command-text
+### .execute command-text
 
-### @get blob list
+### .get blob list
 
-### @queue ingest
+### .queue ingest
 
-### @queue export
+### .queue export
 
-### @await ingest
+### .await ingest
 
 ## Captures
 
