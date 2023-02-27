@@ -17,6 +17,8 @@
                 throw new InvalidDataException(
                     $"At least one element of {typeof(BlockDeclaration).Name} must be present");
             }
+
+            Capturable.Validate();
         }
     }
 }
