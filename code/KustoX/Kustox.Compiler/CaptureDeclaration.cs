@@ -2,7 +2,7 @@
 {
     public class CaptureDeclaration : DeclarationBase
     {
-        public string CaptureName { get; set; } = string.Empty;
+        public string? CaptureName { get; set; }
 
         public bool? IsScalarCapture { get; set; }
 
