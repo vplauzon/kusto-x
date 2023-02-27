@@ -1,5 +1,7 @@
 ﻿using Kusto.Cloud.Platform.Data;
 using Kusto.Data.Common;
+using Kusto.Language;
+using Kusto.Language.Syntax;
 using Kustox.Compiler;
 using Kustox.Runtime.State;
 using System.Data;
@@ -92,6 +94,10 @@ namespace Kustox.Runtime
         {
             if (declaration.Runnable.Query != null)
             {
+                var queryBlock = (QueryBlock)KustoCode.Parse(declaration.Runnable.Query).Syntax;
+                var nameReferences = queryBlock
+                    .GetDescendants<NameReference>()
+                    .Select(n => n.Name.SimpleName);
                 var reader = await _queryProvider.ExecuteQueryAsync(
                     string.Empty,
                     declaration.Runnable.Query,
