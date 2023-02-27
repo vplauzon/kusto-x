@@ -31,8 +31,7 @@ namespace Kustox.CosmosDbState.DataObjects
             Retry = retry;
             Indexes = indexes;
             CaptureName = captureName;
-            IsScalarCapture = isScalarCapture;
-            Result = result == null ? null : new TableData(result);
+            Result = result == null ? null : new TableData(result, isScalarCapture ?? false);
         }
 
         public static string GetIdPrefix(long jobId)
@@ -61,8 +60,6 @@ namespace Kustox.CosmosDbState.DataObjects
 
         public string? CaptureName { get; set; }
 
-        public bool? IsScalarCapture { get; set; }
-
         public TableData? Result { get; set; }
 
         public long _ts { get; set; }
@@ -83,14 +80,28 @@ namespace Kustox.CosmosDbState.DataObjects
 
         public ControlFlowStep ToControlFlowStep()
         {
-            return new ControlFlowStep(
-                Indexes,
-                GetState(),
-                Retry,
-                CaptureName,
-                IsScalarCapture,
-                Result?.ToDataTable(),
-                _ts);
+            if (Result != null)
+            {
+                var columns = Result!.ColumnNames!
+                    .Zip(Result!.ColumnTypes!, (n, t) => new ColumnSpecification(n, t))
+                    .ToImmutableArray();
+
+                return new ControlFlowStep(
+                    Indexes,
+                    GetState(),
+                    Retry,
+                    CaptureName,
+                    new TableResult(Result!.IsScalar, columns, Result!.Data!),
+                    _ts);
+            }
+            else
+            {
+                return new ControlFlowStep(
+                    Indexes,
+                    GetState(),
+                    Retry,
+                    _ts);
+            }
         }
     }
 }

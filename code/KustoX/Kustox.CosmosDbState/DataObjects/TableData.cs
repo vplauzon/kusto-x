@@ -9,7 +9,7 @@ namespace Kustox.CosmosDbState.DataObjects
         {
         }
 
-        public TableData(DataTable table)
+        public TableData(DataTable table, bool isScalar)
         {
             var columns = table.Columns
                 .Cast<DataColumn>();
@@ -26,6 +26,8 @@ namespace Kustox.CosmosDbState.DataObjects
                 .Cast<IImmutableList<object>>()
                 .ToImmutableArray();
         }
+
+        public bool IsScalar { get; set; }
 
         public IImmutableList<string>? ColumnNames { get; set; }
 
