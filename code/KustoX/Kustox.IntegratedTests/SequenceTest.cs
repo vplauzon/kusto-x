@@ -37,5 +37,21 @@ namespace Kustox.IntegratedTests
             await flowInstance.CreateInstanceAsync(controlFlow, CancellationToken.None);
             await RunInPiecesAsync(flowInstance);
         }
+
+        [Fact]
+        public async Task CaptureThenUseTable()
+        {
+            var script = @"@control-flow{
+    @capture-scalar myVersion = .show version
+
+    @capture-scalar myConstant = myVersion | project ServiceType
+}";
+            var controlFlow = new KustoxCompiler().CompileScript(script);
+            var flowInstance = CreateControlFlowInstance();
+
+            Assert.NotNull(controlFlow);
+            await flowInstance.CreateInstanceAsync(controlFlow, CancellationToken.None);
+            await RunInPiecesAsync(flowInstance);
+        }
     }
 }
