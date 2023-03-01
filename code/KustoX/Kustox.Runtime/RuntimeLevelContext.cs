@@ -8,6 +8,7 @@ using System.Data;
 using System.Linq;
 using System.Security.AccessControl;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Kustox.Runtime
@@ -42,22 +43,21 @@ namespace Kustox.Runtime
 
         private readonly IControlFlowInstance _controlFlowInstance;
         private readonly IImmutableList<long> _levelPrefixes;
-        private readonly List<ControlFlowStep> _levelSteps;
+        private readonly IDictionary<string, TableResult> _captures;
         private readonly StepCounter _stepCounter;
-        //private readonly IDictionary _stepCounter;
 
         #region Constructors
         private RuntimeLevelContext(
             IControlFlowInstance controlFlowInstance,
             ControlFlowDeclaration declaration,
             IImmutableList<long> levelPrefixes,
-            IImmutableList<ControlFlowStep> levelSteps,
+            IImmutableList<KeyValuePair<string, TableResult>> captures,
             StepCounter stepCounter)
         {
             _controlFlowInstance = controlFlowInstance;
             Declaration = declaration;
             _levelPrefixes = levelPrefixes;
-            _levelSteps = levelSteps.ToList();
+            _captures = new Dictionary<string, TableResult>(captures);
             _stepCounter = stepCounter;
         }
 
@@ -68,7 +68,6 @@ namespace Kustox.Runtime
         {
             var declaration = await controlFlowInstance.GetDeclarationAsync(ct);
             var state = await controlFlowInstance.GetControlFlowStateAsync(ct);
-            var steps = await controlFlowInstance.GetStepsAsync(ImmutableArray<long>.Empty, ct);
 
             switch (state.Data)
             {
@@ -90,68 +89,66 @@ namespace Kustox.Runtime
                 controlFlowInstance,
                 declaration,
                 ImmutableArray<long>.Empty,
-                steps,
+                ImmutableArray<KeyValuePair<string, TableResult>>.Empty,
                 new StepCounter(maximumNumberOfSteps));
         }
         #endregion
 
         public ControlFlowDeclaration Declaration { get; }
 
-        public IImmutableList<ControlFlowStep> GetSteps()
+        public async Task<IImmutableList<ControlFlowStep>> GetStepsAsync(CancellationToken ct)
         {
-            return _levelSteps.ToImmutableList();
+            var steps = await _controlFlowInstance.GetStepsAsync(_levelPrefixes, ct);
+
+            return steps;
         }
 
         public async Task CompleteStepAsync(
+            int stepIndex,
             string? captureName,
-            bool? isScalarCapture,
-            DataTable result,
+            TableResult result,
             CancellationToken ct)
         {
-            if (_levelSteps.Count != 1)
-            {
-                throw new InvalidOperationException(
-                    "This should only be called in the context of a single step");
-            }
             await _controlFlowInstance.SetStepAsync(
-                _levelPrefixes,
+                _levelPrefixes.Add(stepIndex),
                 StepState.Completed,
-                _levelSteps.First().Retry,
                 captureName,
-                isScalarCapture,
-                result,
-                ct);
+                result.IsScalar,
+                result.ToDataTable(),
+                //  Do not cancel persistency here
+                CancellationToken.None);
 
+            if (captureName != null)
+            {
+                _captures.Add(captureName, result);
+            }
+            //  Compensate not taking the cancellation token into account in persistency
+            if (ct.IsCancellationRequested)
+            {
+                throw new TaskCanceledException("After state persisted");
+            }
             if (!_stepCounter.IncreaseStep())
             {
                 throw new TaskCanceledException("Step Counter done");
             }
         }
 
-        public async Task<RuntimeLevelContext> GoToOneStepAsync(
-            int index,
-            CancellationToken ct)
+        public IImmutableList<KeyValuePair<string, TableResult>> GetCapturedValues(
+            ImmutableArray<string> nameReferences)
         {
-            var lowerStep = index >= _levelSteps.Count()
-                ? null
-                : _levelSteps[index];
-            var newPrefixes = _levelPrefixes.Add(index);
-            //  Persist the running state
-            var newStep = await _controlFlowInstance.SetStepAsync(
-                newPrefixes,
-                StepState.Running,
-                lowerStep == null ? 0 : lowerStep.Retry + 1,
-                null,
-                null,
-                null,
-                ct);
+            var list = new List<KeyValuePair<string, TableResult>>();
 
-            return new RuntimeLevelContext(
-                _controlFlowInstance,
-                Declaration,
-                _levelPrefixes.Add(index),
-                new[] { newStep }.ToImmutableArray(),
-                _stepCounter);
+            foreach (var name in nameReferences)
+            {
+                TableResult? result;
+
+                if (_captures.TryGetValue(name, out result))
+                {
+                    list.Add(KeyValuePair.Create(name, result));
+                }
+            }
+
+            return list.ToImmutableArray();
         }
     }
 }

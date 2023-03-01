@@ -121,7 +121,6 @@ AND STARTSWITH(c.id, '{StepData.GetIdPrefix(_jobId)}', false)";
         async Task<ControlFlowStep> IControlFlowInstance.SetStepAsync(
             IImmutableList<long> indexes,
             StepState state,
-            int retry,
             string? captureName,
             bool? isScalarCapture,
             DataTable? result,
@@ -130,7 +129,6 @@ AND STARTSWITH(c.id, '{StepData.GetIdPrefix(_jobId)}', false)";
             var data = new StepData(
                 _jobId,
                 indexes,
-                retry,
                 state,
                 captureName,
                 isScalarCapture,

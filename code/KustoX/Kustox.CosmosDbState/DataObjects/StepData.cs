@@ -19,7 +19,6 @@ namespace Kustox.CosmosDbState.DataObjects
         public StepData(
             long jobId,
             IImmutableList<long> indexes,
-            int retry,
             StepState state,
             string? captureName,
             bool? isScalarCapture,
@@ -28,7 +27,6 @@ namespace Kustox.CosmosDbState.DataObjects
             Id = GetId(jobId, indexes);
             JobId = jobId.ToString();
             State = state.ToString();
-            Retry = retry;
             Indexes = indexes;
             CaptureName = captureName;
             Result = result == null ? null : new TableData(result, isScalarCapture ?? false);
@@ -53,8 +51,6 @@ namespace Kustox.CosmosDbState.DataObjects
         public string JobId { get; set; } = string.Empty;
 
         public string State { get; set; } = string.Empty;
-
-        public int Retry { get; set; } = 0;
 
         public IImmutableList<long> Indexes { get; set; } = ImmutableArray<long>.Empty;
 
@@ -89,7 +85,6 @@ namespace Kustox.CosmosDbState.DataObjects
                 return new ControlFlowStep(
                     Indexes,
                     GetState(),
-                    Retry,
                     CaptureName,
                     new TableResult(Result!.IsScalar, columns, Result!.Data!),
                     _ts);
@@ -99,7 +94,6 @@ namespace Kustox.CosmosDbState.DataObjects
                 return new ControlFlowStep(
                     Indexes,
                     GetState(),
-                    Retry,
                     _ts);
             }
         }

@@ -8,22 +8,19 @@ namespace Kustox.Runtime.State
         public ControlFlowStep(
             IImmutableList<long> stepBreadcrumb,
             StepState state,
-            int retry,
             long timestamp)
         {
             StepBreadcrumb = stepBreadcrumb;
             State = state;
-            Retry = retry;
             Timestamp = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime;
         }
 
         public ControlFlowStep(
             IImmutableList<long> stepBreadcrumb,
             StepState state,
-            int retry,
             string? captureName,
             TableResult? result,
-            long timestamp) : this(stepBreadcrumb, state, retry, timestamp)
+            long timestamp) : this(stepBreadcrumb, state, timestamp)
         {
             CaptureName = captureName;
             Result = result;
@@ -32,8 +29,6 @@ namespace Kustox.Runtime.State
         public IImmutableList<long> StepBreadcrumb { get; }
 
         public StepState State { get; }
-
-        public int Retry { get; }
 
         public string? CaptureName { get; }
 

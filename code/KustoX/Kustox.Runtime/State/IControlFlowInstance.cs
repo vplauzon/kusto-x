@@ -25,7 +25,6 @@ namespace Kustox.Runtime.State
         Task<ControlFlowStep> SetStepAsync(
             IImmutableList<long> indexes,
             StepState state,
-            int retry,
             string? captureName,
             bool? isScalarCapture,
             DataTable? captureTable,
