@@ -96,9 +96,17 @@ namespace Kustox.Runtime
 
         public ControlFlowDeclaration Declaration { get; }
 
-        public async Task<IImmutableList<ControlFlowStep>> GetStepsAsync(CancellationToken ct)
+        public async Task<IImmutableList<ControlFlowStep>> RestoreStepsAsync(CancellationToken ct)
         {
             var steps = await _controlFlowInstance.GetStepsAsync(_levelPrefixes, ct);
+
+            foreach (var step in steps)
+            {
+                if (step.CaptureName != null)
+                {
+                    _captures.Add(step.CaptureName!, step.Result!);
+                }
+            }
 
             return steps;
         }

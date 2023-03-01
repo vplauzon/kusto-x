@@ -14,6 +14,7 @@ namespace Kustox.CosmosDbState.DataObjects
             var columns = table.Columns
                 .Cast<DataColumn>();
 
+            IsScalar = isScalar;
             ColumnNames = columns
                 .Select(c => c.ColumnName)
                 .ToImmutableArray();

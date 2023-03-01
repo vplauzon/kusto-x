@@ -81,16 +81,16 @@ namespace Kustox.Runtime
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
-            var steps = await levelContext.GetStepsAsync(ct);
+            var steps = await levelContext.RestoreStepsAsync(ct);
             var blocks = sequence.Blocks;
             TableResult? result = null;
 
             for (int i = 0; i != blocks.Count(); ++i)
             {
+                var block = blocks[i];
+
                 if (steps.Count() <= i || steps[i].State != StepState.Completed)
                 {
-                    var block = blocks[i];
-
                     result = await RunBlockAsync(i, block, levelContext, ct);
                 }
             }
@@ -216,7 +216,8 @@ namespace Kustox.Runtime
                 : string.Empty;
             var prefixText = declareText
                 + Environment.NewLine
-                + string.Join(Environment.NewLine, letList);
+                + string.Join(Environment.NewLine, letList)
+                + Environment.NewLine;
 
             return (properties, prefixText);
         }
