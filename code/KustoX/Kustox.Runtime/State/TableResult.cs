@@ -4,6 +4,7 @@ using System.Collections.Immutable;
 using System.Data;
 using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace Kustox.Runtime.State
@@ -57,5 +58,9 @@ namespace Kustox.Runtime.State
             return table;
         }
 
+        public string GetJsonData()
+        {
+            return JsonSerializer.Serialize(Data);
+        }
     }
 }

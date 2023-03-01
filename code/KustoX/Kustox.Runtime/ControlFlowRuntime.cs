@@ -84,7 +84,7 @@ namespace Kustox.Runtime
                 if (steps.Count() <= i || steps[i].State != StepState.Completed)
                 {
                     var block = blocks[i];
-                    
+
                     await RunBlockAsync(i, block, levelContext, ct);
                 }
             }
@@ -143,19 +143,17 @@ namespace Kustox.Runtime
             var properties = new ClientRequestProperties();
             var letList = new List<string>();
             var declareList = new List<string>();
-            var typeMapping = new (Type, string, Action<string, object>)[]
+            var scalarTypeMapping = new (Type, Action<string, object>)[]
             {
-                (typeof(bool), "bool", (name, value)=>properties.SetParameter(name, (bool)value)),
-                (typeof(DateTime), "datetime", (name, value)=>properties.SetParameter(name, (DateTime)value)),
-                (typeof(double), "double", (name, value)=>properties.SetParameter(name, (double)value)),
-                (typeof(Guid), "guid", (name, value)=>properties.SetParameter(name, (Guid)value)),
-                (typeof(int), "int", (name, value)=>properties.SetParameter(name, (int)value)),
-                (typeof(long), "long", (name, value)=>properties.SetParameter(name, (long)value)),
-                (typeof(string), "string", (name, value)=>properties.SetParameter(name, (string)value)),
-                (typeof(TimeSpan), "timespan", (name, value)=>properties.SetParameter(name, (TimeSpan)value))
-            }.ToImmutableDictionary(
-                t => t.Item1,
-                t => new { KustoTypeName = t.Item2, ScalarAction = t.Item3 });
+                (typeof(bool), (name, value)=>properties.SetParameter(name, (bool)value)),
+                (typeof(DateTime), (name, value)=>properties.SetParameter(name, (DateTime)value)),
+                (typeof(double), (name, value)=>properties.SetParameter(name, (double)value)),
+                (typeof(Guid), (name, value)=>properties.SetParameter(name, (Guid)value)),
+                (typeof(int), (name, value)=>properties.SetParameter(name, (int)value)),
+                (typeof(long), (name, value)=>properties.SetParameter(name, (long)value)),
+                (typeof(string), (name, value)=>properties.SetParameter(name, (string)value)),
+                (typeof(TimeSpan), (name, value)=>properties.SetParameter(name, (TimeSpan)value))
+            }.ToImmutableDictionary(t => t.Item1, t => t.Item2);
 
             foreach (var value in capturedValues)
             {
@@ -166,19 +164,20 @@ namespace Kustox.Runtime
                 {
                     var scalarValue = result.Data.First().First();
                     var scalarType = result.Columns.First().ColumnType;
+                    var scalarKustoType = result.Columns.First().GetKustoType();
 
-                    if (typeMapping.ContainsKey(scalarType))
+                    if (scalarTypeMapping.ContainsKey(scalarType))
                     {
-                        var typeActions = typeMapping[scalarType];
+                        var typeAction = scalarTypeMapping[scalarType];
 
                         if (scalarValue == null)
                         {
-                            letList.Add($"let {name} = {typeActions.KustoTypeName}(null);");
+                            letList.Add($"let {name} = {scalarKustoType}(null);");
                         }
                         else
                         {
-                            typeActions.ScalarAction(name, scalarValue);
-                            declareList.Add($"{name}:{typeActions.KustoTypeName}");
+                            typeAction(name, scalarValue);
+                            declareList.Add($"{name}:{scalarKustoType}");
                         }
                     }
                     else
@@ -188,7 +187,20 @@ namespace Kustox.Runtime
                 }
                 else
                 {
-                    throw new NotImplementedException();
+                    var tmp = "__" + Guid.NewGuid().ToString("N");
+                    var projections = result.Columns
+                        .Zip(Enumerable.Range(0, result.Columns.Count()))
+                        .Select(b => new
+                        {
+                            Name = b.First.ColumnName,
+                            KustoType = b.First.GetKustoType(),
+                            Index = b.Second
+                        })
+                        .Select(b => $"{b.Name}=to{b.KustoType}({tmp}[{b.Index}])");
+
+                    letList.Add(@$"let {name} = print {tmp}= dynamic({result.GetJsonData()})
+| mv-expand {tmp}
+| project {string.Join(", ", projections)};");
                 }
             }
             var declareText = declareList.Any()
