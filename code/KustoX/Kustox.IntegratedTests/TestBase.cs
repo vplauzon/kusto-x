@@ -136,18 +136,20 @@ namespace Kustox.IntegratedTests
         }
         #endregion
 
-        protected static async Task RunInPiecesAsync(
+        protected static async Task<RuntimeResult> RunInPiecesAsync(
             IControlFlowInstance flowInstance,
             int? maximumNumberOfSteps = 1)
         {
-            var done = false;
-
-            while (!done)
+            while (true)
             {
                 var runtime =
                     new ControlFlowRuntime(flowInstance, QueryProvider, CommandProvider);
+                var result = await runtime.RunAsync(maximumNumberOfSteps);
 
-                done = await runtime.RunAsync(maximumNumberOfSteps);
+                if (result.HasCompleteSuccessfully)
+                {
+                    return result;
+                }
             }
         }
     }

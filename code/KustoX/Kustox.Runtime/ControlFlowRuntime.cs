@@ -28,7 +28,7 @@ namespace Kustox.Runtime
             _commandProvider = commandProvider;
         }
 
-        public async Task<bool> RunAsync(
+        public async Task<RuntimeResult> RunAsync(
             int? maximumNumberOfSteps = null,
             CancellationToken ct = default(CancellationToken))
         {
@@ -39,23 +39,24 @@ namespace Kustox.Runtime
 
             try
             {
-                await RunSequenceAsync(
+                var result = await RunSequenceAsync(
                     levelContext.Declaration.RootSequence,
                     levelContext,
                     ct);
+
                 await _controlFlowInstance.SetControlFlowStateAsync(
                     ControlFlowState.Completed,
                     ct);
 
-                return true;
+                return new RuntimeResult(true, result);
             }
             catch (TaskCanceledException)
             {   //  Do nothing, it will need to run again
-                return false;
+                return new RuntimeResult(false, null);
             }
         }
 
-        private async Task RunBlockAsync(
+        private async Task<TableResult> RunBlockAsync(
             int stepIndex,
             BlockDeclaration instuction,
             RuntimeLevelContext levelContext,
@@ -63,7 +64,11 @@ namespace Kustox.Runtime
         {
             if (instuction.Capturable != null)
             {
-                await RunCapturableAsync(instuction.Capturable, stepIndex, levelContext, ct);
+                return await RunCapturableAsync(
+                    instuction.Capturable,
+                    stepIndex,
+                    levelContext,
+                    ct);
             }
             else
             {
@@ -71,13 +76,14 @@ namespace Kustox.Runtime
             }
         }
 
-        private async Task RunSequenceAsync(
+        private async Task<TableResult?> RunSequenceAsync(
             SequenceDeclaration sequence,
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
             var steps = await levelContext.GetStepsAsync(ct);
             var blocks = sequence.Blocks;
+            TableResult? result = null;
 
             for (int i = 0; i != blocks.Count(); ++i)
             {
@@ -85,12 +91,14 @@ namespace Kustox.Runtime
                 {
                     var block = blocks[i];
 
-                    await RunBlockAsync(i, block, levelContext, ct);
+                    result = await RunBlockAsync(i, block, levelContext, ct);
                 }
             }
+
+            return result;
         }
 
-        private async Task RunCapturableAsync(
+        private async Task<TableResult> RunCapturableAsync(
             CaptureDeclaration declaration,
             int stepIndex,
             RuntimeLevelContext levelContext,
@@ -100,7 +108,7 @@ namespace Kustox.Runtime
             {
                 var reader = await ExecuteQueryAsync(declaration, levelContext, ct);
 
-                await CaptureResultAsync(declaration, stepIndex, reader, levelContext, ct);
+                return await CaptureResultAsync(declaration, stepIndex, reader, levelContext, ct);
             }
             else if (declaration.Runnable.Command != null)
             {
@@ -109,7 +117,7 @@ namespace Kustox.Runtime
                     declaration.Runnable.Command,
                     new ClientRequestProperties());
 
-                await CaptureResultAsync(declaration, stepIndex, reader, levelContext, ct);
+                return await CaptureResultAsync(declaration, stepIndex, reader, levelContext, ct);
             }
             else
             {
@@ -213,7 +221,7 @@ namespace Kustox.Runtime
             return (properties, prefixText);
         }
 
-        private async Task CaptureResultAsync(
+        private async Task<TableResult> CaptureResultAsync(
             CaptureDeclaration declaration,
             int stepIndex,
             IDataReader reader,
@@ -221,14 +229,15 @@ namespace Kustox.Runtime
             CancellationToken ct)
         {
             var table = reader.ToDataSet().Tables[0];
+            var result = new TableResult(declaration.IsScalarCapture ?? false, table);
 
             await levelContext.CompleteStepAsync(
                 stepIndex,
                 declaration.CaptureName,
-                new TableResult(
-                    declaration.IsScalarCapture ?? false,
-                    table),
+                result,
                 ct);
+
+            return result;
         }
     }
 }
