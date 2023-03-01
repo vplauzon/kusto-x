@@ -35,7 +35,7 @@ namespace Kustox.Runtime.State
 
         public string GetKustoType()
         {
-            if (ColumnType == typeof(bool))
+            if (ColumnType == typeof(sbyte))
             {
                 return "bool";
             }

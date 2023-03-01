@@ -30,7 +30,7 @@ namespace Kustox.Runtime
             {
                 if (_maximumNumberOfSteps != null)
                 {
-                    if (Interlocked.Increment(ref _stepCount) >= _maximumNumberOfSteps)
+                    if (Interlocked.Increment(ref _stepCount) > _maximumNumberOfSteps)
                     {
                         return false;
                     }
@@ -96,6 +96,14 @@ namespace Kustox.Runtime
 
         public ControlFlowDeclaration Declaration { get; }
 
+        public void PreStepExecution()
+        {
+            if (!_stepCounter.IncreaseStep())
+            {
+                throw new TaskCanceledException("Step Counter done");
+            }
+        }
+
         public async Task<IImmutableList<ControlFlowStep>> RestoreStepsAsync(CancellationToken ct)
         {
             var steps = await _controlFlowInstance.GetStepsAsync(_levelPrefixes, ct);
@@ -134,10 +142,6 @@ namespace Kustox.Runtime
             if (ct.IsCancellationRequested)
             {
                 throw new TaskCanceledException("After state persisted");
-            }
-            if (!_stepCounter.IncreaseStep())
-            {
-                throw new TaskCanceledException("Step Counter done");
             }
         }
 

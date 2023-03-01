@@ -136,7 +136,7 @@ namespace Kustox.IntegratedTests
         }
         #endregion
 
-        protected static async Task<RuntimeResult> RunInPiecesAsync(
+        protected static async Task<TableResult?> RunInPiecesAsync(
             IControlFlowInstance flowInstance,
             int? maximumNumberOfSteps = 1)
         {
@@ -148,7 +148,7 @@ namespace Kustox.IntegratedTests
 
                 if (result.HasCompleteSuccessfully)
                 {
-                    return result;
+                    return result.Result;
                 }
             }
         }

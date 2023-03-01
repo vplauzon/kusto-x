@@ -104,6 +104,8 @@ namespace Kustox.Runtime
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
+            levelContext.PreStepExecution();
+
             if (declaration.Runnable.Query != null)
             {
                 var reader = await ExecuteQueryAsync(declaration, levelContext, ct);
@@ -153,7 +155,7 @@ namespace Kustox.Runtime
             var declareList = new List<string>();
             var scalarTypeMapping = new (Type, Action<string, object>)[]
             {
-                (typeof(bool), (name, value)=>properties.SetParameter(name, (bool)value)),
+                (typeof(sbyte), (name, value)=>properties.SetParameter(name, Convert.ToBoolean(value))),
                 (typeof(DateTime), (name, value)=>properties.SetParameter(name, (DateTime)value)),
                 (typeof(double), (name, value)=>properties.SetParameter(name, (double)value)),
                 (typeof(Guid), (name, value)=>properties.SetParameter(name, (Guid)value)),
