@@ -35,7 +35,7 @@ namespace Kustox.IntegratedTests
             Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(controlFlow, CancellationToken.None);
 
-            var result = await RunInPiecesAsync(flowInstance, null);
+            var result = await RunInPiecesAsync(flowInstance);
 
             Assert.NotNull(result);
             Assert.Equal(42, result.Data[0][0]);

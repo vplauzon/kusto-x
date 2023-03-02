@@ -23,7 +23,10 @@ namespace Kustox.Runtime.State
         {
             IsScalar = isScalar;
             Columns = columns;
-            Data = data;
+            Data = data
+                .Select(r => r.Select(o => AlignTypeToJsonFriendly(o)).ToImmutableArray())
+                .Cast<IImmutableList<object>>()
+                .ToImmutableArray();
         }
 
         public TableResult(bool isScalar, DataTable table)
@@ -35,7 +38,8 @@ namespace Kustox.Runtime.State
                 .ToImmutableArray();
             Data = table.Rows
                 .Cast<DataRow>()
-                .Select(r => AlignTypesToJsonFriendly(r.ItemArray!))
+                .Select(r => r.ItemArray.Select(o => AlignTypeToJsonFriendly(o!)))
+                .Select(r => r.ToImmutableArray())
                 .Cast<IImmutableList<object>>()
                 .ToImmutableArray();
         }
@@ -67,15 +71,6 @@ namespace Kustox.Runtime.State
             return JsonSerializer.Serialize(Data);
         }
 
-        private static IImmutableList<object> AlignTypesToJsonFriendly(object[] itemArray)
-        {
-            var aligned = itemArray
-                .Select(o => AlignTypeToJsonFriendly(o))
-                .ToImmutableArray();
-
-            return aligned;
-        }
-
         private static object AlignTypeToJsonFriendly(object obj)
         {
             if (obj is sbyte)
@@ -91,11 +86,11 @@ namespace Kustox.Runtime.State
             else if (obj is Newtonsoft.Json.Linq.JObject)
             {
                 var textWriter = new StringWriter();
-                
+
                 _newtonsoftSerializer.Serialize(textWriter, obj);
-                
+
                 var text = textWriter.ToString();
-                var textObj = JsonSerializer.Deserialize<JsonDocument>(text);
+                var textObj = JsonSerializer.Deserialize<JsonValue>(text);
 
                 return textObj!;
             }
