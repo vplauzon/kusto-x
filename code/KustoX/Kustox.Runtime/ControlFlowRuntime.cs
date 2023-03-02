@@ -8,6 +8,7 @@ using System.Collections.Immutable;
 using System.Data;
 using System.Reflection.PortableExecutable;
 using System.Text;
+using System.Text.Json;
 using System.Xml.Linq;
 
 namespace Kustox.Runtime
@@ -138,32 +139,19 @@ namespace Kustox.Runtime
                 .Select(n => n.Name.SimpleName)
                 .ToImmutableArray();
             var capturedValues = levelContext.GetCapturedValues(nameReferences);
-            var parameters = BuildQueryParameters(capturedValues);
+            var queryPrefix = BuildQueryPrefix(capturedValues);
             var reader = await _queryProvider.ExecuteQueryAsync(
                 string.Empty,
-                parameters.queryPrefix + declaration.Runnable.Query,
-                parameters.properties);
+                queryPrefix + declaration.Runnable.Query,
+                new ClientRequestProperties());
 
             return reader;
         }
 
-        private (ClientRequestProperties properties, string queryPrefix) BuildQueryParameters(
+        private string BuildQueryPrefix(
             IImmutableList<KeyValuePair<string, TableResult>> capturedValues)
         {
-            var properties = new ClientRequestProperties();
             var letList = new List<string>();
-            var declareList = new List<string>();
-            var scalarTypeMapping = new (Type, Action<string, object>)[]
-            {
-                (typeof(sbyte), (name, value)=>properties.SetParameter(name, Convert.ToBoolean(value))),
-                (typeof(DateTime), (name, value)=>properties.SetParameter(name, (DateTime)value)),
-                (typeof(double), (name, value)=>properties.SetParameter(name, (double)value)),
-                (typeof(Guid), (name, value)=>properties.SetParameter(name, (Guid)value)),
-                (typeof(int), (name, value)=>properties.SetParameter(name, (int)value)),
-                (typeof(long), (name, value)=>properties.SetParameter(name, (long)value)),
-                (typeof(string), (name, value)=>properties.SetParameter(name, (string)value)),
-                (typeof(TimeSpan), (name, value)=>properties.SetParameter(name, (TimeSpan)value))
-            }.ToImmutableDictionary(t => t.Item1, t => t.Item2);
 
             foreach (var value in capturedValues)
             {
@@ -173,27 +161,11 @@ namespace Kustox.Runtime
                 if (result.IsScalar)
                 {
                     var scalarValue = result.Data.First().First();
-                    var scalarType = result.Columns.First().ColumnType;
                     var scalarKustoType = result.Columns.First().GetKustoType();
+                    var dynamicValue = $"dynamic({JsonSerializer.Serialize(scalarValue)})";
+                    var letValue = $"let {name} = to{scalarKustoType}({dynamicValue});";
 
-                    if (scalarTypeMapping.ContainsKey(scalarType))
-                    {
-                        var typeAction = scalarTypeMapping[scalarType];
-
-                        if (scalarValue == null)
-                        {
-                            letList.Add($"let {name} = {scalarKustoType}(null);");
-                        }
-                        else
-                        {
-                            typeAction(name, scalarValue);
-                            declareList.Add($"{name}:{scalarKustoType}");
-                        }
-                    }
-                    else
-                    {
-                        throw new NotImplementedException($"Scalar type:  {scalarType.FullName}");
-                    }
+                    letList.Add(letValue);
                 }
                 else
                 {
@@ -208,20 +180,14 @@ namespace Kustox.Runtime
                         })
                         .Select(b => $"{b.Name}=to{b.KustoType}({tmp}[{b.Index}])");
 
-                    letList.Add(@$"let {name} = print {tmp}= dynamic({result.GetJsonData()})
+                    letList.Add(@$"let {name} = print {tmp} = dynamic({result.GetJsonData()})
 | mv-expand {tmp}
 | project {string.Join(", ", projections)};");
                 }
             }
-            var declareText = declareList.Any()
-                ? $"declare query_parameters({string.Join(", ", declareList)});"
-                : string.Empty;
-            var prefixText = declareText
-                + Environment.NewLine
-                + string.Join(Environment.NewLine, letList)
-                + Environment.NewLine;
+            var prefixText = string.Join(Environment.NewLine, letList) + Environment.NewLine;
 
-            return (properties, prefixText);
+            return prefixText;
         }
 
         private async Task<TableResult> CaptureResultAsync(

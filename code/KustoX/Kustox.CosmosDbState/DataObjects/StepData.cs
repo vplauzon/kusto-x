@@ -21,15 +21,14 @@ namespace Kustox.CosmosDbState.DataObjects
             IImmutableList<long> indexes,
             StepState state,
             string? captureName,
-            bool? isScalarCapture,
-            DataTable? result)
+            TableData? result)
         {
             Id = GetId(jobId, indexes);
             JobId = jobId.ToString();
             State = state.ToString();
             Indexes = indexes;
             CaptureName = captureName;
-            Result = result == null ? null : new TableData(result, isScalarCapture ?? false);
+            Result = result;
         }
 
         public static string GetIdPrefix(long jobId)

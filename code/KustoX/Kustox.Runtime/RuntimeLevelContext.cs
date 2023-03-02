@@ -129,8 +129,7 @@ namespace Kustox.Runtime
                 _levelPrefixes.Add(stepIndex),
                 StepState.Completed,
                 captureName,
-                result.IsScalar,
-                result.ToDataTable(),
+                result,
                 //  Do not cancel persistency here
                 CancellationToken.None);
 

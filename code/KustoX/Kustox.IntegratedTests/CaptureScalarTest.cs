@@ -1,6 +1,7 @@
 using Kustox.Compiler;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
+using Newtonsoft.Json.Linq;
 using System.Data.SqlTypes;
 
 namespace Kustox.IntegratedTests
@@ -10,7 +11,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task Bool()
         {
-            await TestScalarAsync("true", Convert.ToSByte(true));
+            await TestScalarAsync("true", true);
         }
 
         [Fact]
@@ -22,7 +23,22 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task Dynamic()
         {
-            await TestScalarAsync("dynamic([1,2])", new long[] { 1, 2 });
+            var script = @$"@control-flow{{
+    @capture-scalar myConstant = print dynamic(
+        {{ ""user"":""bit"", ""events"":[1,2,3], ""profile"": {{""memory"": 42}} }})
+
+    @capture-scalar myConstant2 = print toint(myConstant.profile.memory)
+}}";
+            var controlFlow = new KustoxCompiler().CompileScript(script);
+            var flowInstance = CreateControlFlowInstance();
+
+            Assert.NotNull(controlFlow);
+            await flowInstance.CreateInstanceAsync(controlFlow, CancellationToken.None);
+
+            var result = await RunInPiecesAsync(flowInstance, null);
+
+            Assert.NotNull(result);
+            Assert.Equal(42, result.Data[0][0]);
         }
 
         [Fact]
@@ -30,7 +46,7 @@ namespace Kustox.IntegratedTests
         {
             await TestScalarAsync(
                 "guid(0c6a39f1-d14d-4f3b-85b7-b4be17fbd586)",
-                new Guid("guid(0c6a39f1-d14d-4f3b-85b7-b4be17fbd586)"));
+                new Guid("0c6a39f1-d14d-4f3b-85b7-b4be17fbd586"));
         }
 
         [Fact]
@@ -66,7 +82,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task Decimal()
         {
-            await TestScalarAsync("decimal(42.23)", new SqlDecimal(42.23));
+            await TestScalarAsync("decimal(42.23)", (decimal)42.23);
         }
 
         private async Task TestScalarAsync(

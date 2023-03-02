@@ -26,8 +26,7 @@ namespace Kustox.Runtime.State
             IImmutableList<long> indexes,
             StepState state,
             string? captureName,
-            bool? isScalarCapture,
-            DataTable? captureTable,
+            TableResult? result,
             CancellationToken ct);
     }
 }

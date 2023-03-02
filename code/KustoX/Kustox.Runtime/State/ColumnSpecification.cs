@@ -12,7 +12,9 @@ namespace Kustox.Runtime.State
     {
         public ColumnSpecification(string columnName, string columnTypeName)
         {
-            var type = Type.GetType(columnTypeName);
+            var type = columnTypeName == "System.Data.SqlTypes.SqlDecimal"
+                ? typeof(SqlDecimal)
+                : Type.GetType(columnTypeName);
 
             ColumnName = columnName;
             if (type == null)

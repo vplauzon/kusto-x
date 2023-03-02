@@ -122,8 +122,7 @@ AND STARTSWITH(c.id, '{StepData.GetIdPrefix(_jobId)}', false)";
             IImmutableList<long> indexes,
             StepState state,
             string? captureName,
-            bool? isScalarCapture,
-            DataTable? result,
+            TableResult? result,
             CancellationToken ct)
         {
             var data = new StepData(
@@ -131,8 +130,7 @@ AND STARTSWITH(c.id, '{StepData.GetIdPrefix(_jobId)}', false)";
                 indexes,
                 state,
                 captureName,
-                isScalarCapture,
-                result);
+                result == null ? null : new TableData(result));
 
             await _container.UpsertItemAsync(
                 data,
