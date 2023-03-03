@@ -20,13 +20,15 @@ namespace Kustox.CosmosDbState.DataObjects
             long jobId,
             IImmutableList<long> indexes,
             StepState state,
+            string script,
             string? captureName,
             TableData? result)
         {
             Id = GetId(jobId, indexes);
             JobId = jobId.ToString();
-            State = state.ToString();
             Indexes = indexes;
+            State = state.ToString();
+            Script = script;
             CaptureName = captureName;
             Result = result;
         }
@@ -50,6 +52,8 @@ namespace Kustox.CosmosDbState.DataObjects
         public string JobId { get; set; } = string.Empty;
 
         public string State { get; set; } = string.Empty;
+        
+        public string Script { get; set; } = string.Empty;
 
         public IImmutableList<long> Indexes { get; set; } = ImmutableArray<long>.Empty;
 

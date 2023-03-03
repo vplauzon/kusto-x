@@ -25,6 +25,7 @@ namespace Kustox.Runtime.State
         Task<ControlFlowStep> SetStepAsync(
             IImmutableList<long> indexes,
             StepState state,
+            string script,
             string? captureName,
             TableResult? result,
             CancellationToken ct);

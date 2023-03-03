@@ -122,6 +122,7 @@ AND STARTSWITH(c.id, '{StepData.GetIdPrefix(_jobId)}', false)";
         async Task<ControlFlowStep> IControlFlowInstance.SetStepAsync(
             IImmutableList<long> indexes,
             StepState state,
+            string script,
             string? captureName,
             TableResult? result,
             CancellationToken ct)
@@ -130,6 +131,7 @@ AND STARTSWITH(c.id, '{StepData.GetIdPrefix(_jobId)}', false)";
                 _jobId,
                 indexes,
                 state,
+                script,
                 captureName,
                 result == null ? null : new TableData(result));
 

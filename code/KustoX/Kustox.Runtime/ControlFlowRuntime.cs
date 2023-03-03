@@ -202,6 +202,7 @@ namespace Kustox.Runtime
 
             await levelContext.CompleteStepAsync(
                 stepIndex,
+                declaration.Code,
                 declaration.CaptureName,
                 result,
                 ct);

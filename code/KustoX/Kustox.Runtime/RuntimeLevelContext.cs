@@ -121,6 +121,7 @@ namespace Kustox.Runtime
 
         public async Task CompleteStepAsync(
             int stepIndex,
+            string script,
             string? captureName,
             TableResult result,
             CancellationToken ct)
@@ -128,6 +129,7 @@ namespace Kustox.Runtime
             await _controlFlowInstance.SetStepAsync(
                 _levelPrefixes.Add(stepIndex),
                 StepState.Completed,
+                script,
                 captureName,
                 result,
                 //  Do not cancel persistency here

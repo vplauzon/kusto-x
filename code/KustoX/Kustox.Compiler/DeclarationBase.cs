@@ -9,7 +9,7 @@
             _hasCode = hasCode;
         }
 
-        public string? Code { get; set; }
+        public string Code { get; set; } = string.Empty;
 
         public virtual void Validate()
         {
