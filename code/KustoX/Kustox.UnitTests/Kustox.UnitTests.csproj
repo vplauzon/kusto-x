@@ -28,8 +28,4 @@
     <ProjectReference Include="..\Kustox.Runtime\Kustox.Runtime.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Compiler\" />
-  </ItemGroup>
-
 </Project>

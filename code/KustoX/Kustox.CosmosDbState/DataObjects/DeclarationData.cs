@@ -13,11 +13,11 @@ namespace Kustox.CosmosDbState.DataObjects
         {
         }
 
-        public DeclarationData(long jobId, ControlFlowDeclaration declaration)
+        public DeclarationData(long jobId, string script)
         {
             Id = GetId(jobId);
             JobId = jobId.ToString();
-            Declaration = declaration;
+            Script = script;
         }
 
         public static string GetId(long jobId)
@@ -29,6 +29,6 @@ namespace Kustox.CosmosDbState.DataObjects
 
         public string JobId { get; set; } = string.Empty;
 
-        public ControlFlowDeclaration? Declaration { get; set; }
+        public string Script { get; set; } = string.Empty;
     }
 }

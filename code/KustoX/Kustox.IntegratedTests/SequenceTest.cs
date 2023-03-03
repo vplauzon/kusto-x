@@ -18,7 +18,7 @@ namespace Kustox.IntegratedTests
             var flowInstance = CreateControlFlowInstance();
 
             Assert.NotNull(controlFlow);
-            await flowInstance.CreateInstanceAsync(controlFlow, CancellationToken.None);
+            await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
             await RunInPiecesAsync(flowInstance);
         }
 
@@ -34,7 +34,7 @@ namespace Kustox.IntegratedTests
             var flowInstance = CreateControlFlowInstance();
 
             Assert.NotNull(controlFlow);
-            await flowInstance.CreateInstanceAsync(controlFlow, CancellationToken.None);
+            await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
             await RunInPiecesAsync(flowInstance);
         }
     }

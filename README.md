@@ -125,7 +125,7 @@ A capture value is strong type.  It can either be a Kusto table or a Kusto scala
         | count
         | project Count == 0
 
-    @if(tableNotExist){
+    @if tableNotExist {
         .set sampleTable <|
             datatable(name:string) ["Alice", "Bob"]
     }

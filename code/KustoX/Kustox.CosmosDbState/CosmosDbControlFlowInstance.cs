@@ -21,10 +21,10 @@ namespace Kustox.CosmosDbState
         long IControlFlowInstance.JobId => _jobId;
 
         async Task IControlFlowInstance.CreateInstanceAsync(
-            ControlFlowDeclaration declaration,
+            string script,
             CancellationToken ct)
         {
-            var declarationData = new DeclarationData(_jobId, declaration);
+            var declarationData = new DeclarationData(_jobId, script);
             var stateData = new ControlFlowStateData(_jobId, ControlFlowState.Running);
             var batch = _container.CreateTransactionalBatch(
                 ControlFlowDataHelper.JobIdToPartitionKey(_jobId));
@@ -50,7 +50,8 @@ namespace Kustox.CosmosDbState
                 ControlFlowDataHelper.JobIdToPartitionKey(_jobId),
                 null,
                 ct);
-            var declaration = response.Resource.Declaration;
+            var script = response.Resource.Script;
+            var declaration = new KustoxCompiler().CompileScript(script);
 
             if (declaration == null)
             {
