@@ -9,10 +9,6 @@ namespace Kustox.Compiler
 {
     public class ControlFlowDeclaration : DeclarationBase
     {
-        public ControlFlowDeclaration() : base(false)
-        {
-        }
-
         public SequenceDeclaration RootSequence { get; set; } = new SequenceDeclaration();
 
         public override void Validate()

@@ -19,8 +19,6 @@ rule(interleave=false) integer = number+ => integer(text);
 rule(interleave=false) boolean = "true" | "false" => boolean(text);
 rule(interleave=false) blockSpacer = " " | "\t" | "\r";
 
-#	rules
-
 #	Property rules
 rule propertyValue = boolean:boolean | integer:integer | string:quotedString;
 rule propertyAssignation = id:identifier "=" value:propertyValue => merge({"id" : id}, value);
@@ -29,34 +27,39 @@ rule propertyAssignationList = head:propertyAssignation
 rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => flatten(list);
 rule optionalWithPropertyAssignationList = withPropertyAssignationList? => flatten(defaultOutput);
 
-# queries
+#	Runnables:  stuff that can be run, i.e. queries and commands
 rule(interleave=false) kqlLine = ((. - "\n")* - blockSpacer*) "\n"=> text;
 rule(interleave=false) query = (. - ".") kqlLine* => text;
 rule(interleave=false) command = "." kqlLine+ => text;
 
-#	Control flows
+#	Capturables:  stuff that can be captured, i.e. runnables & control flows
+rule forEach = "@foreach" properties:optionalWithPropertyAssignationList "(" cursor:identifier "in" enumerator:identifier ")" sequence:sequenceContent => {
+	"properties":properties,
+	"cursor":cursor,
+	"enumerator":enumerator,
+	"sequence":{
+		"blocks":sequence
+	}
+};
+rule capturable = forEach:forEach | query:query | command:command;
 rule captureScalar = "@capture-scalar" id:identifier "="
-	runnable:(query:query | command:command) => {
-		"captureName":id,
-		"isScalarCapture":true,
-		"runnable":runnable,
-		"code":text
-	};
-rule captureTable = "@capture" id:identifier "=" runnable:(query:query | command:command) => {
-		"captureName":id,
-		"isScalarCapture":false,
-		"runnable":runnable,
-		"code":text
-	};
-rule execCommand = command => {
-		"runnable":{
-			"command":defaultOutput
+	capturable:capturable => merge({
+		"capture":{
+			"captureName":id,
+			"isScalarCapture":true
 		},
 		"code":text
-	};
-rule sequenceItem = captureScalar | captureTable | execCommand => {
-		"capturable":defaultOutput
-	};
+	}, capturable);
+rule captureTable = "@capture" id:identifier "=" capturable:capturable =>
+	merge({
+		"capture":{
+			"captureName":id,
+			"isScalarCapture":false
+		},
+		"code":text
+	}, capturable);
+rule sequenceItem = captureScalar | captureTable
+   | (capturable => merge(defaultOutput, {"code": text}));
 rule sequenceItemList = head:sequenceItem
 	tail:sequenceItem* => prepend(head, tail);
 rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"

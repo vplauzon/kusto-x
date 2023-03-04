@@ -18,20 +18,20 @@ namespace Kustox.UnitTests
             Assert.Equal(2, controlFlow.RootSequence.Blocks.Count());
 
             //  1st constant
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable);
-            Assert.True(controlFlow.RootSequence.Blocks.First().Capturable!.IsScalarCapture);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capture);
+            Assert.True(controlFlow.RootSequence.Blocks.First().Capture!.IsScalarCapture);
             Assert.Equal(
                 "myConstant1",
-                controlFlow.RootSequence.Blocks.First().Capturable!.CaptureName);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable!.Runnable.Query);
+                controlFlow.RootSequence.Blocks.First().Capture!.CaptureName);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Query);
 
             //  2nd constant
-            Assert.NotNull(controlFlow.RootSequence.Blocks.Last().Capturable);
-            Assert.True(controlFlow.RootSequence.Blocks.Last().Capturable!.IsScalarCapture);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.Last().Capture);
+            Assert.True(controlFlow.RootSequence.Blocks.Last().Capture!.IsScalarCapture);
             Assert.Equal(
                 "myConstant2",
-                controlFlow.RootSequence.Blocks.Last().Capturable!.CaptureName);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.Last().Capturable!.Runnable.Query);
+                controlFlow.RootSequence.Blocks.Last().Capture!.CaptureName);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.Last().Query);
         }
     }
 }

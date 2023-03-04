@@ -2,22 +2,18 @@
 {
     public class CaptureDeclaration : DeclarationBase
     {
-        public string? CaptureName { get; set; }
+        public string CaptureName { get; set; } = string.Empty;
 
-        public bool? IsScalarCapture { get; set; }
-
-        public RunnableDeclaration Runnable { get; set; } = new RunnableDeclaration();
+        public bool IsScalarCapture { get; set; } = false;
 
         public override void Validate()
         {
             base.Validate();
 
-            if (IsScalarCapture != null && string.IsNullOrEmpty(CaptureName))
+            if (string.IsNullOrEmpty(CaptureName))
             {
-                throw new InvalidDataException(
-                    $"Inconsistant capture in {typeof(CaptureDeclaration).Name}");
+                throw new InvalidDataException("Capture has no name");
             }
-            Runnable.Validate();
         }
     }
 }

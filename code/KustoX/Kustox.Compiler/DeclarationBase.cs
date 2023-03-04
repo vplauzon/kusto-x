@@ -2,21 +2,8 @@
 {
     public abstract class DeclarationBase
     {
-        private readonly bool _hasCode;
-
-        public DeclarationBase(bool hasCode = true)
-        {
-            _hasCode = hasCode;
-        }
-
-        public string Code { get; set; } = string.Empty;
-
         public virtual void Validate()
         {
-            if (_hasCode && string.IsNullOrWhiteSpace(Code))
-            {
-                throw new InvalidDataException($"No '{nameof(Code)}'");
-            }
         }
     }
 }

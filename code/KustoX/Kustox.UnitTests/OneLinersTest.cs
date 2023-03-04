@@ -24,12 +24,12 @@ namespace Kustox.UnitTests
 
             Assert.NotNull(controlFlow);
             Assert.Single(controlFlow.RootSequence.Blocks);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable);
-            Assert.True(controlFlow.RootSequence.Blocks.First().Capturable!.IsScalarCapture);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capture);
+            Assert.True(controlFlow.RootSequence.Blocks.First().Capture!.IsScalarCapture);
             Assert.Equal(
                 "myConstant",
-                controlFlow.RootSequence.Blocks.First().Capturable!.CaptureName);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable!.Runnable.Query);
+                controlFlow.RootSequence.Blocks.First().Capture!.CaptureName);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Query);
         }
 
         [Fact]
@@ -42,12 +42,12 @@ namespace Kustox.UnitTests
 
             Assert.NotNull(controlFlow);
             Assert.Single(controlFlow.RootSequence.Blocks);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable);
-            Assert.True(controlFlow.RootSequence.Blocks.First().Capturable!.IsScalarCapture);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capture);
+            Assert.True(controlFlow.RootSequence.Blocks.First().Capture!.IsScalarCapture);
             Assert.Equal(
                 "myVersionTable",
-                controlFlow.RootSequence.Blocks.First().Capturable!.CaptureName);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable!.Runnable.Command);
+                controlFlow.RootSequence.Blocks.First().Capture!.CaptureName);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Command);
         }
 
         [Fact]
@@ -60,10 +60,8 @@ namespace Kustox.UnitTests
 
             Assert.NotNull(controlFlow);
             Assert.Single(controlFlow.RootSequence.Blocks);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable);
-            Assert.Null(controlFlow.RootSequence.Blocks.First().Capturable!.CaptureName);
-            Assert.Null(controlFlow.RootSequence.Blocks.First().Capturable!.IsScalarCapture);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capturable!.Runnable.Command);
+            Assert.Null(controlFlow.RootSequence.Blocks.First().Capture);
+            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Command);
         }
     }
 }

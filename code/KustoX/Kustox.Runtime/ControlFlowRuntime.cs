@@ -59,21 +59,31 @@ namespace Kustox.Runtime
 
         private async Task<TableResult> RunBlockAsync(
             int stepIndex,
-            BlockDeclaration instuction,
+            BlockDeclaration block,
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
-            if (instuction.Capturable != null)
+            if (block.Query != null)
             {
-                return await RunCapturableAsync(
-                    instuction.Capturable,
+                return await RunQueryAsync(
+                    block.Query,
+                    block.Capture?.IsScalarCapture ?? false,
+                    stepIndex,
+                    levelContext,
+                    ct);
+            }
+            else if (block.Command != null)
+            {
+                return await RunCommandAsync(
+                    block.Command,
+                    block.Capture?.IsScalarCapture ?? false,
                     stepIndex,
                     levelContext,
                     ct);
             }
             else
             {
-                throw new NotSupportedException("Block declaration");
+                throw new NotSupportedException("runnable must be either query or command");
             }
         }
 
@@ -93,47 +103,28 @@ namespace Kustox.Runtime
                 if (steps.Count() <= i || steps[i].State != StepState.Completed)
                 {
                     result = await RunBlockAsync(i, block, levelContext, ct);
+                    await levelContext.CompleteStepAsync(
+                        i,
+                        block.Code,
+                        block.Capture?.CaptureName,
+                        result,
+                        ct);
                 }
             }
 
             return result;
         }
 
-        private async Task<TableResult> RunCapturableAsync(
-            CaptureDeclaration declaration,
+        private async Task<TableResult> RunQueryAsync(
+            string query,
+            bool isScalarCapture,
             int stepIndex,
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
             levelContext.PreStepExecution();
 
-            if (declaration.Runnable.Query != null)
-            {
-                var reader = await ExecuteQueryAsync(declaration, levelContext, ct);
-
-                return await CaptureResultAsync(declaration, stepIndex, reader, levelContext, ct);
-            }
-            else if (declaration.Runnable.Command != null)
-            {
-                var reader = await _commandProvider.ExecuteControlCommandAsync(
-                    string.Empty,
-                    declaration.Runnable.Command,
-                    new ClientRequestProperties());
-
-                return await CaptureResultAsync(declaration, stepIndex, reader, levelContext, ct);
-            }
-            else
-            {
-                throw new NotSupportedException("runnable must be either query or command");
-            }
-        }
-
-        private async Task<IDataReader> ExecuteQueryAsync(
-            CaptureDeclaration declaration,
-            RuntimeLevelContext levelContext,
-            CancellationToken ct)
-        {
-            var queryBlock = (QueryBlock)KustoCode.Parse(declaration.Runnable.Query).Syntax;
+            var queryBlock = (QueryBlock)KustoCode.Parse(query).Syntax;
             var nameReferences = queryBlock
                 .GetDescendants<NameReference>()
                 .Select(n => n.Name.SimpleName)
@@ -142,10 +133,31 @@ namespace Kustox.Runtime
             var queryPrefix = BuildQueryPrefix(capturedValues);
             var reader = await _queryProvider.ExecuteQueryAsync(
                 string.Empty,
-                queryPrefix + declaration.Runnable.Query,
+                queryPrefix + query,
                 new ClientRequestProperties());
+            var table = reader.ToDataSet().Tables[0];
+            var result = new TableResult(isScalarCapture, table);
 
-            return reader;
+            return result;
+        }
+
+        private async Task<TableResult> RunCommandAsync(
+            string command,
+            bool isScalarCapture,
+            int stepIndex,
+            RuntimeLevelContext levelContext,
+            CancellationToken ct)
+        {
+            levelContext.PreStepExecution();
+
+            var reader = await _commandProvider.ExecuteControlCommandAsync(
+                string.Empty,
+                command,
+                new ClientRequestProperties());
+            var table = reader.ToDataSet().Tables[0];
+            var result = new TableResult(isScalarCapture, table);
+
+            return result;
         }
 
         private string BuildQueryPrefix(
@@ -188,26 +200,6 @@ namespace Kustox.Runtime
             var prefixText = string.Join(Environment.NewLine, letList) + Environment.NewLine;
 
             return prefixText;
-        }
-
-        private async Task<TableResult> CaptureResultAsync(
-            CaptureDeclaration declaration,
-            int stepIndex,
-            IDataReader reader,
-            RuntimeLevelContext levelContext,
-            CancellationToken ct)
-        {
-            var table = reader.ToDataSet().Tables[0];
-            var result = new TableResult(declaration.IsScalarCapture ?? false, table);
-
-            await levelContext.CompleteStepAsync(
-                stepIndex,
-                declaration.Code,
-                declaration.CaptureName,
-                result,
-                ct);
-
-            return result;
         }
     }
 }
