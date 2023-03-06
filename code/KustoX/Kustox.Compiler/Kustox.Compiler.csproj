@@ -17,7 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="GramParser" Version="0.6.1.1" />
+    <PackageReference Include="GramParser" Version="0.7.0.2-alpha" />
     <PackageReference Include="Microsoft.Extensions.FileProviders.Embedded" Version="7.0.3" />
     <PackageReference Include="Microsoft.Azure.Kusto.Language" Version="11.2.2" />
   </ItemGroup>
