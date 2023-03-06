@@ -81,12 +81,22 @@ namespace Kustox.Runtime
                     levelContext,
                     ct);
             }
+            else if (block.ForEach != null)
+            {
+                return await RunForEachAsync(
+                    block.ForEach,
+                    block.Capture?.IsScalarCapture ?? false,
+                    stepIndex,
+                    levelContext,
+                    ct);
+            }
             else
             {
                 throw new NotSupportedException("runnable must be either query or command");
             }
         }
 
+        #region Sequences
         private async Task<TableResult?> RunSequenceAsync(
             SequenceDeclaration sequence,
             RuntimeLevelContext levelContext,
@@ -114,7 +124,9 @@ namespace Kustox.Runtime
 
             return result;
         }
+        #endregion
 
+        #region Queries
         private async Task<TableResult> RunQueryAsync(
             string query,
             bool isScalarCapture,
@@ -134,25 +146,6 @@ namespace Kustox.Runtime
             var reader = await _queryProvider.ExecuteQueryAsync(
                 string.Empty,
                 queryPrefix + query,
-                new ClientRequestProperties());
-            var table = reader.ToDataSet().Tables[0];
-            var result = new TableResult(isScalarCapture, table);
-
-            return result;
-        }
-
-        private async Task<TableResult> RunCommandAsync(
-            string command,
-            bool isScalarCapture,
-            int stepIndex,
-            RuntimeLevelContext levelContext,
-            CancellationToken ct)
-        {
-            levelContext.PreStepExecution();
-
-            var reader = await _commandProvider.ExecuteControlCommandAsync(
-                string.Empty,
-                command,
                 new ClientRequestProperties());
             var table = reader.ToDataSet().Tables[0];
             var result = new TableResult(isScalarCapture, table);
@@ -201,5 +194,39 @@ namespace Kustox.Runtime
 
             return prefixText;
         }
+        #endregion
+
+        #region Commands
+        private async Task<TableResult> RunCommandAsync(
+            string command,
+            bool isScalarCapture,
+            int stepIndex,
+            RuntimeLevelContext levelContext,
+            CancellationToken ct)
+        {
+            levelContext.PreStepExecution();
+
+            var reader = await _commandProvider.ExecuteControlCommandAsync(
+                string.Empty,
+                command,
+                new ClientRequestProperties());
+            var table = reader.ToDataSet().Tables[0];
+            var result = new TableResult(isScalarCapture, table);
+
+            return result;
+        }
+        #endregion
+
+        #region For Each
+        private Task<TableResult> RunForEachAsync(
+            ForEachDeclaration forEach,
+            bool isScalarCapture,
+            int stepIndex,
+            RuntimeLevelContext levelContext,
+            CancellationToken ct)
+        {
+            throw new NotImplementedException();
+        }
+        #endregion
     }
 }
