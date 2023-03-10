@@ -33,7 +33,7 @@ rule(interleave=false) query = (. - ".") kqlLine* => text;
 rule(interleave=false) command = "." kqlLine+ => text;
 
 #	Capturables:  stuff that can be captured, i.e. runnables & control flows
-rule forEach = "@foreach" properties:optionalWithPropertyAssignationList "(" cursor:identifier "in" enumerator:identifier ")" sequence:sequenceContent => {
+rule forEach = "@foreach" "(" cursor:identifier "in" enumerator:identifier ")" properties:optionalWithPropertyAssignationList sequence:sequenceContent => {
 	"properties":properties,
 	"cursor":cursor,
 	"enumerator":enumerator,

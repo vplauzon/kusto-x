@@ -8,6 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Text.Json.Nodes;
 using System.Threading.Tasks;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Kustox.Runtime.State
 {
@@ -69,6 +70,52 @@ namespace Kustox.Runtime.State
         public string GetJsonData()
         {
             return JsonSerializer.Serialize(Data);
+        }
+
+        public IEnumerable<object> GetColumnData(int columnIndex)
+        {
+            foreach (var array in Data)
+            {
+                yield return array[columnIndex];
+            }
+        }
+
+        public static TableResult Union(IImmutableList<TableResult> results)
+        {
+            if (!results.Any())
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(results),
+                    $"Union requires at list one {typeof(TableResult).Name}");
+            }
+
+            var schemas = results.Select(r => r.Columns);
+            var template = schemas.First();
+
+            foreach (var schema in schemas)
+            {
+                if (!Enumerable.SequenceEqual(schema, template))
+                {
+                    throw new InvalidDataException(
+                        "Not all results have the same schema for union");
+                }
+            }
+
+            var datas = new Stack<IEnumerable<IImmutableList<object>>>(
+                results.Select(r => r.Data).Reverse());
+
+            while (datas.Count() > 1)
+            {
+                var first = datas.Pop();
+                var second = datas.Pop();
+                var union = first.Concat(second);
+
+                datas.Push(union);
+            }
+
+            var allUnion = datas.Pop().ToImmutableArray();
+
+            return new TableResult(false, template, allUnion);
         }
 
         private static object AlignTypeToJsonFriendly(object obj)

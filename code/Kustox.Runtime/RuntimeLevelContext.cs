@@ -112,12 +112,46 @@ namespace Kustox.Runtime
 
         public ControlFlowDeclaration Declaration { get; }
 
+        #region Level Management
+        public async Task<RuntimeLevelContext> GoDownOneLevelAsync(
+            int stepIndex,
+            CancellationToken ct)
+        {
+            var subPrefixes = _levelPrefixes.Add(stepIndex);
+            var steps = await _controlFlowInstance.GetStepsAsync(subPrefixes, ct);
+            var stepStates = steps
+                .Select(s => s.State)
+                .ToImmutableArray();
+
+            return new RuntimeLevelContext(
+                _controlFlowInstance,
+                Declaration,
+                subPrefixes,
+                stepStates,
+                _captures.ToImmutableArray(),
+                _stepCounter);
+        }
+        #endregion
+
         public void PreStepExecution()
         {
             if (!_stepCounter.IncreaseStep())
             {
                 throw new TaskCanceledException("Step Counter done");
             }
+        }
+
+        #region Step states
+        public IImmutableList<StepState> GetLevelStepStates()
+        {
+            return _stepStates.ToImmutableArray();
+        }
+
+        public async Task<IImmutableList<ControlFlowStep>> GetAllStepsAsync(CancellationToken ct)
+        {
+            var steps = await _controlFlowInstance.GetStepsAsync(_levelPrefixes, ct);
+
+            return steps;
         }
 
         public async Task RunningStepAsync(int stepIndex, string script, CancellationToken ct)
@@ -174,7 +208,9 @@ namespace Kustox.Runtime
                 throw new TaskCanceledException("After state persisted");
             }
         }
+        #endregion
 
+        #region Captured values
         public TableResult? GetCapturedValueIfExist(string name)
         {
             if (_captures.TryGetValue(name, out var result))
@@ -187,9 +223,10 @@ namespace Kustox.Runtime
             }
         }
 
-        public IImmutableList<StepState> GetLevelStepStates()
+        public void AddCapturedValue(string cursor, TableResult item)
         {
-            return _stepStates.ToImmutableArray();
+            _captures.Add(cursor, item);
         }
+        #endregion
     }
 }

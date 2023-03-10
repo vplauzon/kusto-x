@@ -82,5 +82,26 @@ namespace Kustox.Runtime.State
                 throw new NotSupportedException($".NET Type:  {ColumnType.FullName}");
             }
         }
+
+        #region Object methods
+        public override bool Equals(object? obj)
+        {
+            var second = obj as ColumnSpecification;
+
+            return second != null
+                && second.ColumnType == ColumnType
+                && second.ColumnName == ColumnName;
+        }
+
+        public override int GetHashCode()
+        {
+            return ColumnName.GetHashCode() ^ ColumnType.GetHashCode();
+        }
+
+        public override string ToString()
+        {
+            return $"{ColumnName}:{ColumnType}";
+        }
+        #endregion
     }
 }

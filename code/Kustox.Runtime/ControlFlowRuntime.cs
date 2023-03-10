@@ -231,13 +231,58 @@ namespace Kustox.Runtime
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
-            var enumeratorValues = GetForeachEnumeratorValues(forEach, levelContext);
+            var enumeratorValues = new Stack<TableResult>(
+                GetForeachEnumeratorValues(forEach, levelContext).Reverse());
 
+            if (levelContext.GetCapturedValueIfExist(forEach.Cursor) != null)
+            {
+                throw new InvalidOperationException(
+                    $"Cursor '{forEach.Cursor}' already used in for-each:  "
+                    + $"'{forEach.Code}'");
+            }
             if (forEach.Sequence.Blocks.Any())
             {
-                await Task.CompletedTask;
+                var subLevelContext = await levelContext.GoDownOneLevelAsync(stepIndex, ct);
+                var subStepIndex = 0;
+                var tasks = ImmutableArray<Task>.Empty;
 
-                throw new NotImplementedException();
+                try
+                {
+                    while (enumeratorValues.Any() || !tasks.Any())
+                    {
+                        var isCompleted = tasks.Select(t => t.IsCompleted).ToImmutableArray();
+                        var completedTasks = tasks
+                            .Zip(isCompleted)
+                            .Where(c => c.Second)
+                            .Select(c => c.First)
+                            .ToImmutableArray();
+                        var onGoingTasks = tasks
+                            .Zip(isCompleted)
+                            .Where(c => !c.Second)
+                            .Select(c => c.First)
+                            .ToImmutableArray();
+
+                        await Task.WhenAll(completedTasks);
+                        while (onGoingTasks.Count() < forEach.Concurrency
+                            && enumeratorValues.Any())
+                        {
+                            onGoingTasks = onGoingTasks.Add(RunForEachIterationAsync(
+                                forEach,
+                                enumeratorValues.Pop(),
+                                subStepIndex++,
+                                subLevelContext,
+                                ct));
+                        }
+                        tasks = onGoingTasks;
+                        await Task.WhenAny(tasks);
+                    }
+                }
+                catch
+                {
+                    await Task.WhenAll(tasks);
+                }
+
+                return await FetchForEachResultAsync(subLevelContext, ct);
             }
             else
             {   //  Return empty table
@@ -250,7 +295,39 @@ namespace Kustox.Runtime
             }
         }
 
-        private static IEnumerable<object> GetForeachEnumeratorValues(
+        private async Task<TableResult> FetchForEachResultAsync(
+            RuntimeLevelContext levelContext,
+            CancellationToken ct)
+        {
+            var states = await levelContext.GetAllStepsAsync(ct);
+            var results = states
+                .Select(s => s.Result!)
+                .ToImmutableArray();
+
+            return TableResult.Union(results);
+        }
+
+        private async Task RunForEachIterationAsync(
+            ForEachDeclaration forEach,
+            TableResult item,
+            int stepIndex,
+            RuntimeLevelContext levelContext,
+            CancellationToken ct)
+        {
+            var subLevelContext = await levelContext.GoDownOneLevelAsync(stepIndex, ct);
+
+            subLevelContext.AddCapturedValue(forEach.Cursor, item);
+            await levelContext.RunningStepAsync(stepIndex, forEach.Sequence.Code, ct);
+            var result = await RunSequenceAsync(forEach.Sequence, subLevelContext, ct);
+            await levelContext.CompleteStepAsync(
+                stepIndex,
+                forEach.Sequence.Code,
+                null,
+                result!,
+                ct);
+        }
+
+        private static IEnumerable<TableResult> GetForeachEnumeratorValues(
             ForEachDeclaration forEach,
             RuntimeLevelContext levelContext)
         {
@@ -273,20 +350,20 @@ namespace Kustox.Runtime
                         + $"'{forEach.Code}'");
                 }
 
-                return array;
+                return array
+                    .Select(o => new TableResult(
+                        true,
+                        ImmutableArray.Create(new ColumnSpecification("c", typeof(object))),
+                        ImmutableArray.Create(ImmutableArray.Create(o) as IImmutableList<object>)));
             }
             else
             {
-                return GetFirstColumnData(enumatorValue.Data);
-            }
-        }
-
-        private static IEnumerable<object> GetFirstColumnData(
-            IImmutableList<IImmutableList<object>> data)
-        {
-            foreach (var array in data)
-            {
-                yield return array[0];
+                return enumatorValue
+                    .GetColumnData(0)
+                    .Select(o => new TableResult(
+                        true,
+                        ImmutableArray.Create(enumatorValue.Columns.First()),
+                        ImmutableArray.Create(ImmutableArray.Create(o) as IImmutableList<object>)));
             }
         }
         #endregion

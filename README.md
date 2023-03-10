@@ -146,7 +146,7 @@ A `if` can be by itself (i.e. without `else`) or `else if` can also be used to a
 @control-flow{
     @capture names = datatable(name:string) ["Alice", "Bob"]
 
-    @foreach(name in names)
+    @foreach(name in names) with(concurrency=2)
     {
         .append sampleTable <|
             print name=name
@@ -158,6 +158,9 @@ A `if` can be by itself (i.e. without `else`) or `else if` can also be used to a
 
 * A table, which case it enumerates on the first column
 * A scalar of dynamic type representing an array
+
+*Foreach*'s concurrency is optional.  Default is 1.
+
 
 ## Until semantic
 

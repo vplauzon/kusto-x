@@ -102,8 +102,8 @@ namespace Kustox.CosmosDbState
             var query = $@"SELECT *
 FROM c
 WHERE
-ARRAY_LENGTH(c.indexes)=1
-AND STARTSWITH(c.id, '{StepData.GetIdPrefix(_jobId)}', false)";
+ARRAY_LENGTH(c.indexes)={levelPrefix.Count() + 1}
+AND STARTSWITH(c.id, '{StepData.GetId(_jobId, levelPrefix)}', false)";
             var iterator = _container.GetItemQueryIterator<StepData>(
                 new QueryDefinition(query),
                 null,
