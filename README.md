@@ -1,6 +1,7 @@
 # Kusto-X
 
-[![Continuous Build / Unit Test](https://github.com/vplauzon/kusto-x/actions/workflows/continuous-build.yaml/badge.svg)](https://github.com/vplauzon/kusto-x/actions/workflows/continuous-build.yaml)
+![Continuous Build / Unit Test](https://github.com/vplauzon/kusto-x/actions/workflows/continuous-build.yaml/badge.svg)](https://github.com/vplauzon/kusto-x/actions/workflows/continuous-build.yaml)
+
 Kusto-X is an extension to the Kusto Query Language.  The original aim is to POC to add control flows / long running operations to Kusto.
 
 # Kusto-X Specs
