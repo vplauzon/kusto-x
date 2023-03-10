@@ -63,6 +63,8 @@ Here are a couple of commands unique to Kusto-X.
 
 ### .queue export
 
+### .queue export to
+
 ### .await ingest
 
 ## Captures

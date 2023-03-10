@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Security.AccessControl;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -43,6 +44,7 @@ namespace Kustox.Runtime
 
         private readonly IControlFlowInstance _controlFlowInstance;
         private readonly IImmutableList<long> _levelPrefixes;
+        private readonly IList<StepState> _stepStates;
         private readonly IDictionary<string, TableResult> _captures;
         private readonly StepCounter _stepCounter;
 
@@ -51,12 +53,14 @@ namespace Kustox.Runtime
             IControlFlowInstance controlFlowInstance,
             ControlFlowDeclaration declaration,
             IImmutableList<long> levelPrefixes,
+            IImmutableList<StepState> stepStates,
             IImmutableList<KeyValuePair<string, TableResult>> captures,
             StepCounter stepCounter)
         {
             _controlFlowInstance = controlFlowInstance;
             Declaration = declaration;
             _levelPrefixes = levelPrefixes;
+            _stepStates = stepStates.ToList();
             _captures = new Dictionary<string, TableResult>(captures);
             _stepCounter = stepCounter;
         }
@@ -65,9 +69,20 @@ namespace Kustox.Runtime
             IControlFlowInstance controlFlowInstance,
             int? maximumNumberOfSteps,
             CancellationToken ct)
-        {
-            var declaration = await controlFlowInstance.GetDeclarationAsync(ct);
-            var state = await controlFlowInstance.GetControlFlowStateAsync(ct);
+        {   //  Run in parallel
+            var declarationTask = controlFlowInstance.GetDeclarationAsync(ct);
+            var stateTask = controlFlowInstance.GetControlFlowStateAsync(ct);
+            var stepsTask = controlFlowInstance.GetStepsAsync(ImmutableArray<long>.Empty, ct);
+            var declaration = await declarationTask;
+            var state = await stateTask;
+            var steps = await stepsTask;
+            var stepStates = steps
+                .Select(s => s.State)
+                .ToImmutableArray();
+            var captures = steps
+                .Where(s => !string.IsNullOrWhiteSpace(s.CaptureName))
+                .Select(s => KeyValuePair.Create(s.CaptureName, s.Result))
+                .ToImmutableArray();
 
             switch (state.Data)
             {
@@ -89,7 +104,8 @@ namespace Kustox.Runtime
                 controlFlowInstance,
                 declaration,
                 ImmutableArray<long>.Empty,
-                ImmutableArray<KeyValuePair<string, TableResult>>.Empty,
+                stepStates,
+                captures,
                 new StepCounter(maximumNumberOfSteps));
         }
         #endregion
@@ -102,21 +118,6 @@ namespace Kustox.Runtime
             {
                 throw new TaskCanceledException("Step Counter done");
             }
-        }
-
-        public async Task<IImmutableList<ControlFlowStep>> RestoreStepsAsync(CancellationToken ct)
-        {
-            var steps = await _controlFlowInstance.GetStepsAsync(_levelPrefixes, ct);
-
-            foreach (var step in steps)
-            {
-                if (step.CaptureName != null)
-                {
-                    _captures.Add(step.CaptureName!, step.Result!);
-                }
-            }
-
-            return steps;
         }
 
         public async Task CompleteStepAsync(
@@ -139,6 +140,14 @@ namespace Kustox.Runtime
             {
                 _captures.Add(captureName, result);
             }
+            if (stepIndex < _stepStates.Count())
+            {
+                _stepStates[stepIndex] = StepState.Completed;
+            }
+            else
+            {
+                _stepStates.Add(StepState.Completed);
+            }
             //  Compensate not taking the cancellation token into account in persistency
             if (ct.IsCancellationRequested)
             {
@@ -146,22 +155,21 @@ namespace Kustox.Runtime
             }
         }
 
-        public IImmutableList<KeyValuePair<string, TableResult>> GetCapturedValues(
-            ImmutableArray<string> nameReferences)
+        public TableResult? GetCapturedValueIfExist(string name)
         {
-            var list = new List<KeyValuePair<string, TableResult>>();
-
-            foreach (var name in nameReferences)
+            if (_captures.TryGetValue(name, out var result))
             {
-                TableResult? result;
-
-                if (_captures.TryGetValue(name, out result))
-                {
-                    list.Add(KeyValuePair.Create(name, result));
-                }
+                return result;
             }
+            else
+            {
+                return null;
+            }
+        }
 
-            return list.ToImmutableArray();
+        public IImmutableList<StepState> GetLevelStepStates()
+        {
+            return _stepStates.ToImmutableArray();
         }
     }
 }

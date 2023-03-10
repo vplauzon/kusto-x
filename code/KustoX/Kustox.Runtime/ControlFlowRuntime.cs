@@ -29,6 +29,7 @@ namespace Kustox.Runtime
             _commandProvider = commandProvider;
         }
 
+        #region Run Infra
         public async Task<RuntimeResult> RunAsync(
             int? maximumNumberOfSteps = null,
             CancellationToken ct = default(CancellationToken))
@@ -95,6 +96,7 @@ namespace Kustox.Runtime
                 throw new NotSupportedException("runnable must be either query or command");
             }
         }
+        #endregion
 
         #region Sequences
         private async Task<TableResult?> RunSequenceAsync(
@@ -102,7 +104,7 @@ namespace Kustox.Runtime
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
-            var steps = await levelContext.RestoreStepsAsync(ct);
+            var stepStates = levelContext.GetLevelStepStates();
             var blocks = sequence.Blocks;
             TableResult? result = null;
 
@@ -110,7 +112,7 @@ namespace Kustox.Runtime
             {
                 var block = blocks[i];
 
-                if (steps.Count() <= i || steps[i].State != StepState.Completed)
+                if (stepStates.Count() <= i || stepStates[i] != StepState.Completed)
                 {
                     result = await RunBlockAsync(i, block, levelContext, ct);
                     await levelContext.CompleteStepAsync(
@@ -141,7 +143,10 @@ namespace Kustox.Runtime
                 .GetDescendants<NameReference>()
                 .Select(n => n.Name.SimpleName)
                 .ToImmutableArray();
-            var capturedValues = levelContext.GetCapturedValues(nameReferences);
+            var capturedValues = nameReferences
+                .Select(n => KeyValuePair.Create(n, levelContext.GetCapturedValueIfExist(n)))
+                .Where(p => p.Value != null)
+                .ToImmutableArray();
             var queryPrefix = BuildQueryPrefix(capturedValues);
             var reader = await _queryProvider.ExecuteQueryAsync(
                 string.Empty,
@@ -225,6 +230,14 @@ namespace Kustox.Runtime
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
+            var enumatorValue = levelContext.GetCapturedValueIfExist(forEach.Enumerator);
+
+            if (enumatorValue == null)
+            {
+                throw new InvalidOperationException(
+                    $"Cannot find enumerator '{forEach.Enumerator}' in for-each:  "
+                    + $"'{forEach.Code}'");
+            }
             throw new NotImplementedException();
         }
         #endregion
