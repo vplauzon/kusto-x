@@ -7,13 +7,12 @@ namespace Kustox.IntegratedTests
     public class ForEachTest : TestBase
     {
         [Fact]
-        public async Task LoopRange()
+        public async Task LoopRangeEmptySequence()
         {
             var script = @"@control-flow{
     @capture-scalar myRange = print range(0, 2, 1)
 
     @foreach(i in myRange){
-        print i
     }
 }";
             var controlFlow = new KustoxCompiler().CompileScript(script);
@@ -23,6 +22,12 @@ namespace Kustox.IntegratedTests
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
             
             var result = await RunInPiecesAsync(flowInstance, null);
+
+            Assert.NotNull(result);
+            Assert.False(result.IsScalar);
+            Assert.Single(result.Columns);
+            Assert.Single(result.Data);
+            Assert.Single(result.Data.First());
         }
     }
 }

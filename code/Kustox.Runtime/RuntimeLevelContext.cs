@@ -120,6 +120,26 @@ namespace Kustox.Runtime
             }
         }
 
+        public async Task RunningStepAsync(int stepIndex, string script, CancellationToken ct)
+        {
+            await _controlFlowInstance.SetStepAsync(
+                _levelPrefixes.Add(stepIndex),
+                StepState.Running,
+                script,
+                null,
+                null,
+                ct);
+
+            if (stepIndex < _stepStates.Count())
+            {
+                _stepStates[stepIndex] = StepState.Running;
+            }
+            else
+            {
+                _stepStates.Add(StepState.Running);
+            }
+        }
+
         public async Task CompleteStepAsync(
             int stepIndex,
             string script,

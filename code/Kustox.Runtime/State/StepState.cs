@@ -8,8 +8,6 @@ namespace Kustox.Runtime.State
 {
     public enum StepState
     {
-        /// <summary>Hasn't started yet.</summary>
-        Pending,
         /// <summary>Currently running.</summary>
         Running,
         /// <summary>Completed the run.</summary>

@@ -114,6 +114,7 @@ namespace Kustox.Runtime
 
                 if (stepStates.Count() <= i || stepStates[i] != StepState.Completed)
                 {
+                    await levelContext.RunningStepAsync(i, block.Code, ct);
                     result = await RunBlockAsync(i, block, levelContext, ct);
                     await levelContext.CompleteStepAsync(
                         i,
@@ -223,12 +224,35 @@ namespace Kustox.Runtime
         #endregion
 
         #region For Each
-        private Task<TableResult> RunForEachAsync(
+        private async Task<TableResult> RunForEachAsync(
             ForEachDeclaration forEach,
             bool isScalarCapture,
             int stepIndex,
             RuntimeLevelContext levelContext,
             CancellationToken ct)
+        {
+            var enumeratorValues = GetForeachEnumeratorValues(forEach, levelContext);
+
+            if (forEach.Sequence.Blocks.Any())
+            {
+                await Task.CompletedTask;
+
+                throw new NotImplementedException();
+            }
+            else
+            {   //  Return empty table
+                return new TableResult(
+                    false,
+                    ImmutableArray<ColumnSpecification>.Empty.Add(
+                        new ColumnSpecification("Description", typeof(string))),
+                    ImmutableArray<IImmutableList<object>>.Empty.Add(
+                        ImmutableArray<object>.Empty.Add("Empty for-loop")));
+            }
+        }
+
+        private static IEnumerable<object> GetForeachEnumeratorValues(
+            ForEachDeclaration forEach,
+            RuntimeLevelContext levelContext)
         {
             var enumatorValue = levelContext.GetCapturedValueIfExist(forEach.Enumerator);
 
@@ -238,7 +262,32 @@ namespace Kustox.Runtime
                     $"Cannot find enumerator '{forEach.Enumerator}' in for-each:  "
                     + $"'{forEach.Code}'");
             }
-            throw new NotImplementedException();
+            if (enumatorValue.IsScalar)
+            {
+                var array = enumatorValue.Data[0][0] as IEnumerable<object>;
+
+                if (array == null)
+                {
+                    throw new InvalidOperationException(
+                        $"Scalar enumerator '{forEach.Enumerator}' isn't an array in for-each:  "
+                        + $"'{forEach.Code}'");
+                }
+
+                return array;
+            }
+            else
+            {
+                return GetFirstColumnData(enumatorValue.Data);
+            }
+        }
+
+        private static IEnumerable<object> GetFirstColumnData(
+            IImmutableList<IImmutableList<object>> data)
+        {
+            foreach (var array in data)
+            {
+                yield return array[0];
+            }
         }
         #endregion
     }
