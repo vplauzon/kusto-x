@@ -88,6 +88,12 @@ namespace Kustox.Runtime.State
                     nameof(results),
                     $"Union requires at list one {typeof(TableResult).Name}");
             }
+            if (results.Any(r => r == null))
+            {
+                throw new ArgumentNullException(
+                    nameof(results),
+                    $"Some or all {typeof(TableResult).Name} are null");
+            }
 
             var schemas = results.Select(r => r.Columns);
             var template = schemas.First();

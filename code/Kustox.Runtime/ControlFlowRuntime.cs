@@ -124,6 +124,13 @@ namespace Kustox.Runtime
                         ct);
                 }
             }
+            if (result == null && blocks.Any())
+            {   //  No result in-memory but one should exist in persistency
+                var allSteps = await levelContext.GetAllStepsAsync(ct);
+                var lastStep = allSteps.Last();
+
+                result = lastStep.Result;
+            }
 
             return result;
         }
@@ -243,12 +250,13 @@ namespace Kustox.Runtime
             if (forEach.Sequence.Blocks.Any())
             {
                 var subLevelContext = await levelContext.GoDownOneLevelAsync(stepIndex, ct);
+                var subLevelStates = subLevelContext.GetLevelStepStates();
                 var subStepIndex = 0;
                 var tasks = ImmutableArray<Task>.Empty;
 
                 try
                 {
-                    while (enumeratorValues.Any() || !tasks.Any())
+                    while (enumeratorValues.Any() || tasks.Any())
                     {
                         var isCompleted = tasks.Select(t => t.IsCompleted).ToImmutableArray();
                         var completedTasks = tasks
@@ -266,12 +274,19 @@ namespace Kustox.Runtime
                         while (onGoingTasks.Count() < forEach.Concurrency
                             && enumeratorValues.Any())
                         {
-                            onGoingTasks = onGoingTasks.Add(RunForEachIterationAsync(
-                                forEach,
-                                enumeratorValues.Pop(),
-                                subStepIndex++,
-                                subLevelContext,
-                                ct));
+                            var iterationValue = enumeratorValues.Pop();
+
+                            if (subLevelStates.Count() <= subStepIndex
+                                || subLevelStates[subStepIndex] != StepState.Completed)
+                            {
+                                onGoingTasks = onGoingTasks.Add(RunForEachIterationAsync(
+                                    forEach,
+                                    iterationValue,
+                                    subStepIndex,
+                                    subLevelContext,
+                                    ct));
+                            }
+                            ++subStepIndex;
                         }
                         tasks = onGoingTasks;
                         await Task.WhenAny(tasks);

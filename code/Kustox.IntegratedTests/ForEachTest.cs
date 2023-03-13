@@ -21,7 +21,7 @@ namespace Kustox.IntegratedTests
             Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
-            var result = await RunInPiecesAsync(flowInstance, null);
+            var result = await RunInPiecesAsync(flowInstance);
 
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
