@@ -1,0 +1,51 @@
+name:  Integration tests
+
+on:
+  workflow_dispatch
+
+jobs:
+  linux:
+    runs-on: ubuntu-latest
+    
+    env:
+      # See OS catalog here:  https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
+      dotnetOs:  linux-x64
+      exec:  mlk
+      dbPrefix:  github_linux
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 7.x
+    # See https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-restore
+    - name: Install dependencies
+      run: dotnet restore code
+    # See https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-build
+    - name: Build
+      run: dotnet build code --configuration Release --no-restore
+    # See https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test
+    - name: Unit Tests
+      run: |
+        dotnet test code/Kustox.UnitTests --configuration Release \
+          --no-build --verbosity normal
+    # Set environment variables
+    - name: Set environment variables
+      shell:  bash
+      run: |
+        echo "cosmosDbAccountEndpoint=${{ secrets.cosmosDbAccountEndpoint }}" >> $GITHUB_ENV
+        echo "cosmosDbAccessKey=${{ secrets.cosmosDbAccessKey }}" >> $GITHUB_ENV
+        echo "cosmosDbDatabase=${{ secrets.cosmosDbDatabase }}" >> $GITHUB_ENV
+        echo "cosmosDbContainer=${{ secrets.cosmosDbContainer }}" >> $GITHUB_ENV
+        echo "kustoCluster=${{ secrets.kustoCluster }}" >> $GITHUB_ENV
+        echo "kustoDb=${{ secrets.kustoDb }}" >> $GITHUB_ENV
+        echo "kustoTenantId=${{ secrets.kustoTenantId }}" >> $GITHUB_ENV
+        echo "kustoClientId=${{ secrets.kustoClientId }}" >> $GITHUB_ENV
+        echo "kustoClientKey=${{ secrets.kustoClientKey }}" >> $GITHUB_ENV
+    # See https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test
+    - name: Integration tests
+      shell:  bash
+      run: |
+        dotnet test code/Kustox.IntegratedTests --configuration Release \
+          --no-build --verbosity normal
