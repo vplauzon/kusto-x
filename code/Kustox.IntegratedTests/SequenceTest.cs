@@ -9,7 +9,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task Capture2Prints()
         {
-            var script = @"@control-flow{
+            var script = @"@run-procedure{
     @capture-scalar myConstant = print 2
 
     @capture-scalar myConstant2 = print dynamic({'Name':'Test', 'Quantity':45.4})
@@ -25,7 +25,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task CaptureThenUseTable()
         {
-            var script = @"@control-flow{
+            var script = @"@run-procedure{
     @capture myVersion = .show version
 
     @capture-scalar myConstant = myVersion | project ServiceType

@@ -8,7 +8,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task Empty()
         {
-            var script = @"@control-flow{  }";
+            var script = @"@run-procedure{  }";
             var controlFlow = new KustoxCompiler().CompileScript(script);
             var flowInstance = CreateControlFlowInstance();
 
@@ -23,7 +23,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task CapturePrint()
         {
-            var script = @"@control-flow{
+            var script = @"@run-procedure{
     @capture-scalar myConstant = print 2
 }";
             var controlFlow = new KustoxCompiler().CompileScript(script);
@@ -40,7 +40,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task CaptureShowVersion()
         {
-            var script = @"@control-flow{
+            var script = @"@run-procedure{
     @capture myVersion = .show version
 }";
             var controlFlow = new KustoxCompiler().CompileScript(script);
@@ -57,7 +57,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task NoCaptureShowVersion()
         {
-            var script = @"@control-flow{
+            var script = @"@run-procedure{
     .show version
 }";
             var controlFlow = new KustoxCompiler().CompileScript(script);

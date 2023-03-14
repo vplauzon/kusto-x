@@ -9,7 +9,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task LoopRangeEmptySequence()
         {
-            var script = @"@control-flow{
+            var script = @"@run-procedure{
     @capture-scalar myRange = print range(0, 2, 1)
 
     @foreach(i in myRange){
@@ -33,7 +33,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task LoopRangePrintSequence()
         {
-            var script = @"@control-flow{
+            var script = @"@run-procedure{
     @capture-scalar myRange = print range(0, 2, 1)
 
     @foreach(i in myRange){

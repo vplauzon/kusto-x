@@ -62,7 +62,7 @@ rule sequenceItemList = head:sequenceItem
 	tail:sequenceItem* => prepend(head, tail);
 rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"
 	=> flatten(sequenceItems);
-rule controlFlow = "@control-flow"
+rule controlFlow = "@run-procedure"
 	properties:optionalWithPropertyAssignationList
 	rootSequence:sequenceContent => {
 		"rootSequence":{

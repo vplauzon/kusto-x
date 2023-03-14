@@ -2,7 +2,7 @@
 
 [![Continuous Build / Unit Test](https://github.com/vplauzon/kusto-x/actions/workflows/continuous-build.yaml/badge.svg)](https://github.com/vplauzon/kusto-x/actions/workflows/continuous-build.yaml)
 
-Kusto-X is an extension to the Kusto Query Language.  The original aim is to POC to add control flows / long running operations to Kusto.
+Kusto-X is an extension to the Kusto Query Language.  The original aim is to POC "procedures" in Kusto, i.e. long running operations with control flows.
 
 # Kusto-X Specs
 
@@ -11,7 +11,7 @@ We can conceptualize Kusto-X as a language and a runtime.
 The Kusto-X language is a super set of the Kusto language.  Here is the most minimalistic Kusto-X script:
 
 ```kusto
-@control-flow{
+@run-procedure{
 }
 ```
 
@@ -24,7 +24,7 @@ That control flow script is empty and doesn't do anything.
 Having a single Kusto ingestion command in a control flow results in a *trivial* control flow equilvalent to simply running the command:
 
 ```kusto
-@control-flow{
+@run-procedure{
     .create table T(Id:string)
 }
 ```
@@ -36,7 +36,7 @@ The only difference between running this control flow and running the command di
 A sequence allows to run more than one command:
 
 ```kusto
-@control-flow{
+@run-procedure{
     .create table T1(Id:string)
 
     .create table T2(Id:string)
@@ -77,7 +77,7 @@ Here are a couple of commands unique to Kusto-X.
 Captures are used extensively in Kusto-X.  Here are different examples:
 
 ```kusto
-@control-flow{
+@run-procedure{
     @capture-scalar myConstant = print 2
 
     @capture-scalar myNumbers = print dynamic([1,2,3])
@@ -104,7 +104,7 @@ Captures can't be declared in a grouping of concurrency higher than 1 since that
 Capture values can then be used in other statements.  For instance:
 
 ```kusto
-@control-flow{
+@run-procedure{
     @capture names = datatable(name:string) ["Alice", "Bob"]
 
     .append sampleTable <|
@@ -119,7 +119,7 @@ A capture value is strong type.  It can either be a Kusto table or a Kusto scala
 *If* allows to branch according to data:
 
 ```kusto
-@control-flow{
+@run-procedure{
     @capture-scalar tableNotExist = .show tables 
         | where TableName == "nyc_taxi"
         | count
@@ -143,7 +143,7 @@ A `if` can be by itself (i.e. without `else`) or `else if` can also be used to a
 *Foreach* allows to enumerate a table and run commands for each row:
 
 ```kusto
-@control-flow{
+@run-procedure{
     @capture names = datatable(name:string) ["Alice", "Bob"]
 
     @foreach(name in names) with(concurrency=2)
