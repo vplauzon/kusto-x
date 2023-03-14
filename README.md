@@ -160,7 +160,7 @@ A `if` can be by itself (i.e. without `else`) or `else if` can also be used to a
 * A table, which case it enumerates on the first column
 * A scalar of dynamic type representing an array
 
-*Foreach*'s concurrency is optional.  Default is 1.
+*Foreach*'s concurrency is optional.  It must be positive (i.e. greater than zero).  Default is 1.
 
 
 ## Until semantic
