@@ -14,10 +14,8 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant2 = print dynamic({'Name':'Test', 'Quantity':45.4})
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
             var flowInstance = CreateControlFlowInstance();
 
-            Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
             await RunInPiecesAsync(flowInstance);
         }
@@ -30,10 +28,8 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant = myVersion | project ServiceType
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
             var flowInstance = CreateControlFlowInstance();
 
-            Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
             await RunInPiecesAsync(flowInstance);
         }

@@ -83,10 +83,8 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant2 = myTable | project {projection}
 }}";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
             var flowInstance = CreateControlFlowInstance();
 
-            Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
             var result = await RunInPiecesAsync(flowInstance, maximumNumberOfSteps);

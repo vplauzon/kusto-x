@@ -97,7 +97,8 @@ namespace Kustox.Runtime
                     break;
                 case ControlFlowState.Completed:
                     throw new InvalidOperationException(
-                        $"Control flow (job id = '{controlFlowInstance.JobId}')");
+                        $"Control flow (job id = '{controlFlowInstance.JobId}') "
+                        + "already is completed");
             }
 
             return new RuntimeLevelContext(

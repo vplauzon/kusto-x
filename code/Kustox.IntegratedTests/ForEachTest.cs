@@ -1,13 +1,14 @@
 using Kustox.Compiler;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
+using System.Collections.Immutable;
 
 namespace Kustox.IntegratedTests
 {
     public class ForEachTest : TestBase
     {
         [Fact]
-        public async Task LoopRangeEmptySequence()
+        public async Task RangeEmptySequence()
         {
             var script = @"@run-procedure{
     @capture-scalar myRange = print range(0, 2, 1)
@@ -15,10 +16,8 @@ namespace Kustox.IntegratedTests
     @foreach(i in myRange){
     }
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
             var flowInstance = CreateControlFlowInstance();
 
-            Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
             var result = await RunInPiecesAsync(flowInstance);
@@ -31,7 +30,7 @@ namespace Kustox.IntegratedTests
         }
 
         [Fact]
-        public async Task LoopRangePrintSequence()
+        public async Task RangePrintSequence()
         {
             var script = @"@run-procedure{
     @capture-scalar myRange = print range(0, 2, 1)
@@ -40,10 +39,8 @@ namespace Kustox.IntegratedTests
         print toint(i)
     }
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
             var flowInstance = CreateControlFlowInstance();
 
-            Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
             var result = await RunInPiecesAsync(flowInstance);
@@ -57,6 +54,43 @@ namespace Kustox.IntegratedTests
                 result.GetColumnData(0),
                 //  Although we cast to int in Kusto, the JSON representation deserialize in long
                 Enumerable.Range(0, 3).Select(i => (object)((long)i))));
+        }
+
+        [Fact]
+        public async Task ConcurrentRangePrintSequence()
+        {
+            var script = @"@run-procedure{
+    @capture-scalar myRange = print range(0, 6, 1)
+
+    @foreach(i in myRange) with(concurrency=3){
+        print toint(i)
+    }
+}";
+            var numberOfSteps = new[] { 100, 5, 1 };
+
+            foreach (var n in numberOfSteps)
+            {
+                var flowInstance = CreateControlFlowInstance();
+
+                await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
+
+                var result = await RunInPiecesAsync(flowInstance, n);
+
+                Assert.NotNull(result);
+                Assert.False(result.IsScalar);
+                Assert.Single(result.Columns);
+                Assert.Equal(typeof(int), result.Columns[0].ColumnType);
+
+                var resultData = result.GetColumnData(0).Cast<long>().ToImmutableArray();
+
+                Assert.Equal(7, resultData.Count());
+                foreach (var i in Enumerable.Range(0, 7))
+                {
+                    Assert.True(
+                        resultData.Contains(i),
+                        $"Can't find number {i} when using {n} steps");
+                }
+            }
         }
     }
 }

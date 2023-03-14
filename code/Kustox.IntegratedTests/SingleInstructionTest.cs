@@ -9,10 +9,8 @@ namespace Kustox.IntegratedTests
         public async Task Empty()
         {
             var script = @"@run-procedure{  }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
             var flowInstance = CreateControlFlowInstance();
 
-            Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
             var runtime = new ProcedureRuntime(flowInstance, QueryProvider, CommandProvider);
@@ -26,10 +24,8 @@ namespace Kustox.IntegratedTests
             var script = @"@run-procedure{
     @capture-scalar myConstant = print 2
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
             var flowInstance = CreateControlFlowInstance();
 
-            Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
             var runtime = new ProcedureRuntime(flowInstance, QueryProvider, CommandProvider);
@@ -43,10 +39,8 @@ namespace Kustox.IntegratedTests
             var script = @"@run-procedure{
     @capture myVersion = .show version
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
             var flowInstance = CreateControlFlowInstance();
 
-            Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
             var runtime = new ProcedureRuntime(flowInstance, QueryProvider, CommandProvider);
@@ -60,10 +54,8 @@ namespace Kustox.IntegratedTests
             var script = @"@run-procedure{
     .show version
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
             var flowInstance = CreateControlFlowInstance();
 
-            Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
             var runtime = new ProcedureRuntime(flowInstance, QueryProvider, CommandProvider);

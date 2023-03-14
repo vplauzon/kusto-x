@@ -289,7 +289,10 @@ namespace Kustox.Runtime
                             ++subStepIndex;
                         }
                         tasks = onGoingTasks;
-                        await Task.WhenAny(tasks);
+                        if (tasks.Any())
+                        {
+                            await Task.WhenAny(tasks);
+                        }
                     }
                 }
                 catch
