@@ -143,7 +143,7 @@ namespace Kustox.IntegratedTests
             while (true)
             {
                 var runtime =
-                    new ControlFlowRuntime(flowInstance, QueryProvider, CommandProvider);
+                    new ProcedureRuntime(flowInstance, QueryProvider, CommandProvider);
                 var result = await runtime.RunAsync(maximumNumberOfSteps);
 
                 if (result.HasCompleteSuccessfully)

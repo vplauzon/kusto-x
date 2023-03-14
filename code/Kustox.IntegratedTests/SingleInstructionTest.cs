@@ -15,7 +15,7 @@ namespace Kustox.IntegratedTests
             Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
-            var runtime = new ControlFlowRuntime(flowInstance, QueryProvider, CommandProvider);
+            var runtime = new ProcedureRuntime(flowInstance, QueryProvider, CommandProvider);
 
             await runtime.RunAsync();
         }
@@ -32,7 +32,7 @@ namespace Kustox.IntegratedTests
             Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
-            var runtime = new ControlFlowRuntime(flowInstance, QueryProvider, CommandProvider);
+            var runtime = new ProcedureRuntime(flowInstance, QueryProvider, CommandProvider);
 
             await runtime.RunAsync();
         }
@@ -49,7 +49,7 @@ namespace Kustox.IntegratedTests
             Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
-            var runtime = new ControlFlowRuntime(flowInstance, QueryProvider, CommandProvider);
+            var runtime = new ProcedureRuntime(flowInstance, QueryProvider, CommandProvider);
 
             await runtime.RunAsync();
         }
@@ -66,7 +66,7 @@ namespace Kustox.IntegratedTests
             Assert.NotNull(controlFlow);
             await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
 
-            var runtime = new ControlFlowRuntime(flowInstance, QueryProvider, CommandProvider);
+            var runtime = new ProcedureRuntime(flowInstance, QueryProvider, CommandProvider);
 
             await runtime.RunAsync();
         }

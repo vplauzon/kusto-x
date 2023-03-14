@@ -13,13 +13,13 @@ using System.Xml.Linq;
 
 namespace Kustox.Runtime
 {
-    public class ControlFlowRuntime
+    public class ProcedureRuntime
     {
         private readonly IControlFlowInstance _controlFlowInstance;
         private readonly ICslQueryProvider _queryProvider;
         private readonly ICslAdminProvider _commandProvider;
 
-        public ControlFlowRuntime(
+        public ProcedureRuntime(
             IControlFlowInstance controlFlowInstance,
             ICslQueryProvider queryProvider,
             ICslAdminProvider commandProvider)
