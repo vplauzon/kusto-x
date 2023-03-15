@@ -50,22 +50,6 @@ We notice an empty line between commands:  **this is mandatory in Kusto-X to sep
 
 Sequences are present at the root of a control flow, in an if-else statement and foreach-loops.
 
-## Kusto-X commands
-
-Here are a couple of commands unique to Kusto-X.
-
-### .execute command-text
-
-### .get blob list
-
-### .queue ingest
-
-### .queue export
-
-### .queue export to
-
-### .await ingest
-
 ## Captures
 
 `Capture` allows us to capture the value of a constant, a query, a Kusto/Kusto-X commands or query and store it in a named *captured value*.  Those can then be used in queries, commands and Kusto-X commands.  The same constrains apply for native queries & commands, i.e. captured values can't be used where litterals are expected (e.g. properties).
@@ -162,9 +146,27 @@ A `if` can be by itself (i.e. without `else`) or `else if` can also be used to a
 
 *Foreach*'s concurrency is optional.  It must be positive (i.e. greater than zero).  Default is 1.
 
-
 ## Until semantic
 
 Currently, there is no "until" semantic in Kusto-X.
 
-## Mixing instructions
+## Kusto-X commands
+
+Here are a couple of commands unique to Kusto-X.
+
+### .execute command-text
+
+### .get blobs list
+
+```
+.get blobs list 'https://vpkustox.blob.core.windows.net/tests/3-files/'
+```
+
+### .queue ingest
+
+### .queue export
+
+### .queue export to
+
+### .await ingest
+
