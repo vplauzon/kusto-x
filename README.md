@@ -159,7 +159,7 @@ Here are a couple of commands unique to Kusto-X.
 ### .get blobs list
 
 ```
-.get blobs list 'https://vpkustox.blob.core.windows.net/tests/3-files/'
+.get blobs list 'https://myaccount.blob.core.windows.net/mycontainer/myfolder/'
 ```
 
 ### .queue ingest
