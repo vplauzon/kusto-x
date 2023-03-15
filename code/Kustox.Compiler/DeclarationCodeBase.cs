@@ -4,7 +4,7 @@
     {
         public string Code { get; set; } = string.Empty;
 
-        public override void Validate()
+        internal override void Validate()
         {
             if (string.IsNullOrWhiteSpace(Code))
             {

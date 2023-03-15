@@ -2,7 +2,11 @@
 {
     public abstract class DeclarationBase
     {
-        public virtual void Validate()
+        internal virtual void Validate()
+        {
+        }
+
+        internal virtual void SubParsing(KustoxCompiler compiler)
         {
         }
     }

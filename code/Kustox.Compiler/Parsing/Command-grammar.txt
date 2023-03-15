@@ -1,0 +1,6 @@
+﻿#	Commands
+rule getBlobs = "." "get" "blobs" rootUrl:quotedString => {'getBlobs':{'rootUrl':rootUrl}};
+rule queueIngest = "." "queue" "ingest"=> "QueueIngest";
+
+#	main rule
+rule main = getBlobs | queueIngest;

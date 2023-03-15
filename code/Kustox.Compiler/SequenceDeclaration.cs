@@ -7,13 +7,23 @@ namespace Kustox.Compiler
         public IImmutableList<BlockDeclaration> Blocks { get; set; }
             = new ImmutableArray<BlockDeclaration>();
 
-        public override void Validate()
+        internal override void Validate()
         {
             base.Validate();
 
             foreach (var block in Blocks)
             {
                 block.Validate();
+            }
+        }
+
+        internal override void SubParsing(KustoxCompiler compiler)
+        {
+            base.SubParsing(compiler);
+
+            foreach (var block in Blocks)
+            {
+                block.SubParsing(compiler);
             }
         }
     }

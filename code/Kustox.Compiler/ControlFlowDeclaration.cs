@@ -11,7 +11,7 @@ namespace Kustox.Compiler
     {
         public SequenceDeclaration RootSequence { get; set; } = new SequenceDeclaration();
 
-        public override void Validate()
+        internal override void Validate()
         {
             base.Validate();
 
@@ -20,6 +20,13 @@ namespace Kustox.Compiler
                 throw new InvalidDataException($"No '{nameof(RootSequence)}'");
             }
             RootSequence.Validate();
+        }
+
+        internal override void SubParsing(KustoxCompiler compiler)
+        {
+            base.SubParsing(compiler);
+
+            RootSequence.SubParsing(compiler);
         }
     }
 }

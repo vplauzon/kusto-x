@@ -154,12 +154,12 @@ Currently, there is no "until" semantic in Kusto-X.
 
 Here are a couple of commands unique to Kusto-X.
 
-### .execute command-text
+### .execute command-text?
 
-### .get blobs list
+### .get blobs
 
 ```
-.get blobs list 'https://myaccount.blob.core.windows.net/mycontainer/myfolder/'
+.get blobs 'https://myaccount.blob.core.windows.net/mycontainer/myfolder/'
 ```
 
 ### .queue ingest

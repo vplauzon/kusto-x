@@ -6,7 +6,7 @@
 
         public bool IsScalarCapture { get; set; } = false;
 
-        public override void Validate()
+        internal override void Validate()
         {
             base.Validate();
 

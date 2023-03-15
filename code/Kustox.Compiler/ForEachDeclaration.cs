@@ -28,7 +28,7 @@ namespace Kustox.Compiler
             }
         }
 
-        public override void Validate()
+        internal override void Validate()
         {
             base.Validate();
 
@@ -51,6 +51,13 @@ namespace Kustox.Compiler
                         + $"is '{property.Integer}'");
                 }
             }
+        }
+
+        internal override void SubParsing(KustoxCompiler compiler)
+        {
+            base.SubParsing(compiler);
+
+            Sequence.SubParsing(compiler);
         }
     }
 }

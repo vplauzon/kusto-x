@@ -57,7 +57,6 @@ namespace Kustox.CosmosDbState
             {
                 throw new InvalidDataException($"No declaration for job ID '{_jobId}'");
             }
-            declaration.Validate();
 
             return declaration;
         }

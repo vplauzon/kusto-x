@@ -1,4 +1,5 @@
 ﻿using Kusto.Language;
+using Kusto.Language.Syntax;
 
 namespace Kustox.Compiler
 {
@@ -12,7 +13,11 @@ namespace Kustox.Compiler
 
         public string? Command { get; set; }
 
-        public override void Validate()
+        public CommandType CommandType { get; set; }
+
+        public GetBlobDeclaration? GetBlobs { get; set; }
+
+        internal override void Validate()
         {
             var capturableCount = (ForEach == null ? 0 : 1)
                 + (Query == null ? 0 : 1)
@@ -38,17 +43,47 @@ namespace Kustox.Compiler
             }
             else if (Command != null)
             {
-                var code = KustoCode.Parse(Command);
-
-                if (code.Kind != "Command")
+                switch (CommandType)
                 {
-                    throw new InvalidDataException(
-                        "Defined command isn't recognized as a command in "
-                        + $" {typeof(BlockDeclaration).Name}:  '{Command}'");
+                    case CommandType.Kusto:
+                        var code = KustoCode.Parse(Command);
+
+                        if (code.Kind != "Command")
+                        {
+                            throw new InvalidDataException(
+                                "Defined command isn't recognized as a command in "
+                                + $" {typeof(BlockDeclaration).Name}:  '{Command}'");
+                        }
+                        break;
+                    case CommandType.GetBlobs:
+                        if (GetBlobs == null)
+                        {
+                            throw new InvalidDataException($"Syntax error:  '{Command}'");
+                        }
+                        GetBlobs.Validate();
+                        break;
+                    default:
+                        throw new NotSupportedException($"Command type:  '{CommandType}'");
                 }
             }
 
             Capture?.Validate();
+        }
+
+        internal override void SubParsing(KustoxCompiler compiler)
+        {
+            base.SubParsing(compiler);
+
+            Capture?.SubParsing(compiler);
+            ForEach?.SubParsing(compiler);
+
+            if (Command != null)
+            {
+                var block = compiler.ParseCommand(Command);
+
+                CommandType = block.CommandType;
+                GetBlobs = block.GetBlobs;
+            }
         }
     }
 }
