@@ -13,7 +13,7 @@ namespace Kustox.Compiler
 
         public string? Command { get; set; }
 
-        public CommandType CommandType { get; set; }
+        public ExtendedCommandType CommandType { get; set; }
 
         public GetBlobDeclaration? GetBlobs { get; set; }
 
@@ -45,7 +45,7 @@ namespace Kustox.Compiler
             {
                 switch (CommandType)
                 {
-                    case CommandType.Kusto:
+                    case ExtendedCommandType.Kusto:
                         var code = KustoCode.Parse(Command);
 
                         if (code.Kind != "Command")
@@ -55,7 +55,7 @@ namespace Kustox.Compiler
                                 + $" {typeof(BlockDeclaration).Name}:  '{Command}'");
                         }
                         break;
-                    case CommandType.GetBlobs:
+                    case ExtendedCommandType.GetBlobs:
                         if (GetBlobs == null)
                         {
                             throw new InvalidDataException($"Syntax error:  '{Command}'");

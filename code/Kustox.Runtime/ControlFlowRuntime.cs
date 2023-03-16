@@ -3,6 +3,7 @@ using Kusto.Data.Common;
 using Kusto.Language;
 using Kusto.Language.Syntax;
 using Kustox.Compiler;
+using Kustox.Runtime.Commands;
 using Kustox.Runtime.State;
 using System.Collections.Immutable;
 using System.Data;
@@ -16,17 +17,16 @@ namespace Kustox.Runtime
     public class ProcedureRuntime
     {
         private readonly IControlFlowInstance _controlFlowInstance;
-        private readonly ICslQueryProvider _queryProvider;
-        private readonly ICslAdminProvider _commandProvider;
+        private readonly ConnectionProvider _connectionProvider;
+        private readonly CommandRunnerRouter _commandRunnerRouter;
 
         public ProcedureRuntime(
             IControlFlowInstance controlFlowInstance,
-            ICslQueryProvider queryProvider,
-            ICslAdminProvider commandProvider)
+            ConnectionProvider connectionProvider)
         {
             _controlFlowInstance = controlFlowInstance;
-            _queryProvider = queryProvider;
-            _commandProvider = commandProvider;
+            _connectionProvider = connectionProvider;
+            _commandRunnerRouter = new CommandRunnerRouter(connectionProvider);
         }
 
         #region Run Infra
@@ -75,11 +75,12 @@ namespace Kustox.Runtime
             }
             else if (block.Command != null)
             {
-                return await RunCommandAsync(
+                levelContext.PreStepExecution();
+
+                return await _commandRunnerRouter.RunCommandAsync(
+                    block.CommandType,
                     block.Command,
                     block.Capture?.IsScalarCapture ?? false,
-                    stepIndex,
-                    levelContext,
                     ct);
             }
             else if (block.ForEach != null)
@@ -156,7 +157,7 @@ namespace Kustox.Runtime
                 .Where(p => p.Value != null)
                 .ToImmutableArray();
             var queryPrefix = BuildQueryPrefix(capturedValues);
-            var reader = await _queryProvider.ExecuteQueryAsync(
+            var reader = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
                 string.Empty,
                 queryPrefix + query,
                 new ClientRequestProperties());
@@ -206,27 +207,6 @@ namespace Kustox.Runtime
             var prefixText = string.Join(Environment.NewLine, letList) + Environment.NewLine;
 
             return prefixText;
-        }
-        #endregion
-
-        #region Commands
-        private async Task<TableResult> RunCommandAsync(
-            string command,
-            bool isScalarCapture,
-            int stepIndex,
-            RuntimeLevelContext levelContext,
-            CancellationToken ct)
-        {
-            levelContext.PreStepExecution();
-
-            var reader = await _commandProvider.ExecuteControlCommandAsync(
-                string.Empty,
-                command,
-                new ClientRequestProperties());
-            var table = reader.ToDataSet().Tables[0];
-            var result = new TableResult(isScalarCapture, table);
-
-            return result;
         }
         #endregion
 

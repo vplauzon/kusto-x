@@ -38,7 +38,7 @@ namespace Kustox.Compiler.Parsing
             }
         }
 
-        public CommandType ParseCommandType(string command)
+        public ExtendedCommandType ParseCommandType(string command)
         {
             var match = _commandTypeGrammar.Match("main", command);
 
@@ -48,14 +48,14 @@ namespace Kustox.Compiler.Parsing
 
                 if (output != null)
                 {
-                    if (Enum.TryParse<CommandType>(output, out var commandType))
+                    if (Enum.TryParse<ExtendedCommandType>(output, out var commandType))
                     {
                         return commandType;
                     }
                 }
             }
 
-            return CommandType.Kusto;
+            return ExtendedCommandType.Kusto;
         }
 
         public BlockDeclaration ParseExtendedCommands(string command)

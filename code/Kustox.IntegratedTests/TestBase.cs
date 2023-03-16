@@ -58,8 +58,9 @@ namespace Kustox.IntegratedTests
             var builder = CreateKustoBuilder();
 
             ControlFlowList = ControlFlowPersistencyFactory.FromEnvironmentVariables();
-            QueryProvider = KustoClientFactory.CreateCslQueryProvider(builder);
-            CommandProvider = KustoClientFactory.CreateCslAdminProvider(builder);
+            ConnectionProvider = new ConnectionProvider(
+                KustoClientFactory.CreateCslQueryProvider(builder),
+                KustoClientFactory.CreateCslAdminProvider(builder));
         }
 
         #region Environment variables
@@ -119,9 +120,7 @@ namespace Kustox.IntegratedTests
         #endregion
 
         #region Kusto
-        protected static ICslQueryProvider QueryProvider { get; }
-
-        protected static ICslAdminProvider CommandProvider { get; }
+        protected static ConnectionProvider ConnectionProvider { get; }
 
         private static KustoConnectionStringBuilder CreateKustoBuilder()
         {
@@ -136,14 +135,18 @@ namespace Kustox.IntegratedTests
         }
         #endregion
 
+        #region Storage
+        protected static string StorageContainerUrl =>
+            GetEnvironmentVariable("storageContainerUrl");
+        #endregion
+
         protected static async Task<TableResult?> RunInPiecesAsync(
             IControlFlowInstance flowInstance,
             int? maximumNumberOfSteps = 1)
         {
             while (true)
             {
-                var runtime =
-                    new ProcedureRuntime(flowInstance, QueryProvider, CommandProvider);
+                var runtime = new ProcedureRuntime(flowInstance, ConnectionProvider);
                 var result = await runtime.RunAsync(maximumNumberOfSteps);
 
                 if (result.HasCompleteSuccessfully)

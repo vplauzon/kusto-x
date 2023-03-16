@@ -23,7 +23,7 @@ namespace Kustox.Compiler
         {
             var commandType = _parser.ParseCommandType(command);
 
-            if (commandType == CommandType.Kusto)
+            if (commandType == ExtendedCommandType.Kusto)
             {
                 return new BlockDeclaration
                 {

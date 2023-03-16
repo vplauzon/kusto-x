@@ -1,6 +1,6 @@
 ﻿namespace Kustox.Compiler
 {
-    public enum CommandType
+    public enum ExtendedCommandType
     {
         Kusto,
         GetBlobs,
