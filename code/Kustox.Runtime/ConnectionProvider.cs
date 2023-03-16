@@ -20,10 +20,13 @@ namespace Kustox.Runtime
             var kustoBuilder = new KustoConnectionStringBuilder(clusterUri.ToString(), database)
                 .WithAadAzureTokenCredentialsAuthentication(credential);
 
+            Credential = credential;
             QueryProvider = KustoClientFactory.CreateCslQueryProvider(kustoBuilder);
             CommandProvider = KustoClientFactory.CreateCslAdminProvider(kustoBuilder);
         }
 
+        public TokenCredential Credential { get; }
+     
         public ICslQueryProvider QueryProvider { get; }
 
         public ICslAdminProvider CommandProvider { get; }

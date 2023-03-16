@@ -23,26 +23,49 @@ namespace Kustox.Runtime.State
             IImmutableList<IImmutableList<object>> data)
         {
             IsScalar = isScalar;
-            Columns = columns;
-            Data = data
-                .Select(r => r.Select(o => AlignTypeToJsonFriendly(o)).ToImmutableArray())
-                .Cast<IImmutableList<object>>()
-                .ToImmutableArray();
+            if (isScalar)
+            {
+                Columns = columns.Take(1).ToImmutableArray();
+                Data = data
+                    .Take(1)
+                    .Select(r => r.Take(1).Select(o => AlignTypeToJsonFriendly(o)).ToImmutableArray())
+                    .Cast<IImmutableList<object>>()
+                    .ToImmutableArray();
+            }
+            else
+            {
+                Columns = columns;
+                Data = data
+                    .Select(r => r.Select(o => AlignTypeToJsonFriendly(o)).ToImmutableArray())
+                    .Cast<IImmutableList<object>>()
+                    .ToImmutableArray();
+            }
+            if (Columns.Count <= 0)
+            {
+                throw new ArgumentOutOfRangeException(nameof(columns));
+            }
+            if (data.Select(row => row.Count()).Any(l => l != Columns.Count()))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(data),
+                    "Some row(s) don't have the right column count");
+            }
         }
 
         public TableResult(bool isScalar, DataTable table)
+            : this(
+                  isScalar,
+                  table.Columns
+                  .Cast<DataColumn>()
+                  .Select(c => new ColumnSpecification(c.ColumnName, c.DataType.FullName!))
+                  .ToImmutableArray(),
+                  table.Rows
+                  .Cast<DataRow>()
+                  .Select(r => r.ItemArray.Select(o => AlignTypeToJsonFriendly(o!)))
+                  .Select(r => r.ToImmutableArray())
+                  .Cast<IImmutableList<object>>()
+                  .ToImmutableArray())
         {
-            IsScalar = isScalar;
-            Columns = table.Columns
-                .Cast<DataColumn>()
-                .Select(c => new ColumnSpecification(c.ColumnName, c.DataType.FullName!))
-                .ToImmutableArray();
-            Data = table.Rows
-                .Cast<DataRow>()
-                .Select(r => r.ItemArray.Select(o => AlignTypeToJsonFriendly(o!)))
-                .Select(r => r.ToImmutableArray())
-                .Cast<IImmutableList<object>>()
-                .ToImmutableArray();
         }
 
         public bool IsScalar { get; }
