@@ -78,8 +78,7 @@ namespace Kustox.Runtime
                 levelContext.PreStepExecution();
 
                 return await _commandRunnerRouter.RunCommandAsync(
-                    block.CommandType,
-                    block.Command,
+                    block,
                     block.Capture?.IsScalarCapture ?? false,
                     ct);
             }

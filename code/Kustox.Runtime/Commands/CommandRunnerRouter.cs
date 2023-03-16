@@ -22,22 +22,22 @@ namespace Kustox.Runtime.Commands
                 .ToBuilder();
 
             builder.Add(ExtendedCommandType.Kusto, new KustoCommandRunner(connectionProvider));
+            builder.Add(ExtendedCommandType.Kusto, new GetBlobsCommandRunner(connectionProvider));
             _commandTypeToRunnerMap = builder.ToImmutableDictionary();
         }
 
         public async Task<TableResult> RunCommandAsync(
-            ExtendedCommandType commandType,
-            string commandScript,
+            BlockDeclaration block,
             bool isScalarCapture,
             CancellationToken ct)
         {
-            if (_commandTypeToRunnerMap.TryGetValue(commandType, out var runner))
+            if (_commandTypeToRunnerMap.TryGetValue(block.CommandType, out var runner))
             {
-                return await runner.RunCommandAsync(commandScript, isScalarCapture, ct);
+                return await runner.RunCommandAsync(block, isScalarCapture, ct);
             }
             else
             {
-                throw new NotSupportedException($"Command type '{commandType}'");
+                throw new NotSupportedException($"Command type '{block.CommandType}'");
             }
         }
     }
