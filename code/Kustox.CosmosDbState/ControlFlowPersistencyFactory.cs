@@ -51,6 +51,7 @@ namespace Kustox.CosmosDbState
         {
             return new CosmosClientOptions
             {
+                ConsistencyLevel = ConsistencyLevel.Strong,
                 SerializerOptions = new CosmosSerializationOptions
                 {
                     PropertyNamingPolicy = CosmosPropertyNamingPolicy.CamelCase,
