@@ -155,7 +155,10 @@ namespace Kustox.Runtime
             return steps;
         }
 
-        public async Task RunningStepAsync(int stepIndex, string script, CancellationToken ct)
+        public async Task PersistRunningStepAsync(
+            int stepIndex,
+            string script,
+            CancellationToken ct)
         {
             await _controlFlowInstance.SetStepAsync(
                 _levelPrefixes.Add(stepIndex),
@@ -175,7 +178,7 @@ namespace Kustox.Runtime
             }
         }
 
-        public async Task CompleteStepAsync(
+        public async Task PersistCompleteStepAsync(
             int stepIndex,
             string script,
             string? captureName,

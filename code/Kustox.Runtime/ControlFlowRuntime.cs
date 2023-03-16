@@ -114,9 +114,9 @@ namespace Kustox.Runtime
 
                 if (stepStates.Count() <= i || stepStates[i] != StepState.Completed)
                 {
-                    await levelContext.RunningStepAsync(i, block.Code, ct);
+                    await levelContext.PersistRunningStepAsync(i, block.Code, ct);
                     result = await RunBlockAsync(i, block, levelContext, ct);
-                    await levelContext.CompleteStepAsync(
+                    await levelContext.PersistCompleteStepAsync(
                         i,
                         block.Code,
                         block.Capture?.CaptureName,
@@ -267,11 +267,11 @@ namespace Kustox.Runtime
                             }
                             ++subStepIndex;
                         }
-                        tasks = onGoingTasks;
-                        if (tasks.Any())
+                        if (onGoingTasks.Any())
                         {
-                            await Task.WhenAny(tasks);
+                            await Task.WhenAny(onGoingTasks);
                         }
+                        tasks = onGoingTasks;
                     }
                 }
                 catch
@@ -314,9 +314,9 @@ namespace Kustox.Runtime
             var subLevelContext = await levelContext.GoDownOneLevelAsync(stepIndex, ct);
 
             subLevelContext.AddCapturedValue(forEach.Cursor, item);
-            await levelContext.RunningStepAsync(stepIndex, forEach.Sequence.Code, ct);
+            await levelContext.PersistRunningStepAsync(stepIndex, forEach.Sequence.Code, ct);
             var result = await RunSequenceAsync(forEach.Sequence, subLevelContext, ct);
-            await levelContext.CompleteStepAsync(
+            await levelContext.PersistCompleteStepAsync(
                 stepIndex,
                 forEach.Sequence.Code,
                 null,
