@@ -1,4 +1,7 @@
-﻿using Kusto.Data.Common;
+﻿using Azure.Core;
+using Kusto.Data;
+using Kusto.Data.Common;
+using Kusto.Data.Net.Client;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,11 +13,15 @@ namespace Kustox.Runtime
     public class ConnectionProvider
     {
         public ConnectionProvider(
-            ICslQueryProvider queryProvider,
-            ICslAdminProvider commandProvider)
+            Uri clusterUri,
+            string database,
+            TokenCredential credential)
         {
-            QueryProvider = queryProvider;
-            CommandProvider = commandProvider;
+            var kustoBuilder = new KustoConnectionStringBuilder(clusterUri.ToString(), database)
+                .WithAadAzureTokenCredentialsAuthentication(credential);
+
+            QueryProvider = KustoClientFactory.CreateCslQueryProvider(kustoBuilder);
+            CommandProvider = KustoClientFactory.CreateCslAdminProvider(kustoBuilder);
         }
 
         public ICslQueryProvider QueryProvider { get; }

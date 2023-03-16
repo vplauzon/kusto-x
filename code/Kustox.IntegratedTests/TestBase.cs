@@ -1,4 +1,6 @@
-﻿using Kusto.Data;
+﻿using Azure.Core;
+using Azure.Identity;
+using Kusto.Data;
 using Kusto.Data.Common;
 using Kusto.Data.Net.Client;
 using Kustox.CosmosDbState;
@@ -55,12 +57,8 @@ namespace Kustox.IntegratedTests
         {
             ReadEnvironmentVariables();
 
-            var builder = CreateKustoBuilder();
-
             ControlFlowList = ControlFlowPersistencyFactory.FromEnvironmentVariables();
-            ConnectionProvider = new ConnectionProvider(
-                KustoClientFactory.CreateCslQueryProvider(builder),
-                KustoClientFactory.CreateCslAdminProvider(builder));
+            ConnectionProvider = CreateConnectionProvider();
         }
 
         #region Environment variables
@@ -122,16 +120,17 @@ namespace Kustox.IntegratedTests
         #region Kusto
         protected static ConnectionProvider ConnectionProvider { get; }
 
-        private static KustoConnectionStringBuilder CreateKustoBuilder()
+        private static ConnectionProvider CreateConnectionProvider()
         {
             var kustoCluster = GetEnvironmentVariable("kustoCluster");
             var kustoDb = GetEnvironmentVariable("kustoDb");
             var kustoTenantId = GetEnvironmentVariable("kustoTenantId");
             var kustoClientId = GetEnvironmentVariable("kustoClientId");
             var kustoClientKey = GetEnvironmentVariable("kustoClientKey");
+            var credential =
+                new ClientSecretCredential(kustoTenantId, kustoClientId, kustoClientKey);
 
-            return new KustoConnectionStringBuilder(kustoCluster, kustoDb)
-                .WithAadApplicationKeyAuthentication(kustoClientId, kustoClientKey, kustoTenantId);
+            return new ConnectionProvider(new Uri(kustoCluster), kustoDb, credential);
         }
         #endregion
 

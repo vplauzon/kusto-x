@@ -22,7 +22,7 @@ namespace Kustox.Runtime.Commands
                 .ToBuilder();
 
             builder.Add(ExtendedCommandType.Kusto, new KustoCommandRunner(connectionProvider));
-            builder.Add(ExtendedCommandType.Kusto, new GetBlobsCommandRunner(connectionProvider));
+            builder.Add(ExtendedCommandType.GetBlobs, new GetBlobsCommandRunner(connectionProvider));
             _commandTypeToRunnerMap = builder.ToImmutableDictionary();
         }
 
