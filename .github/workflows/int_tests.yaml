@@ -43,6 +43,7 @@ jobs:
         echo "kustoTenantId=${{ secrets.kustoTenantId }}" >> $GITHUB_ENV
         echo "kustoClientId=${{ secrets.kustoClientId }}" >> $GITHUB_ENV
         echo "kustoClientKey=${{ secrets.kustoClientKey }}" >> $GITHUB_ENV
+        echo "storageContainerUrl=${{ secrets.storageContainerUrl }}" >> $GITHUB_ENV
     # See https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test
     - name: Integration tests
       shell:  bash
