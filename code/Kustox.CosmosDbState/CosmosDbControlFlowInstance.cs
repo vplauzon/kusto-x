@@ -113,6 +113,7 @@ AND STARTSWITH(c.id, '{StepData.GetId(_jobId, levelPrefix)}', false)";
             var stepDatas = await ListAsync(iterator, ct);
             var steps = stepDatas
                 .Select(d => d.ToControlFlowStep())
+                .OrderBy(s => s.StepBreadcrumb.LastOrDefault())
                 .ToImmutableArray();
 
             return steps;

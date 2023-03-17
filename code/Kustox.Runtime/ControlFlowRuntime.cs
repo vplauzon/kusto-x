@@ -6,11 +6,8 @@ using Kustox.Compiler;
 using Kustox.Runtime.Commands;
 using Kustox.Runtime.State;
 using System.Collections.Immutable;
-using System.Data;
-using System.Reflection.PortableExecutable;
 using System.Text;
 using System.Text.Json;
-using System.Xml.Linq;
 
 namespace Kustox.Runtime
 {
@@ -66,6 +63,8 @@ namespace Kustox.Runtime
         {
             if (block.Query != null)
             {
+                levelContext.PreStepExecution();
+
                 return await RunQueryAsync(
                     block.Query,
                     block.Capture?.IsScalarCapture ?? false,
@@ -144,8 +143,6 @@ namespace Kustox.Runtime
             RuntimeLevelContext levelContext,
             CancellationToken ct)
         {
-            levelContext.PreStepExecution();
-
             var queryBlock = (QueryBlock)KustoCode.Parse(query).Syntax;
             var nameReferences = queryBlock
                 .GetDescendants<NameReference>()
@@ -297,6 +294,14 @@ namespace Kustox.Runtime
             CancellationToken ct)
         {
             var states = await levelContext.GetAllStepsAsync(ct);
+            var nonCompletedState = states.FirstOrDefault(s => s.State != StepState.Completed);
+
+            if (nonCompletedState != null)
+            {
+                throw new InvalidOperationException(
+                    $"One of for-each sub step has state '{nonCompletedState}'");
+            }
+
             var results = states
                 .Select(s => s.Result!)
                 .ToImmutableArray();

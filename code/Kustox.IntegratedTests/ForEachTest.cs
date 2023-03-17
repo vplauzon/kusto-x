@@ -66,8 +66,7 @@ namespace Kustox.IntegratedTests
         print toint(i)
     }
 }";
-            //var numberOfSteps = new[] { 100, 5, 1 };
-            var numberOfSteps = new[] { 5, 1 };
+            var numberOfSteps = new[] { 100, 5, 1 };
 
             foreach (var n in numberOfSteps)
             {
