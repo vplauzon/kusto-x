@@ -6,7 +6,7 @@ namespace Kustox.Compiler
     {
         private readonly KustoxParser _parser = new KustoxParser();
 
-        public ControlFlowDeclaration? CompileScript(string controlFlowScript)
+        public ProcedureDeclaration? CompileScript(string controlFlowScript)
         {
             var declaration = _parser.ParseControlFlow(controlFlowScript);
 

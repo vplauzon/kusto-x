@@ -15,7 +15,7 @@ namespace Kustox.Compiler.Parsing
         private readonly Grammar _commandTypeGrammar = LoadCommandTypeGrammar();
         private readonly Grammar _commandGrammar = LoadCommandGrammar();
 
-        public ControlFlowDeclaration? ParseControlFlow(string text)
+        public ProcedureDeclaration? ParseControlFlow(string text)
         {
             var match = _controlFlowGrammar.Match("main", text);
 
@@ -27,7 +27,7 @@ namespace Kustox.Compiler.Parsing
                 }
                 else
                 {
-                    var plan = match.ComputeTypedOutput<ControlFlowDeclaration>();
+                    var plan = match.ComputeTypedOutput<ProcedureDeclaration>();
 
                     return plan;
                 }

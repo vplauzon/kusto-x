@@ -42,7 +42,7 @@ namespace Kustox.CosmosDbState
             throw new NotImplementedException();
         }
 
-        async Task<ControlFlowDeclaration> IProcedureRun.GetDeclarationAsync(
+        async Task<ProcedureDeclaration> IProcedureRun.GetDeclarationAsync(
             CancellationToken ct)
         {
             var response = await _container.ReadItemAsync<DeclarationData>(

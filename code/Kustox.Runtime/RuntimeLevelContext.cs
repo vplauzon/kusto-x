@@ -51,7 +51,7 @@ namespace Kustox.Runtime
         #region Constructors
         private RuntimeLevelContext(
             IProcedureRun controlFlowInstance,
-            ControlFlowDeclaration declaration,
+            ProcedureDeclaration declaration,
             IImmutableList<long> levelPrefixes,
             IImmutableList<StepState> stepStates,
             IImmutableList<KeyValuePair<string, TableResult>> captures,
@@ -111,7 +111,7 @@ namespace Kustox.Runtime
         }
         #endregion
 
-        public ControlFlowDeclaration Declaration { get; }
+        public ProcedureDeclaration Declaration { get; }
 
         #region Level Management
         public async Task<RuntimeLevelContext> GoDownOneLevelAsync(

@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Kustox.Compiler
 {
-    public class ControlFlowDeclaration : DeclarationBase
+    public class ProcedureDeclaration : DeclarationBase
     {
         public SequenceDeclaration RootSequence { get; set; } = new SequenceDeclaration();
 

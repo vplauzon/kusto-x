@@ -12,7 +12,7 @@ namespace Kustox.Runtime.State
         
         Task DeleteAsync(CancellationToken ct);
 
-        Task<ControlFlowDeclaration> GetDeclarationAsync(CancellationToken ct);
+        Task<ProcedureDeclaration> GetDeclarationAsync(CancellationToken ct);
         
         Task<TimestampedData<ProcedureRunState>> GetControlFlowStateAsync(CancellationToken ct);
         
