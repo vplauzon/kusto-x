@@ -86,16 +86,16 @@ namespace Kustox.Runtime
 
             switch (state.Data)
             {
-                case ControlFlowState.Pending:
-                case ControlFlowState.Paused:
-                case ControlFlowState.Error:
+                case ProcedureRunState.Pending:
+                case ProcedureRunState.Paused:
+                case ProcedureRunState.Error:
                     await controlFlowInstance.SetControlFlowStateAsync(
-                        ControlFlowState.Running,
+                        ProcedureRunState.Running,
                         ct);
                     break;
-                case ControlFlowState.Running:
+                case ProcedureRunState.Running:
                     break;
-                case ControlFlowState.Completed:
+                case ProcedureRunState.Completed:
                     throw new InvalidOperationException(
                         $"Control flow (job id = '{controlFlowInstance.JobId}') "
                         + "already is completed");

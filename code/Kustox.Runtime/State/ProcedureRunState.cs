@@ -6,7 +6,8 @@ using System.Threading.Tasks;
 
 namespace Kustox.Runtime.State
 {
-    public enum ControlFlowState
+    public enum ProcedureRunState
+
     {
         /// <summary>Hasn't started yet.</summary>
         Pending,

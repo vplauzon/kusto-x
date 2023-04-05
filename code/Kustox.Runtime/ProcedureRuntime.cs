@@ -44,7 +44,7 @@ namespace Kustox.Runtime
                     ct);
 
                 await _controlFlowInstance.SetControlFlowStateAsync(
-                    ControlFlowState.Completed,
+                    ProcedureRunState.Completed,
                     ct);
 
                 return new RuntimeResult(true, result);
