@@ -4,7 +4,7 @@ using System.Data;
 
 namespace Kustox.Runtime.State
 {
-    public interface IControlFlowInstance
+    public interface IProcedureRun
     {
         long JobId { get; }
 

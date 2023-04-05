@@ -13,12 +13,12 @@ namespace Kustox.Runtime
 {
     public class ProcedureRuntime
     {
-        private readonly IControlFlowInstance _controlFlowInstance;
+        private readonly IProcedureRun _controlFlowInstance;
         private readonly ConnectionProvider _connectionProvider;
         private readonly CommandRunnerRouter _commandRunnerRouter;
 
         public ProcedureRuntime(
-            IControlFlowInstance controlFlowInstance,
+            IProcedureRun controlFlowInstance,
             ConnectionProvider connectionProvider)
         {
             _controlFlowInstance = controlFlowInstance;

@@ -107,7 +107,7 @@ namespace Kustox.IntegratedTests
         #region IControlFlowList
         protected static IProcedureRunList ControlFlowList { get; }
 
-        protected static IControlFlowInstance CreateControlFlowInstance()
+        protected static IProcedureRun CreateControlFlowInstance()
         {
             var i1 = _random.Next();
             var i2 = _random.Next();
@@ -140,7 +140,7 @@ namespace Kustox.IntegratedTests
         #endregion
 
         protected static async Task<TableResult?> RunInPiecesAsync(
-            IControlFlowInstance flowInstance,
+            IProcedureRun flowInstance,
             int? maximumNumberOfSteps = 1)
         {
             while (true)

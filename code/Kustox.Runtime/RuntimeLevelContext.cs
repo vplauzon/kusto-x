@@ -42,7 +42,7 @@ namespace Kustox.Runtime
         }
         #endregion
 
-        private readonly IControlFlowInstance _controlFlowInstance;
+        private readonly IProcedureRun _controlFlowInstance;
         private readonly IImmutableList<long> _levelPrefixes;
         private readonly IList<StepState> _stepStates;
         private readonly IDictionary<string, TableResult> _captures;
@@ -50,7 +50,7 @@ namespace Kustox.Runtime
 
         #region Constructors
         private RuntimeLevelContext(
-            IControlFlowInstance controlFlowInstance,
+            IProcedureRun controlFlowInstance,
             ControlFlowDeclaration declaration,
             IImmutableList<long> levelPrefixes,
             IImmutableList<StepState> stepStates,
@@ -66,7 +66,7 @@ namespace Kustox.Runtime
         }
 
         public async static Task<RuntimeLevelContext> LoadContextAsync(
-            IControlFlowInstance controlFlowInstance,
+            IProcedureRun controlFlowInstance,
             int? maximumNumberOfSteps,
             CancellationToken ct)
         {   //  Run in parallel

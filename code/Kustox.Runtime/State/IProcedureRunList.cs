@@ -5,6 +5,6 @@ namespace Kustox.Runtime.State
     public interface IProcedureRunList
     {
 
-        IControlFlowInstance GetInstance(long jobId);
+        IProcedureRun GetInstance(long jobId);
     }
 }

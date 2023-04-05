@@ -7,7 +7,7 @@ using System.Data;
 
 namespace Kustox.CosmosDbState
 {
-    internal class CosmosDbControlFlowInstance : IControlFlowInstance
+    internal class CosmosDbControlFlowInstance : IProcedureRun
     {
         private readonly Container _container;
         private readonly long _jobId;
@@ -18,9 +18,9 @@ namespace Kustox.CosmosDbState
             _jobId = jobId;
         }
 
-        long IControlFlowInstance.JobId => _jobId;
+        long IProcedureRun.JobId => _jobId;
 
-        async Task IControlFlowInstance.CreateInstanceAsync(
+        async Task IProcedureRun.CreateInstanceAsync(
             string script,
             CancellationToken ct)
         {
@@ -34,7 +34,7 @@ namespace Kustox.CosmosDbState
             await batch.ExecuteAsync(ct);
         }
 
-        Task IControlFlowInstance.DeleteAsync(CancellationToken ct)
+        Task IProcedureRun.DeleteAsync(CancellationToken ct)
         {
             //  See https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-delete-by-partition-key?tabs=dotnet-example
             //  For preview
@@ -42,7 +42,7 @@ namespace Kustox.CosmosDbState
             throw new NotImplementedException();
         }
 
-        async Task<ControlFlowDeclaration> IControlFlowInstance.GetDeclarationAsync(
+        async Task<ControlFlowDeclaration> IProcedureRun.GetDeclarationAsync(
             CancellationToken ct)
         {
             var response = await _container.ReadItemAsync<DeclarationData>(
@@ -61,7 +61,7 @@ namespace Kustox.CosmosDbState
             return declaration;
         }
 
-        async Task<TimestampedData<ProcedureRunState>> IControlFlowInstance.GetControlFlowStateAsync(
+        async Task<TimestampedData<ProcedureRunState>> IProcedureRun.GetControlFlowStateAsync(
             CancellationToken ct)
         {
             var response = await _container.ReadItemAsync<ControlFlowStateData>(
@@ -81,7 +81,7 @@ namespace Kustox.CosmosDbState
             return result;
         }
 
-        async Task IControlFlowInstance.SetControlFlowStateAsync(
+        async Task IProcedureRun.SetControlFlowStateAsync(
             ProcedureRunState state,
             CancellationToken ct)
         {
@@ -94,7 +94,7 @@ namespace Kustox.CosmosDbState
                 ct);
         }
 
-        async Task<IImmutableList<ProcedureRunStep>> IControlFlowInstance.GetStepsAsync(
+        async Task<IImmutableList<ProcedureRunStep>> IProcedureRun.GetStepsAsync(
             IImmutableList<long> levelPrefix,
             CancellationToken ct)
         {
@@ -119,7 +119,7 @@ AND STARTSWITH(c.id, '{StepData.GetId(_jobId, levelPrefix)}', false)";
             return steps;
         }
 
-        async Task<ProcedureRunStep> IControlFlowInstance.SetStepAsync(
+        async Task<ProcedureRunStep> IProcedureRun.SetStepAsync(
             IImmutableList<long> indexes,
             StepState state,
             string script,
