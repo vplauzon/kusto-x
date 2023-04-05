@@ -14,7 +14,7 @@ namespace Kustox.CosmosDbState
 
         IProcedureRun IProcedureRunList.GetInstance(long jobId)
         {
-            return new CosmosDbControlFlowInstance(_container, jobId);
+            return new CosmosDbProcedureRun(_container, jobId);
         }
     }
 }

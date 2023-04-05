@@ -7,12 +7,12 @@ using System.Data;
 
 namespace Kustox.CosmosDbState
 {
-    internal class CosmosDbControlFlowInstance : IProcedureRun
+    internal class CosmosDbProcedureRun : IProcedureRun
     {
         private readonly Container _container;
         private readonly long _jobId;
 
-        public CosmosDbControlFlowInstance(Container container, long jobId)
+        public CosmosDbProcedureRun(Container container, long jobId)
         {
             _container = container;
             _jobId = jobId;
