@@ -25,7 +25,7 @@ namespace Kustox.CosmosDbState
             CancellationToken ct)
         {
             var declarationData = new DeclarationData(_jobId, script);
-            var stateData = new ControlFlowStateData(_jobId, ProcedureRunState.Running);
+            var stateData = new ProcedureRunStateData(_jobId, ProcedureRunState.Running);
             var batch = _container.CreateTransactionalBatch(
                 ControlFlowDataHelper.JobIdToPartitionKey(_jobId));
 
@@ -64,8 +64,8 @@ namespace Kustox.CosmosDbState
         async Task<TimestampedData<ProcedureRunState>> IProcedureRun.GetControlFlowStateAsync(
             CancellationToken ct)
         {
-            var response = await _container.ReadItemAsync<ControlFlowStateData>(
-                ControlFlowStateData.GetId(_jobId),
+            var response = await _container.ReadItemAsync<ProcedureRunStateData>(
+                ProcedureRunStateData.GetId(_jobId),
                 ControlFlowDataHelper.JobIdToPartitionKey(_jobId),
                 null,
                 ct);
@@ -85,7 +85,7 @@ namespace Kustox.CosmosDbState
             ProcedureRunState state,
             CancellationToken ct)
         {
-            var data = new ControlFlowStateData(_jobId, state);
+            var data = new ProcedureRunStateData(_jobId, state);
 
             await _container.UpsertItemAsync(
                 data,

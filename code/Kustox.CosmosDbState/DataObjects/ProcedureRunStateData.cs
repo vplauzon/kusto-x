@@ -8,13 +8,13 @@ using System.Threading.Tasks;
 
 namespace Kustox.CosmosDbState.DataObjects
 {
-    internal class ControlFlowStateData
+    internal class ProcedureRunStateData
     {
-        public ControlFlowStateData()
+        public ProcedureRunStateData()
         {
         }
 
-        public ControlFlowStateData(long jobId, ProcedureRunState state)
+        public ProcedureRunStateData(long jobId, ProcedureRunState state)
         {
             Id = GetId(jobId);
             JobId = jobId.ToString();
