@@ -148,7 +148,7 @@ namespace Kustox.Runtime
             return _stepStates.ToImmutableArray();
         }
 
-        public async Task<IImmutableList<ControlFlowStep>> GetAllStepsAsync(CancellationToken ct)
+        public async Task<IImmutableList<ProcedureRunStep>> GetAllStepsAsync(CancellationToken ct)
         {
             var steps = await _controlFlowInstance.GetStepsAsync(_levelPrefixes, ct);
 

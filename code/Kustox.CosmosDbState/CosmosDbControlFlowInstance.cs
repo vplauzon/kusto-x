@@ -94,7 +94,7 @@ namespace Kustox.CosmosDbState
                 ct);
         }
 
-        async Task<IImmutableList<ControlFlowStep>> IControlFlowInstance.GetStepsAsync(
+        async Task<IImmutableList<ProcedureRunStep>> IControlFlowInstance.GetStepsAsync(
             IImmutableList<long> levelPrefix,
             CancellationToken ct)
         {
@@ -119,7 +119,7 @@ AND STARTSWITH(c.id, '{StepData.GetId(_jobId, levelPrefix)}', false)";
             return steps;
         }
 
-        async Task<ControlFlowStep> IControlFlowInstance.SetStepAsync(
+        async Task<ProcedureRunStep> IControlFlowInstance.SetStepAsync(
             IImmutableList<long> indexes,
             StepState state,
             string script,

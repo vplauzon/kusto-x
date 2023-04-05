@@ -16,13 +16,13 @@ namespace Kustox.Runtime.State
         
         Task<TimestampedData<ProcedureRunState>> GetControlFlowStateAsync(CancellationToken ct);
         
-        Task<IImmutableList<ControlFlowStep>> GetStepsAsync(
+        Task<IImmutableList<ProcedureRunStep>> GetStepsAsync(
             IImmutableList<long> levelPrefix,
             CancellationToken ct);
         
         Task SetControlFlowStateAsync(ProcedureRunState state, CancellationToken ct);
 
-        Task<ControlFlowStep> SetStepAsync(
+        Task<ProcedureRunStep> SetStepAsync(
             IImmutableList<long> indexes,
             StepState state,
             string script,

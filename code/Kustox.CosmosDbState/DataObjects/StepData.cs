@@ -77,7 +77,7 @@ namespace Kustox.CosmosDbState.DataObjects
             }
         }
 
-        public ControlFlowStep ToControlFlowStep()
+        public ProcedureRunStep ToControlFlowStep()
         {
             if (Result != null)
             {
@@ -85,7 +85,7 @@ namespace Kustox.CosmosDbState.DataObjects
                     .Zip(Result!.ColumnTypes!, (n, t) => new ColumnSpecification(n, t))
                     .ToImmutableArray();
 
-                return new ControlFlowStep(
+                return new ProcedureRunStep(
                     Indexes,
                     GetState(),
                     CaptureName,
@@ -94,7 +94,7 @@ namespace Kustox.CosmosDbState.DataObjects
             }
             else
             {
-                return new ControlFlowStep(
+                return new ProcedureRunStep(
                     Indexes,
                     GetState(),
                     _ts);

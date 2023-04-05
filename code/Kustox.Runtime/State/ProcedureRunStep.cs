@@ -3,9 +3,10 @@ using System.Data;
 
 namespace Kustox.Runtime.State
 {
-    public class ControlFlowStep
+    public class ProcedureRunStep
     {
-        public ControlFlowStep(
+
+        public ProcedureRunStep(
             IImmutableList<long> stepBreadcrumb,
             StepState state,
             long timestamp)
@@ -15,7 +16,7 @@ namespace Kustox.Runtime.State
             Timestamp = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime;
         }
 
-        public ControlFlowStep(
+        public ProcedureRunStep(
             IImmutableList<long> stepBreadcrumb,
             StepState state,
             string? captureName,
