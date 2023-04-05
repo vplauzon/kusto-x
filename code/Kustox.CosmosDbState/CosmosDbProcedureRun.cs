@@ -27,7 +27,7 @@ namespace Kustox.CosmosDbState
             var declarationData = new DeclarationData(_jobId, script);
             var stateData = new ProcedureRunStateData(_jobId, ProcedureRunState.Running);
             var batch = _container.CreateTransactionalBatch(
-                ControlFlowDataHelper.JobIdToPartitionKey(_jobId));
+                ProcedureRunDataHelper.JobIdToPartitionKey(_jobId));
 
             batch.CreateItem(declarationData);
             batch.CreateItem(stateData);
@@ -47,7 +47,7 @@ namespace Kustox.CosmosDbState
         {
             var response = await _container.ReadItemAsync<DeclarationData>(
                 DeclarationData.GetId(_jobId),
-                ControlFlowDataHelper.JobIdToPartitionKey(_jobId),
+                ProcedureRunDataHelper.JobIdToPartitionKey(_jobId),
                 null,
                 ct);
             var script = response.Resource.Script;
@@ -66,7 +66,7 @@ namespace Kustox.CosmosDbState
         {
             var response = await _container.ReadItemAsync<ProcedureRunStateData>(
                 ProcedureRunStateData.GetId(_jobId),
-                ControlFlowDataHelper.JobIdToPartitionKey(_jobId),
+                ProcedureRunDataHelper.JobIdToPartitionKey(_jobId),
                 null,
                 ct);
             var stateData = response.Resource;
@@ -89,7 +89,7 @@ namespace Kustox.CosmosDbState
 
             await _container.UpsertItemAsync(
                 data,
-                ControlFlowDataHelper.JobIdToPartitionKey(_jobId),
+                ProcedureRunDataHelper.JobIdToPartitionKey(_jobId),
                 null,
                 ct);
         }
@@ -108,7 +108,7 @@ AND STARTSWITH(c.id, '{StepData.GetId(_jobId, levelPrefix)}', false)";
                 null,
                 new QueryRequestOptions
                 {
-                    PartitionKey = ControlFlowDataHelper.JobIdToPartitionKey(_jobId)
+                    PartitionKey = ProcedureRunDataHelper.JobIdToPartitionKey(_jobId)
                 });
             var stepDatas = await ListAsync(iterator, ct);
             var steps = stepDatas
@@ -137,7 +137,7 @@ AND STARTSWITH(c.id, '{StepData.GetId(_jobId, levelPrefix)}', false)";
 
             await _container.UpsertItemAsync(
                 data,
-                ControlFlowDataHelper.JobIdToPartitionKey(_jobId),
+                ProcedureRunDataHelper.JobIdToPartitionKey(_jobId),
                 null,
                 ct);
 

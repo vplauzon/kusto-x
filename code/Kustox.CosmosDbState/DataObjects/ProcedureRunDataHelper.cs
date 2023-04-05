@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Kustox.CosmosDbState.DataObjects
 {
-    internal static class ControlFlowDataHelper
+    internal static class ProcedureRunDataHelper
     {
         public static PartitionKey JobIdToPartitionKey(long jobId)
         {
