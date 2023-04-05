@@ -57,7 +57,7 @@ namespace Kustox.IntegratedTests
         {
             ReadEnvironmentVariables();
 
-            ControlFlowList = ControlFlowPersistencyFactory.FromEnvironmentVariables();
+            ControlFlowList = ProcedureRunListFactory.FromEnvironmentVariables();
             ConnectionProvider = CreateConnectionProvider();
         }
 

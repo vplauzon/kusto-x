@@ -8,8 +8,9 @@ using System.Threading.Tasks;
 
 namespace Kustox.CosmosDbState
 {
-    public static class ControlFlowPersistencyFactory
+    public static class ProcedureRunListFactory
     {
+
         public static IProcedureRunList FromAccessKeys(
             string accountEndpoint,
             string accessKey,
