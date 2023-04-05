@@ -20,7 +20,7 @@ namespace Kustox.CosmosDbState
                 new CosmosClient(accountEndpoint, accessKey, CreateCosmosClientOptions());
             var container = client.GetContainer(databaseName, containerName);
 
-            return new CosmosDbControlFlowList(container);
+            return new CosmosDbProcedureRunList(container);
         }
 
         public static IProcedureRunList FromEnvironmentVariables()

@@ -3,11 +3,11 @@ using Microsoft.Azure.Cosmos;
 
 namespace Kustox.CosmosDbState
 {
-    internal class CosmosDbControlFlowList : IProcedureRunList
+    internal class CosmosDbProcedureRunList : IProcedureRunList
     {
         private readonly Container _container;
 
-        public CosmosDbControlFlowList(Container container)
+        public CosmosDbProcedureRunList(Container container)
         {
             _container = container;
         }
