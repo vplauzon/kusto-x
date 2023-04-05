@@ -10,7 +10,7 @@ namespace Kustox.CosmosDbState
 {
     public static class ControlFlowPersistencyFactory
     {
-        public static IControlFlowList FromAccessKeys(
+        public static IProcedureRunList FromAccessKeys(
             string accountEndpoint,
             string accessKey,
             string databaseName,
@@ -23,7 +23,7 @@ namespace Kustox.CosmosDbState
             return new CosmosDbControlFlowList(container);
         }
 
-        public static IControlFlowList FromEnvironmentVariables()
+        public static IProcedureRunList FromEnvironmentVariables()
         {
             var accountEndpoint = GetEnvironmentVariable("cosmosDbAccountEndpoint");
             var accessKey = GetEnvironmentVariable("cosmosDbAccessKey");

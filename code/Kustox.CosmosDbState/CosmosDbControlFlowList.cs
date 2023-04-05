@@ -3,7 +3,7 @@ using Microsoft.Azure.Cosmos;
 
 namespace Kustox.CosmosDbState
 {
-    internal class CosmosDbControlFlowList : IControlFlowList
+    internal class CosmosDbControlFlowList : IProcedureRunList
     {
         private readonly Container _container;
 
@@ -12,7 +12,7 @@ namespace Kustox.CosmosDbState
             _container = container;
         }
 
-        IControlFlowInstance IControlFlowList.GetInstance(long jobId)
+        IControlFlowInstance IProcedureRunList.GetInstance(long jobId)
         {
             return new CosmosDbControlFlowInstance(_container, jobId);
         }

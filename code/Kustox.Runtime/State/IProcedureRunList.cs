@@ -2,8 +2,9 @@
 
 namespace Kustox.Runtime.State
 {
-    public interface IControlFlowList
+    public interface IProcedureRunList
     {
+
         IControlFlowInstance GetInstance(long jobId);
     }
 }

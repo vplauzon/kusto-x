@@ -105,7 +105,7 @@ namespace Kustox.IntegratedTests
         #endregion
 
         #region IControlFlowList
-        protected static IControlFlowList ControlFlowList { get; }
+        protected static IProcedureRunList ControlFlowList { get; }
 
         protected static IControlFlowInstance CreateControlFlowInstance()
         {
