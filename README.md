@@ -5,24 +5,45 @@
 
 Kusto-X is an extension to the Kusto Query Language.  The original aim is to POC "procedures" in Kusto, i.e. long running operations with control flows.
 
-# Kusto-X Specs
-
 We can conceptualize Kusto-X as a language and a runtime.
 
-The Kusto-X language is a super set of the Kusto language.  Here is the most minimalistic Kusto-X script:
+The Kusto-X language is a super set of the Kusto language.  Kusto supports:
+
+* Queries
+* Commands (starting with a *dot* '.')
+
+Kusto-X, on the other hand, supports:
+
+* Queries
+* Commands (starting with a *dot* '.')
+* Control flow statements (starting with a '@')
+
+Queries are identical in Kusto and Kusto-X (except Kusto-X queries can use captured values).
+
+Kusto commands are supported in Kusto-X.  Some commands are unique to Kusto-X.
+
+Control flow statements are unique to Kusto-X.
+
+# Control flow statements
+
+Here is the most minimalistic Kusto-X procedure script:
 
 ```kusto
 @run-procedure{
 }
 ```
 
-The '@' announces a Kusto-X specific command, like a '.' announces a Kusto command.
+Running this returns a job-id (a string of character) identifying the instance of the job executing that procedure.
 
-That control flow script is empty and doesn't do anything.
+That procedure script is empty and doesn't do anything.
 
-## Trivial Control Flow
+We can also persist a procedure (**TODO:  reference**).
 
-Having a single Kusto ingestion command in a control flow results in a *trivial* control flow equilvalent to simply running the command:
+Any control flow operations must be inside a procedure.
+
+## Trivial procedure
+
+Having a single Kusto-X statement in a procedure results in a *trivial* procedure, equivalent to simply running the statement itself:
 
 ```kusto
 @run-procedure{
@@ -30,11 +51,11 @@ Having a single Kusto ingestion command in a control flow results in a *trivial*
 }
 ```
 
-The only difference between running this control flow and running the command directly is retry upon.
+The only difference between running this control flow and running the command directly is retry upon.  Also the procedure is run asynchronously (as a job).
 
 ## Sequence
 
-A sequence allows to run more than one command:
+A sequence allows to run more than one statement:
 
 ```kusto
 @run-procedure{
@@ -44,20 +65,26 @@ A sequence allows to run more than one command:
 }
 ```
 
-This control flow would first run the first command than the second one, sequentially.
+This procedure would first run the first command than the second one, sequentially.
 
-We notice an empty line between commands:  **this is mandatory in Kusto-X to separate the ingestion commands and / or instructions within a sequence**.
-
-Sequences are present at the root of a control flow, in an if-else statement and foreach-loops.
+We notice an empty line between statements:  **this is mandatory in Kusto-X to separate the ingestion commands and / or instructions within a sequence**.  This is due to limitation in the Kusto-X parser.
 
 ## Captures
 
-`Capture` allows us to capture the value of a constant, a query, a Kusto/Kusto-X commands or query and store it in a named *captured value*.  Those can then be used in queries, commands and Kusto-X commands.  The same constrains apply for native queries & commands, i.e. captured values can't be used where litterals are expected (e.g. properties).
+`Capture` allows us to capture the value of a constant, a query, a Kusto commands or control flow statement and store it in a named *captured value*.
+
+Queries can use capture values unless litterals are expected.
+
+Commands cannot use capture values unless the command is a Kusto-X command.
+
+Control flow statements can use capture values (and typically can only use those).
+
+All control flow statements return values (even `if` & `for`!).
 
 `Capture` has a different syntax than [Kusto let](https://docs.microsoft.com/en-us/azure/data-explorer/kusto/query/letstatement).  This is because they are different concepts:
 
 * *Let* is part of a query and is evaluated "within the same transaction" (with the same list of extents) than the query.
-* A capture is taken at one point in time and *stored* in the control flow.  If the control flow runs for a while, the capture might not be in sync with the queries / commands it is applied to as it ran in a "different transaction".
+* A capture is taken at one point in time and *stored* in the control flow.  If the control flow runs for a while, the capture might not be in sync with the queries / commands it is applied to as it ran in a "different transaction context".
 
 Captures are used extensively in Kusto-X.  Here are different examples:
 
@@ -77,16 +104,16 @@ Captures are used extensively in Kusto-X.  Here are different examples:
     @capture nonAdminNodeTable = .show cluster
         | where not(IsAdmin)
 
-    @capture blobsTable = @get blob list
+    @capture blobsTable = .get blob list
 
-    @capture bigBlobsTable = @get blob list
+    @capture bigBlobsTable = .get blob list
         | where BlobSize > 1000000
 }
 ```
 
-Captures can't be declared in a grouping of concurrency higher than 1 since that would bring uncertainty between a capture happening and its value being referenced.
+We noticed two forms of capture, one with scalar, the other without.  `capture-scalar` captures the returned value of a statement as a scalar.  This is useful to differentiate 1x1 tables and scalar.
 
-Capture values can then be used in other statements.  For instance:
+Captured values can then be used in other statements.  For instance:
 
 ```kusto
 @run-procedure{
@@ -97,7 +124,7 @@ Capture values can then be used in other statements.  For instance:
 }
 ```
 
-A capture value is strong type.  It can either be a Kusto table or a Kusto scalar.
+A captured value has a schema (or a type if it's a scalar).
 
 ## If
 
@@ -121,7 +148,7 @@ A capture value is strong type.  It can either be a Kusto table or a Kusto scala
 }
 ```
 
-A `if` can be by itself (i.e. without `else`) or `else if` can also be used to add branches.
+A `if` can be by itself (i.e. without `else`), with `else`.  `else if` can also be used to add branches.
 
 ## For each
 
@@ -141,10 +168,10 @@ A `if` can be by itself (i.e. without `else`) or `else if` can also be used to a
 
 *Foreach* can enumerate on:
 
-* A table, which case it enumerates on the first column
+* A table, in which case it enumerates on the first column
 * A scalar of dynamic type representing an array
 
-*Foreach*'s concurrency is optional.  It must be positive (i.e. greater than zero).  Default is 1.
+*Foreach*'s concurrency is optional.  It must be positive (i.e. greater than zero).  Default is 1.  A captured value can be used.
 
 ## Until semantic
 
