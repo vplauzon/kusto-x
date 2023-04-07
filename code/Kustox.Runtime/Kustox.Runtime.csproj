@@ -10,7 +10,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.Azure.Kusto.Data" Version="11.2.2" />
-    <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.13.0" />
+    <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.13.1" />
   </ItemGroup>
 
   <ItemGroup>
