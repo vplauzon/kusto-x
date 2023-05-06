@@ -66,7 +66,7 @@ namespace Kustox.Runtime
                 levelContext.PreStepExecution();
 
                 return await RunQueryAsync(
-                    block.Query,
+                    block.Query.Code,
                     block.Capture?.IsScalarCapture ?? false,
                     stepIndex,
                     levelContext,
@@ -77,7 +77,7 @@ namespace Kustox.Runtime
                 levelContext.PreStepExecution();
 
                 return await _commandRunnerRouter.RunCommandAsync(
-                    block,
+                    block.Command,
                     block.Capture?.IsScalarCapture ?? false,
                     ct);
             }

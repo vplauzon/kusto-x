@@ -48,7 +48,9 @@ namespace Kustox.UnitTests
                 "myVersionTable",
                 controlFlow.RootSequence.Blocks.First().Capture!.CaptureName);
             Assert.NotNull(controlFlow.RootSequence.Blocks.First().Command);
-            Assert.Equal(ExtendedCommandType.Kusto, controlFlow.RootSequence.Blocks.First().CommandType);
+            Assert.Equal(
+                ExtendedCommandType.Kusto,
+                controlFlow.RootSequence.Blocks.First().Command!.CommandType);
         }
 
         [Fact]
@@ -63,7 +65,9 @@ namespace Kustox.UnitTests
             Assert.Single(controlFlow.RootSequence.Blocks);
             Assert.Null(controlFlow.RootSequence.Blocks.First().Capture);
             Assert.NotNull(controlFlow.RootSequence.Blocks.First().Command);
-            Assert.Equal(ExtendedCommandType.Kusto, controlFlow.RootSequence.Blocks.First().CommandType);
+            Assert.Equal(
+                ExtendedCommandType.Kusto,
+                controlFlow.RootSequence.Blocks.First().Command!.CommandType);
         }
     }
 }

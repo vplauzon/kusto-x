@@ -58,13 +58,13 @@ namespace Kustox.Compiler.Parsing
             return ExtendedCommandType.Kusto;
         }
 
-        public BlockDeclaration ParseExtendedCommands(string command)
+        public CommandDeclaration ParseExtendedCommands(string command)
         {
             var match = _commandGrammar.Match("main", command);
 
             if (match != null)
             {
-                var output = match.ComputeTypedOutput<BlockDeclaration>();
+                var output = match.ComputeTypedOutput<CommandDeclaration>();
 
                 if (output != null)
                 {
@@ -72,7 +72,7 @@ namespace Kustox.Compiler.Parsing
                 }
             }
 
-            return new BlockDeclaration();
+            return new CommandDeclaration();
         }
 
         private static string LoadFileContent(string path)

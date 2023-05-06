@@ -16,11 +16,11 @@ namespace Kustox.Runtime.Commands
         }
 
         public override async Task<TableResult> RunCommandAsync(
-            BlockDeclaration block,
+            CommandDeclaration command,
             bool isScalarCapture,
             CancellationToken ct)
         {
-            var rootUrl = new Uri(block.GetBlobs!.RootUrl);
+            var rootUrl = new Uri(command.GetBlobs!.RootUrl);
             var blobClient = new BlobClient(rootUrl, ConnectionProvider.Credential);
             var containerClient = blobClient.GetParentBlobContainerClient();
             var pageable = containerClient.GetBlobsAsync(

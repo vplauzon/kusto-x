@@ -19,7 +19,7 @@ namespace Kustox.Runtime.Commands
         protected ConnectionProvider ConnectionProvider { get; }
 
         public abstract Task<TableResult> RunCommandAsync(
-            BlockDeclaration block,
+            CommandDeclaration command,
             bool isScalarCapture,
             CancellationToken ct);
     }

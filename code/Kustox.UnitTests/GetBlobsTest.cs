@@ -18,7 +18,7 @@ namespace Kustox.UnitTests
             Assert.NotNull(controlFlow.RootSequence.Blocks.First().Command);
             Assert.Equal(
                 ExtendedCommandType.GetBlobs,
-                controlFlow.RootSequence.Blocks.First().CommandType);
+                controlFlow.RootSequence.Blocks.First().Command!.CommandType);
         }
     }
 }

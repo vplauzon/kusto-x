@@ -19,13 +19,13 @@ namespace Kustox.Compiler
             return declaration;
         }
 
-        public BlockDeclaration ParseCommand(string command)
+        public CommandDeclaration ParseCommand(string command)
         {
             var commandType = _parser.ParseCommandType(command);
 
             if (commandType == ExtendedCommandType.Kusto)
             {
-                return new BlockDeclaration
+                return new CommandDeclaration
                 {
                     CommandType = commandType
                 };

@@ -7,13 +7,14 @@ rule propertyAssignationList = head:propertyAssignation
 rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => flatten(list);
 rule optionalWithPropertyAssignationList = withPropertyAssignationList? => flatten(defaultOutput);
 
-#	Runnables:  stuff that can be run, i.e. queries and commands
+#	Commands and queries:  stuff that can be run
 rule(interleave=false) kqlLine = ((. - "\n")* - blockSpacer*) "\n"=> text;
-rule(interleave=false) query = (. - ".") kqlLine* => text;
-rule(interleave=false) command = "." kqlLine+ => text;
+rule(interleave=false) query = (. - ".") kqlLine* => { "code": text };
+rule(interleave=false) command = "." kqlLine+ => { "code": text };
 
 #	Capturables:  stuff that can be captured, i.e. runnables & control flows
 rule forEach = "@foreach" "(" cursor:identifier "in" enumerator:identifier ")" properties:optionalWithPropertyAssignationList sequence:sequenceContent => {
+	"code":text,
 	"properties":properties,
 	"cursor":cursor,
 	"enumerator":enumerator,

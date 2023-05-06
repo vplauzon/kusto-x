@@ -27,17 +27,17 @@ namespace Kustox.Runtime.Commands
         }
 
         public async Task<TableResult> RunCommandAsync(
-            BlockDeclaration block,
+            CommandDeclaration command,
             bool isScalarCapture,
             CancellationToken ct)
         {
-            if (_commandTypeToRunnerMap.TryGetValue(block.CommandType, out var runner))
+            if (_commandTypeToRunnerMap.TryGetValue(command.CommandType, out var runner))
             {
-                return await runner.RunCommandAsync(block, isScalarCapture, ct);
+                return await runner.RunCommandAsync(command, isScalarCapture, ct);
             }
             else
             {
-                throw new NotSupportedException($"Command type '{block.CommandType}'");
+                throw new NotSupportedException($"Command type '{command.CommandType}'");
             }
         }
     }
