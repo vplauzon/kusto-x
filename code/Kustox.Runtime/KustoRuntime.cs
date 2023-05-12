@@ -10,6 +10,13 @@ namespace Kustox.Runtime
 {
     public class KustoRuntime
     {
+        private readonly ConnectionProvider _connectionProvider;
+
+        public KustoRuntime(ConnectionProvider connectionProvider)
+        {
+            _connectionProvider = connectionProvider;
+        }
+        
         public async Task<TableResult> RunStatementAsync(
             CommandOrQueryDeclaration commandOrQuery,
             CancellationToken ct)
