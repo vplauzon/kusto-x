@@ -3,13 +3,9 @@ using Kusto.Language.Syntax;
 
 namespace Kustox.Compiler
 {
-    public class BlockDeclaration : DeclarationCodeBase
+    public class BlockDeclaration : CommandOrQueryDeclarationBase
     {
         public CaptureDeclaration? Capture { get; set; }
-
-        public QueryDeclaration? Query { get; set; }
-
-        public CommandDeclaration? Command { get; set; }
 
         public ForEachDeclaration? ForEach { get; set; }
 
@@ -29,8 +25,6 @@ namespace Kustox.Compiler
             }
             Capture?.Validate();
             ForEach?.Validate();
-            Query?.Validate();
-            Command?.Validate();
         }
 
         internal override void SubParsing(KustoxCompiler compiler)
@@ -39,8 +33,6 @@ namespace Kustox.Compiler
 
             Capture?.SubParsing(compiler);
             ForEach?.SubParsing(compiler);
-            Query?.SubParsing(compiler);
-            Command?.SubParsing(compiler);
         }
     }
 }
