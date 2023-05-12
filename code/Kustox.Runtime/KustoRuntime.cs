@@ -1,4 +1,5 @@
-﻿using Kustox.Runtime.State;
+﻿using Kustox.Compiler;
+using Kustox.Runtime.State;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,7 +11,7 @@ namespace Kustox.Runtime
     public class KustoRuntime
     {
         public async Task<TableResult> RunStatementAsync(
-            string statement,
+            CommandOrQueryDeclaration commandOrQuery,
             CancellationToken ct)
         {
             await Task.CompletedTask;
