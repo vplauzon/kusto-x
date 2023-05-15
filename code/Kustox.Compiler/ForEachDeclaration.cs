@@ -34,7 +34,7 @@ namespace Kustox.Compiler
 
             foreach (var property in Properties)
             {
-                if (property.Id == CONCURRENCY_PROPERTY)
+                if (property.Id != CONCURRENCY_PROPERTY)
                 {
                     throw new InvalidOperationException(
                         $"Unsupported property in for-each:  '{property.Id}'");

@@ -28,12 +28,11 @@ namespace Kustox.Runtime.Commands
 
         public async Task<TableResult> RunCommandAsync(
             CommandDeclaration command,
-            bool isScalarCapture,
             CancellationToken ct)
         {
             if (_commandTypeToRunnerMap.TryGetValue(command.CommandType, out var runner))
             {
-                return await runner.RunCommandAsync(command, isScalarCapture, ct);
+                return await runner.RunCommandAsync(command, ct);
             }
             else
             {

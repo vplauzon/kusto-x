@@ -17,7 +17,6 @@ namespace Kustox.Runtime.Commands
 
         public override async Task<TableResult> RunCommandAsync(
             CommandDeclaration command,
-            bool isScalarCapture,
             CancellationToken ct)
         {
             var rootUrl = new Uri(command.GetBlobs!.RootUrl);
@@ -49,7 +48,7 @@ namespace Kustox.Runtime.Commands
                 }.ToImmutableArray())
                 .Cast<IImmutableList<object>>()
                 .ToImmutableArray();
-            var result = new TableResult(isScalarCapture, columns, data);
+            var result = new TableResult(false, columns, data);
 
             return result;
         }

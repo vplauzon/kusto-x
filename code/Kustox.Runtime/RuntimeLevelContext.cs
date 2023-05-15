@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace Kustox.Runtime
 {
-    internal class RuntimeLevelContext
+    public class RuntimeLevelContext
     {
         #region Inner Types
         private class StepCounter

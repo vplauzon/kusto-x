@@ -3,7 +3,7 @@ using Kusto.Language.Syntax;
 
 namespace Kustox.Compiler
 {
-    public abstract class CommandOrQueryDeclaration : CommandOrQueryDeclarationBase
+    public abstract class RunnableDeclaration : RunnableDeclarationBase
     {
         internal override void Validate()
         {
@@ -16,7 +16,7 @@ namespace Kustox.Compiler
             {
                 throw new InvalidDataException(
                     "Statement must be either a query or a command in "
-                    + $" {typeof(CommandOrQueryDeclaration).Name}");
+                    + $" {typeof(RunnableDeclaration).Name}");
             }
         }
     }

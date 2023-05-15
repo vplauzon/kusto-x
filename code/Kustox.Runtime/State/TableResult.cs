@@ -74,6 +74,11 @@ namespace Kustox.Runtime.State
 
         public IImmutableList<IImmutableList<object>> Data { get; }
 
+        public TableResult ToScale()
+        {
+            return new TableResult(true, Columns, Data);
+        }
+
         public DataTable? ToDataTable()
         {
             var table = new DataTable();

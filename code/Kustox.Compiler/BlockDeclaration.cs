@@ -3,7 +3,7 @@ using Kusto.Language.Syntax;
 
 namespace Kustox.Compiler
 {
-    public class BlockDeclaration : CommandOrQueryDeclarationBase
+    public class BlockDeclaration : RunnableDeclarationBase
     {
         public CaptureDeclaration? Capture { get; set; }
 

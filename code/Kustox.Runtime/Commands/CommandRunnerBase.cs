@@ -20,7 +20,6 @@ namespace Kustox.Runtime.Commands
 
         public abstract Task<TableResult> RunCommandAsync(
             CommandDeclaration command,
-            bool isScalarCapture,
             CancellationToken ct);
     }
 }

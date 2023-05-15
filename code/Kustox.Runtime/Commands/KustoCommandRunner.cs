@@ -23,7 +23,6 @@ namespace Kustox.Runtime.Commands
 
         public override async Task<TableResult> RunCommandAsync(
             CommandDeclaration command,
-            bool isScalarCapture,
             CancellationToken ct)
         {
             var reader = await ConnectionProvider.CommandProvider.ExecuteControlCommandAsync(
@@ -31,7 +30,7 @@ namespace Kustox.Runtime.Commands
                 command.Code,
                 _emptyProperties);
             var table = reader.ToDataSet().Tables[0];
-            var result = new TableResult(isScalarCapture, table);
+            var result = new TableResult(false, table);
 
             return result;
         }

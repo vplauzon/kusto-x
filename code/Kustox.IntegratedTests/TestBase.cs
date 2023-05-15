@@ -58,7 +58,7 @@ namespace Kustox.IntegratedTests
             ReadEnvironmentVariables();
 
             ControlFlowList = ProcedureRunListFactory.FromEnvironmentVariables();
-            ConnectionProvider = CreateConnectionProvider();
+            RunnableRuntime = CreateRunnableRuntime();
         }
 
         #region Environment variables
@@ -118,7 +118,12 @@ namespace Kustox.IntegratedTests
         #endregion
 
         #region Kusto
-        protected static ConnectionProvider ConnectionProvider { get; }
+        protected static RunnableRuntime RunnableRuntime { get; }
+
+        private static RunnableRuntime CreateRunnableRuntime()
+        {
+            return new RunnableRuntime(CreateConnectionProvider());
+        }
 
         private static ConnectionProvider CreateConnectionProvider()
         {
@@ -145,7 +150,7 @@ namespace Kustox.IntegratedTests
         {
             while (true)
             {
-                var runtime = new ProcedureRuntime(flowInstance, ConnectionProvider);
+                var runtime = new ProcedureRuntime(flowInstance, RunnableRuntime);
                 var result = await runtime.RunAsync(maximumNumberOfSteps);
 
                 if (result.HasCompleteSuccessfully)

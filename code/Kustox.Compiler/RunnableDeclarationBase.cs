@@ -3,7 +3,7 @@ using Kusto.Language.Syntax;
 
 namespace Kustox.Compiler
 {
-    public abstract class CommandOrQueryDeclarationBase : DeclarationCodeBase
+    public abstract class RunnableDeclarationBase : DeclarationCodeBase
     {
         public QueryDeclaration? Query { get; set; }
 
