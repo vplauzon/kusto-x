@@ -7,21 +7,29 @@
     <link rel="stylesheet" type="text/css" href="css/mainsheet.css">
 </head>
 <body>
-    <header>
-        <h1>@ViewData["Title"]</h1>
-    </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="border-top footer text-muted">
-        <div class="container">
+    <header class="header">
+        <div class="product">
             @ViewData["Title"]
         </div>
+        <div class="user">
+            User2
+        </div>
+    </header>
+    <div class="main">
+        @RenderBody()
+    </div>
+    <footer class="footer">
+        <div class="doc-link">
+            Documentation & user guide can be
+            <a target="_blank" href="TODO">
+                found here
+            </a>.
+        </div>
+        <div class="app-version">
+            123
+            @*@Model.ParserVersion*@
+        </div>
     </footer>
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
