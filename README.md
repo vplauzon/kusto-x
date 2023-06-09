@@ -6,6 +6,17 @@
 
 Kusto-X is an extension to the Kusto Query Language.  The original aim is to POC "procedures" in Kusto, i.e. long running operations with control flows.
 
+The main scenarios it targets are about data engineering:
+
+* Loading multiple blobs into Kusto (potentially partitioning it in certain ways, with `creationTime` for instance)
+* Loading data in meta-format not supported by Kusto (e.g. Apache Iceberg)
+* Materializing results in ways not supported by Update Policy / Materialized view (e.g. materializing a hierarchy)
+* Orchestrating data movement
+    * E.g. moving data between Kusto databases / clusters via partitioned exports
+    * E.g. initial export (prior to continuous export) of a large table
+
+It could also be used for orchestrating a long running query but it isn't a primary scenario
+
 We can conceptualize Kusto-X as a language and a runtime.
 
 The Kusto-X language is a super set of the Kusto language.  Kusto supports:
