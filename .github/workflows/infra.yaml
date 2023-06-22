@@ -38,7 +38,12 @@ jobs:
     - name: Azure Subscription Set
       run: az account set --name ${{ secrets.SUBSCRIPTION }}
 
-    - name: Deploy
+    - name: Deploy container registry
+      run: |
+        cd deployment/registry
+        bash deploy-registry.sh ${{ secrets.RESOURCE_GROUP }} $env
+
+    - name: Deploy infra
       run: |
         cd deployment/infra
         bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $env
