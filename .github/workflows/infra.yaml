@@ -27,7 +27,7 @@ jobs:
         fi
 
         echo "Environment:  $env"
-        echo "env=$env" >> $GITHUB_ENV
+        echo "environment=$env" >> $GITHUB_ENV
 
     - name: Azure Login
       run: az login --service-principal -u ${{ secrets.DEPLOY_CLIENT_ID }} -p ${{ secrets.DEPLOY_SECRET }} --tenant ${{ secrets.TENANT_ID }}
@@ -37,7 +37,7 @@ jobs:
     - name: Deploy container registry
       run: |
         cd deployment/registry
-        bash deploy-registry.sh ${{ secrets.RESOURCE_GROUP }} $env
+        bash deploy-registry.sh ${{ secrets.RESOURCE_GROUP }} $environment
 
   workbench:
     needs:
@@ -66,8 +66,8 @@ jobs:
       run: az account set --name ${{ secrets.SUBSCRIPTION }}
     - name: Retrieve docker registry
       run: |
-        echo "Environment:  $env"
-        registry=$(az acr list -g ${{ secrets.RESOURCE_GROUP }} --query "[?starts_with(@.name, =='$env'].name" -o tsv)
+        echo "Environment:  $environment"
+        registry=$(az acr list -g ${{ secrets.RESOURCE_GROUP }} --query "[?starts_with(@.name, =='$environment'].name" -o tsv)
         echo 'Registry:  $registry'
         az acr login --name $registry
 
@@ -86,4 +86,4 @@ jobs:
     - name: Deploy infra
       run: |
         cd deployment/infra
-        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $env
+        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment
