@@ -54,9 +54,7 @@ jobs:
       id:  patch-version
       run: python3 deployment/manage-version.py code/Kustox.WebPortal/Kustox.WebPortal.csproj ${{ github.run_number }}
     - name: Install dependencies
-      run: dotnet restore code/Kustox.WebPortal
-    - name: .NET Build (ALL????)
-      run: dotnet build code --configuration Release --no-restore
+      run: dotnet restore code
     - name: .NET Build
       run: dotnet build code/Kustox.WebPortal --configuration Release --no-restore
     - name: .NET Publish Web App
