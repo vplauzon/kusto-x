@@ -19,3 +19,12 @@ module storageModule 'storage.bicep' = [for environment in environments:{
     suffix: suffix
   }
 }]
+
+module appModule 'app.bicep' = [for environment in environments:{
+  name: '${environment}-appDeploy'
+  params: {
+    location: location
+    prefix: environment
+    suffix: suffix
+  }
+}]
