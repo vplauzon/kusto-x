@@ -12,8 +12,8 @@ module suffixModule '../suffix.bicep' = {
 
 var suffix = suffixModule.outputs.suffix
 
-module storageModule 'registry.bicep' = {
-  name: '${environment}-storageDeploy'
+module registryModule 'registry.bicep' = {
+  name: '${environment}-registryDeploy'
   params: {
     environment: environment
     suffix: suffix

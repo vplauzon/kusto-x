@@ -20,7 +20,7 @@ resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = 
     dataEndpointEnabled: false
     policies: {
       azureADAuthenticationAsArmPolicy: {
-        status: 'string'
+        status: 'enabled'
       }
       retentionPolicy: {
         status: 'disabled'
