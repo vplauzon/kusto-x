@@ -9,18 +9,20 @@ var environments = [
   'dev'
   'stg'
   'prd'
+  'tst'
 ]
 
-module storageModule 'storage.bicep' = [for environment in environments:{
+module storageModule 'storage.bicep' = [for environment in environments: {
   name: '${environment}-storageDeploy'
   params: {
     location: location
     prefix: environment
     suffix: suffix
+    retentionInDays: environment == 'tst' ? 1 : 30
   }
 }]
 
-module appModule 'app.bicep' = [for environment in environments:{
+module appModule 'app.bicep' = [for environment in environments: {
   name: '${environment}-appDeploy'
   params: {
     location: location
