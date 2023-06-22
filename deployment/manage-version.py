@@ -1,79 +1,59 @@
 #!/usr/bin/python3
 
 import sys
+import os
+import xml.dom.minidom as md 
 
-def readAll(path):
-    with open(path, 'r') as f:
-        content = f.read()
+def writeXml(document, path):
+    with open(path, "w" ) as fs:  
+        fs.write(document.toxml() ) 
 
-        return content
-
-def writeAll(path, content):
-    with open(path, 'w') as f:
-        f.write(content)
-
-def getPartialVersion(content):
-    import re
-
-    m = re.search('\d+\.\d+', content)
-    
-    return m.group(0)
-
-#   Does the following:
-#   A.  Fetch partial version from ApiVersion.txt
-#   B.  Create full version by adding build number to it
-#   C.  Inject full version in code
-#   D.  Write full version down a specified path
-#   E.  Output full version as a Az Dev Ops variable
-if len(sys.argv) != 5:
+if len(sys.argv) != 3:
     print("There are %d arguments" % (len(sys.argv)-1))
     print("Arguments should be")
-    print("1-ApiVersion.txt file path")
-    print("2-ApiVersion.cs file path")
-    print("3-Build number")
-    print("4-Full Version path")
+    print("1-File path")
+    print("2-Patch number")
+
+    exit(1)
 else:
-    partialVersionPath = sys.argv[1]
-    codeVersionPath = sys.argv[2]
-    buildNumber = sys.argv[3]
-    fullVersionPath = sys.argv[4]
+    path = sys.argv[1]
+    patchNumber = sys.argv[2]
 
-    print ('Text file path:  %s' % (partialVersionPath))
-    print ('Code Version path:  %s' % codeVersionPath)
-    print ('Build Number:  %s' % (buildNumber))
-    print ('Full Version path:  %s' % (fullVersionPath))
+    print ('Text file:  %s' % (path))
+    print ('Patch Number:  %s' % (patchNumber))
 
-    txtContent = readAll(partialVersionPath)
-    
-    print('Text content:  "%s"' % txtContent)
+    #   Load XML and print out
+    document = md.parse(path)
+    print('XML content:')
+    print(document.toxml())
 
-    #   Extract partial version from file
-    #   Even if the file content has funny characters, it will pick it up
-    partialVersion = getPartialVersion(txtContent)
+    #   Add patch to the version
+    version=document.getElementsByTagName('Version')[0]
+    patchVersion = version.firstChild.nodeValue
+    version.firstChild.nodeValue = patchVersion + "." + patchNumber
+    versionParts = patchVersion.split('.')
+    if len(versionParts)!=3:
+        print("The project version should have three parts, e.g. 1.2.3 but doesn't:  " % patchVersion)
 
-    print('Partial Version:  "%s"' % partialVersion)
+        exit(1)
+    else:
+        fullVersion = version.firstChild.nodeValue
 
-    #   Create full version
-    fullVersion = partialVersion + "." + buildNumber
+        #   Partial versions
+        minorVersion = versionParts[0] + '.' + versionParts[1]
+        majorVersion = versionParts[0]
 
-    print('Full Version:  "%s"' % (fullVersion))
+        #   Output project
+        print('Project content:')
+        print(document.toxml())
+        writeXml(document, path)
 
-    #   Inject full version in code
-    code = readAll(codeVersionPath)
-
-    print("Code:")
-    print(code)
-
-    alternateCode = code.replace('FULL_VERSION', fullVersion)
-
-    print("Alternate code:")
-    print(alternateCode)
-
-    writeAll(codeVersionPath, alternateCode)
-
-    #   Write full version to file
-    writeAll(fullVersionPath, fullVersion)
-
-    #   Output variable
-    print('Set the full version in GitHub Action output:')
-    print('##[set-output name=full-version;]%s' % (fullVersion))
+        #   Output variable
+        print('Set the full version in GitHub Action output:  %s' % fullVersion)
+        print('##[set-output name=full-version;]%s' % fullVersion)
+        print('Set the patch version in GitHub Action output:  %s' % patchVersion)
+        print('##[set-output name=patch-version;]%s' % patchVersion)
+        print('Set the major version in GitHub Action output:  %s' % minorVersion)
+        print('##[set-output name=minor-version;]%s' % minorVersion)
+        print('Set the minor version in GitHub Action output:  %s' % majorVersion)
+        print('##[set-output name=major-version;]%s' % majorVersion)

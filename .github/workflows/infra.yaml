@@ -39,9 +39,30 @@ jobs:
         cd deployment/registry
         bash deploy-registry.sh ${{ secrets.RESOURCE_GROUP }} $env
 
-  infra:
+  workbench:
     needs:
     - registry
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Setup .NET Core
+      uses: actions/setup-dotnet@v1
+      with:
+        dotnet-version: 7.x
+    - name: Patch version
+      id:  patch-version
+      run: python3 common/deployment/manage-version.py code/delta-kusto/KustoX.WebPortal/.csproj ${{ github.run_number }}
+    - name: Install dependencies
+      run: dotnet restore code/delta-kusto/KustoX.WebPortal
+    - name: .NET Build
+      run: dotnet build code/delta-kusto/KustoX.WebPortal --configuration Release --no-restore
+    - name: .NET Publish Web App
+      run: dotnet publish code/delta-kusto/KustoX.WebPortal --configuration Release --no-restore --output bin
+
+  infra:
+    needs:
+    - workbench
     runs-on: ubuntu-latest
     
     steps:
