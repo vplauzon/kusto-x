@@ -52,7 +52,7 @@ jobs:
         dotnet-version: 7.x
     - name: Patch version
       id:  patch-version
-      run: python3 deployment/manage-version.py code/KustoX.WebPortal/KustoX.WebPortal.csproj ${{ github.run_number }}
+      run: python3 deployment/manage-version.py code/Kustox.WebPortal/Kustox.WebPortal.csproj ${{ github.run_number }}
     - name: Install dependencies
       run: dotnet restore code/delta-kusto/KustoX.WebPortal
     - name: .NET Build
