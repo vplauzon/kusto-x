@@ -1,0 +1,23 @@
+name:  Integration tests
+
+on:
+  workflow_dispatch
+
+jobs:
+  arm:
+    runs-on: ubuntu-latest
+    
+    env:
+      # See OS catalog here:  https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
+      dotnetOs:  linux-x64
+
+    steps:
+    - uses: actions/checkout@v2
+    - name: Azure Login
+      run: az login --service-principal -u ${{ secrets.DEPLOY_CLIENT_ID }} -p ${{ secrets.DEPLOY_SECRET }} --tenant ${{ secrets.RESOURCE_GROUP }}
+    - name: Azure Subscription Set
+      run: az account set --name ${{ secrets.SUBSCRIPTION }}
+    - name: Deploy
+      run: |
+        cd deployment/infra
+        bash deploy-infra.sh ${{ secrets.test_rg }}
