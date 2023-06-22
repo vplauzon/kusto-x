@@ -43,6 +43,15 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
                   }
                 }
               }
+              filters: {
+                blobTypes: [
+                  'blockBlob'
+                  'appendBlob'
+                ]
+                prefixMatch: [
+                  'data/'
+                ]
+              }
             }
             enabled: true
             name: 'retention'
