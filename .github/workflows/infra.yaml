@@ -54,11 +54,11 @@ jobs:
       id:  patch-version
       run: python3 deployment/manage-version.py code/Kustox.WebPortal/Kustox.WebPortal.csproj ${{ github.run_number }}
     - name: Install dependencies
-      run: dotnet restore code/delta-kusto/KustoX.WebPortal
+      run: dotnet restore code/Kustox.WebPortal
     - name: .NET Build
-      run: dotnet build code/delta-kusto/KustoX.WebPortal --configuration Release --no-restore
+      run: dotnet build code/Kustox.WebPortal --configuration Release --no-restore
     - name: .NET Publish Web App
-      run: dotnet publish code/delta-kusto/KustoX.WebPortal --configuration Release --no-restore --output bin
+      run: dotnet publish code/Kustox.WebPortal --configuration Release --no-restore --output bin
 
   infra:
     needs:
