@@ -20,7 +20,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     name: 'default'
 
     resource mycontainer 'containers' = {
-      name: 'mine'
+      name: 'data'
       properties: {
         publicAccess: 'None'
       }

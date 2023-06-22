@@ -14,4 +14,7 @@ resource environment 'Microsoft.App/managedEnvironments@2022-10-01' = {
   sku: {
     name: 'Consumption'
   }
+  properties: {
+    zoneRedundant: false
+  }
 }
