@@ -60,6 +60,17 @@ jobs:
     - name: .NET Publish Web App
       run: dotnet publish code/Kustox.WebPortal --configuration Release --no-restore --output bin
 
+    - name: Azure Login
+      run: az login --service-principal -u ${{ secrets.DEPLOY_CLIENT_ID }} -p ${{ secrets.DEPLOY_SECRET }} --tenant ${{ secrets.TENANT_ID }}
+    - name: Azure Subscription Set
+      run: az account set --name ${{ secrets.SUBSCRIPTION }}
+    - name: Retrieve docker registry
+      run: |
+        echo "Environment:  $env"
+        registry=$(az acr list -g ${{ secrets.RESOURCE_GROUP }} --query "[?starts_with(@.name, =='$env'].name" -o tsv)
+        echo 'Registry:  $registry'
+        az acr login --name $registry
+
   infra:
     needs:
     - workbench
