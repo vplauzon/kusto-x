@@ -24,8 +24,10 @@ jobs:
         then
           env="dev"
         elif [ ${{ github.ref_name }} == "staging" ]
+        then
           env="stg"
         elif [ ${{ github.ref_name }} == "prod" ]
+        then
           env="prd"
         else
           echo "The branch doesn't match an environment pattern"
