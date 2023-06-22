@@ -19,20 +19,9 @@ It could also be used for orchestrating a long running query but it isn't a prim
 
 We can conceptualize Kusto-X as a language and a runtime.
 
-The Kusto-X language is a super set of the Kusto language.  Kusto supports:
+The Kusto-X language is a super set of the Kusto language adding control flow statements (starting with a '@').
 
-* Queries
-* Commands (starting with a *dot* '.')
-
-Kusto-X, on the other hand, supports:
-
-* Queries
-* Commands (starting with a *dot* '.')
-* Control flow statements (starting with a '@')
-
-Queries are identical in Kusto and Kusto-X (except Kusto-X queries can use captured values).
-
-Kusto commands are supported in Kusto-X.  Some commands are unique to Kusto-X.
+Queries and commands are identical in Kusto and Kusto-X (except Kusto-X queries and commands can use captured values).  Some commands are unique to Kusto-X.
 
 Control flow statements are unique to Kusto-X.
 
@@ -207,5 +196,30 @@ Here are a couple of commands unique to Kusto-X.
 
 ### .queue export to
 
-### .await ingest
+### @await ingest
 
+## Examples
+
+### Backfill
+
+Here is an example for a backfill ingestion:
+
+```kusto
+@run-procedure{
+    //  Fetch all blobs we want to ingest
+    //  Infer the creation-time of each blob given their position in folder hierarchy
+    @capture blobs = .get blobs 'https://myaccount.blob.core.windows.net/mycontainer/myfolder/'
+        | parse Url with * '/myfolder/' year '/' month '/' day '/' *
+        | extend DateTime = todatetime(strcat(year, '/', month, '/', day))
+        | project bag_pack_columns(Url, DateTime)
+    
+    //  Queue each blob for ingestion and capture the continuation tokens
+    @capture tokens = @foreach(blob in blobs)
+        {
+            .queue-ingest tostring(blob.Url) with(CreationTime=todatetime(blob.DateTime))
+        }
+    
+    //  Wait for all ingestions to have proceeded
+    @await tokens
+}
+```
