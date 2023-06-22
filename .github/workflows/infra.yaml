@@ -17,7 +17,25 @@ jobs:
       run: az login --service-principal -u ${{ secrets.DEPLOY_CLIENT_ID }} -p ${{ secrets.DEPLOY_SECRET }} --tenant ${{ secrets.TENANT_ID }}
     - name: Azure Subscription Set
       run: az account set --name ${{ secrets.SUBSCRIPTION }}
+    - name: Determine current environment
+      run: |
+        echo "Branch name:  ${{ github.ref_name }}"
+        if [ ${{ github.ref_name }} == "main" ]
+        then
+          env="dev"
+        elif [ ${{ github.ref_name }} == "staging" ]
+          env="stg"
+        elif [ ${{ github.ref_name }} == "prod" ]
+          env="prd"
+        else
+          echo "The branch doesn't match an environment pattern"
+          exit 1
+        fi
+
+        echo "Environment:  $env"
+        echo "env=$env" >> $GITHUB_ENV
+
     - name: Deploy
       run: |
         cd deployment/infra
-        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }}
+        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $env

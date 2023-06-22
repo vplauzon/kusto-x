@@ -3,16 +3,12 @@
 
 @description('Deployment location')
 param location string = resourceGroup().location
+@description('Name of environment')
+param environment string
 
 var suffix = uniqueString(resourceGroup().id, 'kusto-x')
-var environments = [
-  'dev'
-  'stg'
-  'prd'
-  'tst'
-]
 
-module storageModule 'storage.bicep' = [for environment in environments: {
+module storageModule 'storage.bicep' = {
   name: '${environment}-storageDeploy'
   params: {
     location: location
@@ -20,13 +16,14 @@ module storageModule 'storage.bicep' = [for environment in environments: {
     suffix: suffix
     retentionInDays: environment == 'tst' ? 1 : 30
   }
-}]
+}
 
-module appModule 'app.bicep' = [for environment in environments: {
+module appModule 'app.bicep' = {
   name: '${environment}-appDeploy'
   params: {
     location: location
     prefix: environment
     suffix: suffix
   }
-}]
+}
+
