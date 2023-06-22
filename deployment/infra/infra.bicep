@@ -7,12 +7,12 @@ param location string = resourceGroup().location
 var suffix = uniqueString(resourceGroup().id, 'kusto-x')
 var environments = [
   'dev'
-  'staging'
-  'prod'
+  'stg'
+  'prd'
 ]
 
 module storageModule 'storage.bicep' = [for environment in environments:{
-  name: 'storageDeploy-${environment}'
+  name: '${environment}-storageDeploy'
   params: {
     location: location
     prefix: environment
