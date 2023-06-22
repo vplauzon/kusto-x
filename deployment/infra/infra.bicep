@@ -1,12 +1,16 @@
 /**************************************************/
 //  Deploy Kusto-X infra
 
-@description('Deployment location')
-param location string = resourceGroup().location
 @description('Name of environment')
 param environment string
+@description('Deployment location')
+param location string = resourceGroup().location
 
-var suffix = uniqueString(resourceGroup().id, 'kusto-x')
+module suffixModule '../suffix.bicep' = {
+  name: '${environment}-suffix'
+}
+
+var suffix = suffixModule.outputs.suffix
 
 module storageModule 'storage.bicep' = {
   name: '${environment}-storageDeploy'
