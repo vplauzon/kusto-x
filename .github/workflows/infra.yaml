@@ -4,13 +4,9 @@ on:
   workflow_dispatch
 
 jobs:
-  arm:
+  registry:
     runs-on: ubuntu-latest
     
-    env:
-      # See OS catalog here:  https://docs.microsoft.com/en-us/dotnet/core/rid-catalog
-      dotnetOs:  linux-x64
-
     steps:
     - uses: actions/checkout@v2
     - name: Determine current environment
@@ -42,6 +38,18 @@ jobs:
       run: |
         cd deployment/registry
         bash deploy-registry.sh ${{ secrets.RESOURCE_GROUP }} $env
+
+  infra:
+    needs:
+    - registry
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+    - name: Azure Login
+      run: az login --service-principal -u ${{ secrets.DEPLOY_CLIENT_ID }} -p ${{ secrets.DEPLOY_SECRET }} --tenant ${{ secrets.TENANT_ID }}
+    - name: Azure Subscription Set
+      run: az account set --name ${{ secrets.SUBSCRIPTION }}
 
     - name: Deploy infra
       run: |
