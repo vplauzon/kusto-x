@@ -12,7 +12,7 @@ var environments = [
 ]
 
 module storageModule 'storage.bicep' = [for environment in environments:{
-  name: 'storageDeploy'
+  name: 'storageDeploy-${environment}'
   params: {
     location: location
     prefix: environment
