@@ -6,22 +6,11 @@ param location string = resourceGroup().location
 
 var suffix = uniqueString(resourceGroup().id, 'kusto-x')
 
-resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: 'storage${suffix}'
-  location: location
-  sku: {
-    name: 'Standard_LRS'
-  }
-  kind: 'StorageV2'
-
-  resource blobServices 'blobServices' = {
-    name: 'default'
-
-    resource mycontainer 'containers' = {
-      name: 'mine'
-      properties: {
-        publicAccess: 'None'
-      }
-    }
+module storageModule 'storage.bicep' = {
+  name: 'storageDeploy'
+  params: {
+    location: location
+    prefix: 'dev'
+    suffix: suffix
   }
 }
