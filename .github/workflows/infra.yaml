@@ -54,7 +54,7 @@ jobs:
       run: dotnet publish code/Kustox.WebPortal --configuration Release --no-restore --output workbench
 
     - name:  Docker Build
-      run:  docker build --file deployment/docker/workbench --tag workbench/workbench:${{ steps.patch-version.outputs.full-version }} workbench
+      run:  docker build --file deployment/docker/workbench/dockerfile --tag workbench/workbench:${{ steps.patch-version.outputs.full-version }} workbench
     - name:  Docker Push ${{ steps.patch-version.outputs.full-version }}
       run:  docker push workbench/workbench:${{ steps.patch-version.outputs.full-version }}
     # - name:  Docker Tag Dev
