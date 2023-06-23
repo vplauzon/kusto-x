@@ -6,7 +6,7 @@
 ##  Parameters:
 ##
 ##  1- Resource group
-##  1- Environment
+##  2- Environment
 
 rg=$1
 env=$2

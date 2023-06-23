@@ -12,22 +12,8 @@ jobs:
     - name: Determine current environment
       run: |
         echo "Branch name:  ${{ github.ref_name }}"
-        if [ ${{ github.ref_name }} == "main" ]
-        then
-          env="dev"
-        elif [ ${{ github.ref_name }} == "staging" ]
-        then
-          env="stg"
-        elif [ ${{ github.ref_name }} == "prod" ]
-        then
-          env="prd"
-        else
-          echo "The branch doesn't match an environment pattern"
-          exit 1
-        fi
-
-        echo "Environment:  $env"
-        echo "environment=$env" >> $GITHUB_ENV
+        environment=$(deployment/retrieve-environment.sh ${{ github.ref_name }})
+        echo "Environment:  $environment"
 
     - name: Azure Login
       run: az login --service-principal -u ${{ secrets.DEPLOY_CLIENT_ID }} -p ${{ secrets.DEPLOY_SECRET }} --tenant ${{ secrets.TENANT_ID }}
@@ -50,6 +36,11 @@ jobs:
       uses: actions/setup-dotnet@v1
       with:
         dotnet-version: 7.x
+    - name: Determine current environment
+      run: |
+        echo "Branch name:  ${{ github.ref_name }}"
+        environment=$(deployment/retrieve-environment.sh ${{ github.ref_name }})
+        echo "Environment:  $environment"
     - name: Patch version
       id:  patch-version
       run: python3 deployment/manage-version.py code/Kustox.WebPortal/Kustox.WebPortal.csproj ${{ github.run_number }}
@@ -78,6 +69,11 @@ jobs:
     
     steps:
     - uses: actions/checkout@v2
+    - name: Determine current environment
+      run: |
+        echo "Branch name:  ${{ github.ref_name }}"
+        environment=$(deployment/retrieve-environment.sh ${{ github.ref_name }})
+        echo "Environment:  $environment"
     - name: Azure Login
       run: az login --service-principal -u ${{ secrets.DEPLOY_CLIENT_ID }} -p ${{ secrets.DEPLOY_SECRET }} --tenant ${{ secrets.TENANT_ID }}
     - name: Azure Subscription Set
