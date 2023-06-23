@@ -12,7 +12,7 @@ jobs:
     - name: Determine current environment
       run: |
         echo "Branch name:  ${{ github.ref_name }}"
-        environment=$(deployment/retrieve-environment.sh ${{ github.ref_name }})
+        environment=$(bash deployment/retrieve-environment.sh ${{ github.ref_name }})
         echo "Environment:  $environment"
 
     - name: Azure Login
