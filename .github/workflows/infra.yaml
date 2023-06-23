@@ -60,7 +60,7 @@ jobs:
     - name: Retrieve docker registry
       run: |
         echo "Environment:  $environment"
-        registry=$(az acr list -g ${{ secrets.RESOURCE_GROUP }} --query "[?starts_with(@.name, =='$environment'].name" -o tsv)
+        registry=$(az acr list -g ${{ secrets.RESOURCE_GROUP }} --query "[?starts_with(@.name, '$environment'].name" -o tsv)
         echo 'Registry:  $registry'
         az acr login --name $registry
 
