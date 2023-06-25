@@ -65,8 +65,6 @@ jobs:
         echo "registry=$registry" >> $GITHUB_ENV
     - name: Registry login
       run: az acr login --name $registry
-    - name: Registry login
-      run: az acr login --name $registry
 
     - name:  Docker Build
       run:  docker build --file deployment/docker/workbench/dockerfile --tag kustox/workbench:${{ steps.patch-version.outputs.full-version }} workbench
