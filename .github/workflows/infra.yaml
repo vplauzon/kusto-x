@@ -66,6 +66,7 @@ jobs:
     - name: Registry login
       run: |
         echo "Registry:  $registry"
+        echo $registry
         az acr login --name $registry
 
     - name:  Docker Build
