@@ -60,10 +60,9 @@ jobs:
     - name: Retrieve docker registry
       run: |
         echo "Environment:  $environment"
-        az acr list -g ${{ secrets.RESOURCE_GROUP }} --query "[?starts_with(@.name, '$environment')].name" -o tsv
-        a=$(az acr list -g ${{ secrets.RESOURCE_GROUP }} --query "[?starts_with(@.name, '$environment')].name" -o tsv)
-        echo 'Registry:  $a'
-        echo "registry=$a" >> $GITHUB_ENV
+        registry=$(az acr list -g ${{ secrets.RESOURCE_GROUP }} --query "[?starts_with(@.name, '$environment')].name" -o tsv)
+        echo "Registry:  $registry"
+        echo "registry=$registry" >> $GITHUB_ENV
     - name: Registry login
       run: az acr login --name $registry
 
