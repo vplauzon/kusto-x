@@ -71,7 +71,7 @@ jobs:
     - name:  Docker Build
       run:  docker build --file deployment/docker/workbench/dockerfile --tag kustox/workbench:${{ steps.patch-version.outputs.full-version }} workbench
     - name:  Docker Push ${{ steps.patch-version.outputs.full-version }}
-      run:  docker push $registry.azurecr.io/kustox/workbench:${{ steps.patch-version.outputs.full-version }}
+      run:  docker push "$registry.azurecr.io/kustox/workbench:${{ steps.patch-version.outputs.full-version }}"
     # - name:  Docker Tag Dev
     #   run:  docker tag ${{ secrets.docker_repo }}/kusto-x-api:${{ steps.patch-version.outputs.full-version }} ${{ secrets.docker_repo }}/kusto-x-api:dev
     # - name:  Docker Push Dev
