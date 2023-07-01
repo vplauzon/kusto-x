@@ -63,19 +63,25 @@ jobs:
         registry=$(az acr list -g ${{ secrets.RESOURCE_GROUP }} --query "[?starts_with(@.name, '$environment')].name" -o tsv)
         echo "Registry:  $registry"
         echo "registry=$registry" >> $GITHUB_ENV
-    - name: Container Registry login
-      run: |
-        echo "Registry:  $registry"
-        az acr login --name $registry
+    # - name: Container Registry login
+    #   run: |
+    #     echo "Registry:  $registry"
+    #     az acr login --name $registry
 
-    - name:  Docker Build
-      run:  docker build --file deployment/docker/workbench/dockerfile --tag $registry/kustox/workbench:${{ steps.patch-version.outputs.full-version }} workbench
-    - name:  Docker Push ${{ steps.patch-version.outputs.full-version }}
-      run:  docker push $registry/kustox/workbench:${{ steps.patch-version.outputs.full-version }}
+    # - name:  Docker Build
+    #   run:  docker build --file deployment/docker/workbench/dockerfile --tag $registry/kustox/workbench:${{ steps.patch-version.outputs.full-version }} workbench
+    # - name:  Docker Push ${{ steps.patch-version.outputs.full-version }}
+    #   run:  docker push $registry/kustox/workbench:${{ steps.patch-version.outputs.full-version }}
     # - name:  Docker Tag Dev
     #   run:  docker tag ${{ secrets.docker_repo }}/kusto-x-api:${{ steps.patch-version.outputs.full-version }} ${{ secrets.docker_repo }}/kusto-x-api:dev
     # - name:  Docker Push Dev
     #   run:  docker push ${{ secrets.docker_repo }}/kusto-x-api:dev
+
+    - name:  Docker Build / Push
+      run:  |
+        az acr build --image kustox/workbench:${{ steps.patch-version.outputs.full-version }} \
+          --registry $registry \
+          --file deployment/docker/workbench/Dockerfile .
 
   infra:
     needs:
