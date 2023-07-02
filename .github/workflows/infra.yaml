@@ -32,16 +32,16 @@ jobs:
 
     - name: Patch version workbench
       id:  patch-version
-      run: python3 deployment/manage-version.py code/Kustox.WebPortal/Kustox.WebPortal.csproj ${{ github.run_number }}
+      run: python3 deployment/manage-version.py code/Kustox.Workbench/Kustox.Workbench.csproj ${{ github.run_number }}
     - name: Install dependencies
       run: dotnet restore code
     - name: .NET Build All
       run: dotnet build code --configuration Release --no-restore
     
     - name: .NET Build workbench
-      run: dotnet build code/Kustox.WebPortal --configuration Release --no-restore
+      run: dotnet build code/Kustox.Workbench --configuration Release --no-restore
     - name: .NET Publish workbench
-      run: dotnet publish code/Kustox.WebPortal --configuration Release --no-restore --output workbench
+      run: dotnet publish code/Kustox.Workbench --configuration Release --no-restore --output workbench
 
     - name: Retrieve docker registry
       run: |
