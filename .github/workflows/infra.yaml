@@ -56,7 +56,7 @@ jobs:
       run:  |
         az acr build --image kustox/workbench:${{ steps.patch-version.outputs.full-version }} \
           --registry $registry \
-          --file deployment/docker/workbench/Dockerfile .
+          --file deployment/docker/workbench/Dockerfile workbench
 
     - name: Deploy infra
       run: |

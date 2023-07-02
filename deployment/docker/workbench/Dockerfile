@@ -2,7 +2,7 @@
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS final
 
 #	Set the working directory
-WORKDIR /workbench
+WORKDIR /work
 
 #	Copy package
 COPY . .
