@@ -50,7 +50,7 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
       containers: [
         {
           image: '${registry.name}.azurecr.io/kustox/workbench:${workbenchVersion}'
-          name: '<name here>'
+          name: 'main-workbench'
           resources: {
             cpu: '0.25'
             memory: '0.5Gi'
