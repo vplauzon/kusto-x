@@ -42,6 +42,8 @@ jobs:
       run: dotnet build code/Kustox.Workbench --configuration Release --no-restore
     - name: .NET Publish workbench
       run: dotnet publish code/Kustox.Workbench --configuration Release --no-restore --output workbench
+    - name: Test
+      run: ls -l workbench
 
     - name: Retrieve docker registry
       run: |
