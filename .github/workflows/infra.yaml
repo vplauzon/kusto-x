@@ -50,6 +50,7 @@ jobs:
         echo "Registry:  $registry"
         echo "registry=$registry" >> $GITHUB_ENV
 
+
     # See https://learn.microsoft.com/en-us/azure/container-registry/container-registry-quickstart-task-cli
     - name:  Docker Build / Push
       run:  |
@@ -60,4 +61,4 @@ jobs:
     - name: Deploy infra
       run: |
         cd deployment/infra
-        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment
+        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment ${{ steps.patch-version.outputs.full-version }}

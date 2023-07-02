@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
-namespace Kustox.WebPortal.Pages
+namespace Kustox.Workbench.Pages
 {
     public class IndexModel : PageModel
     {

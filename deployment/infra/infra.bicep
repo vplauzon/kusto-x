@@ -3,6 +3,8 @@
 
 @description('Name of environment')
 param environment string
+@description('Workbench container\'s full version')
+param workbenchVersion string
 @description('Deployment location')
 param location string = resourceGroup().location
 
@@ -26,8 +28,8 @@ module appModule 'app.bicep' = {
   name: '${environment}-appDeploy'
   params: {
     location: location
-    prefix: environment
+    environment: environment
+    workbenchVersion: workbenchVersion
     suffix: suffix
   }
 }
-

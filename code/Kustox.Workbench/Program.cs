@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Kustox.WebPortal
+namespace Kustox.Workbench
 {
     public static class Program
     {

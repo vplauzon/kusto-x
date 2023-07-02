@@ -13,7 +13,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kustox.IntegratedTests", "K
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kustox.CosmosDbState", "Kustox.CosmosDbState\Kustox.CosmosDbState.csproj", "{BB5C8585-9419-4E62-8B7C-6D87C9993D69}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Kustox.WebPortal", "Kustox.WebPortal\Kustox.WebPortal.csproj", "{836C7585-7705-4D04-B9C6-9AF00A0B3778}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Kustox.Workbench", "Kustox.Workbench\Kustox.Workbench.csproj", "{369D7B1A-C5EF-49A1-99D1-D5DBBA4A01C5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,10 +41,10 @@ Global
 		{BB5C8585-9419-4E62-8B7C-6D87C9993D69}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB5C8585-9419-4E62-8B7C-6D87C9993D69}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB5C8585-9419-4E62-8B7C-6D87C9993D69}.Release|Any CPU.Build.0 = Release|Any CPU
-		{836C7585-7705-4D04-B9C6-9AF00A0B3778}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{836C7585-7705-4D04-B9C6-9AF00A0B3778}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{836C7585-7705-4D04-B9C6-9AF00A0B3778}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{836C7585-7705-4D04-B9C6-9AF00A0B3778}.Release|Any CPU.Build.0 = Release|Any CPU
+		{369D7B1A-C5EF-49A1-99D1-D5DBBA4A01C5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{369D7B1A-C5EF-49A1-99D1-D5DBBA4A01C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{369D7B1A-C5EF-49A1-99D1-D5DBBA4A01C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{369D7B1A-C5EF-49A1-99D1-D5DBBA4A01C5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

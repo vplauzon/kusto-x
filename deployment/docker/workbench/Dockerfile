@@ -15,4 +15,4 @@ EXPOSE 80
 ENV TODO ""
 
 #	Run console app
-CMD ["dotnet", "KustoxApiFrontEnd.dll"]
+CMD ["dotnet", "Kustox.Workbench.dll"]
