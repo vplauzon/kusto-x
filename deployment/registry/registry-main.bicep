@@ -20,3 +20,5 @@ module registryModule 'registry.bicep' = {
     location: location
   }
 }
+
+output registry string = registryModule.outputs.registry

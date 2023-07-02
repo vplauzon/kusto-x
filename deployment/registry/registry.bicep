@@ -33,3 +33,5 @@ resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = 
     zoneRedundancy: 'disabled'
   }
 }
+
+output registry string = registry.name
