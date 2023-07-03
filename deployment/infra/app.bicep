@@ -10,8 +10,15 @@ param workbenchVersion string
 @description('Suffix to resource, typically to make the resource name unique')
 param suffix string
 
+var containerFetchingIdentityName = 'container-fetching'
+
 resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
   name: '${environment}registry${suffix}'
+}
+
+resource containerFetchingIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${environment}-container-fetching-${suffix}'
+  location: location
 }
 
 resource appEnvironment 'Microsoft.App/managedEnvironments@2022-10-01' = {
@@ -28,6 +35,12 @@ resource appEnvironment 'Microsoft.App/managedEnvironments@2022-10-01' = {
 resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
   name: 'workbench'
   location: location
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      containerFetchingIdentityName: containerFetchingIdentity
+    }
+  }
   properties: {
     configuration: {
       activeRevisionsMode: 'Single'
@@ -40,7 +53,7 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
       }
       registries: [
         {
-          identity: 'system'
+          identity: containerFetchingIdentityName
           server: '${registry.name}.azurecr.io'
         }
       ]
