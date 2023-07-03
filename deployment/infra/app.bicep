@@ -19,6 +19,19 @@ resource containerFetchingIdentity 'Microsoft.ManagedIdentity/userAssignedIdenti
   location: location
 }
 
+//  We also need to authorize the user identity to pull container images from the registry
+resource userIdentityRbacAuthorization 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(containerFetchingIdentity.id, registry.id, 'rbac')
+  scope:  registry
+
+  properties: {
+    description: 'Giving AcrPull RBAC to identity'
+    principalId: containerFetchingIdentity.properties.principalId
+    principalType: 'ServicePrincipal'
+    roleDefinitionId:  resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+  }
+}
+
 resource appEnvironment 'Microsoft.App/managedEnvironments@2022-10-01' = {
   name: '${environment}env${suffix}'
   location: location
