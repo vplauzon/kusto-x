@@ -53,7 +53,7 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
       }
       registries: [
         {
-          identity: containerFetchingIdentityName
+          identity: containerFetchingIdentity.id
           server: '${registry.name}.azurecr.io'
         }
       ]
