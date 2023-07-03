@@ -31,7 +31,7 @@ resource appEnvironment 'Microsoft.App/managedEnvironments@2022-10-01' = {
 }
 
 resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
-  name: 'workbench'
+  name: '${environment}-workbench-${suffix}'
   location: location
   identity: {
     type: 'UserAssigned'
