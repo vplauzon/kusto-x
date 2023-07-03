@@ -36,7 +36,7 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
-      containerFetchingIdentity : {}
+      '${containerFetchingIdentity.id}' : {}
     }
   }
   properties: {
