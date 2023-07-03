@@ -52,10 +52,10 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
         transport: 'auto'
       }
       registries: [
-        {
-          identity: containerFetchingIdentity.id
-          server: '${registry.name}.azurecr.io'
-        }
+        // {
+        //   identity: containerFetchingIdentity.id
+        //   server: '${registry.name}.azurecr.io'
+        // }
       ]
     }
     environmentId: appEnvironment.id
@@ -74,7 +74,6 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
         minReplicas: 1
         maxReplicas: 1
       }
-
     }
   }
 }
