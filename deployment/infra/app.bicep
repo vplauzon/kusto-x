@@ -62,13 +62,13 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
         allowInsecure: false
         exposedPort: 0
         external: true
-        targetPort: 443
+        targetPort: 80
         transport: 'auto'
       }
       registries: [
         {
           identity: containerFetchingIdentity.id
-          server: '${registry.name}.azurecr.io'
+          server: registry.properties.loginServer
         }
       ]
     }
