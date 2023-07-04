@@ -9,7 +9,7 @@ param suffix string
 param location string = resourceGroup().location
 
 resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' = {
-  name: '${environment}-registry-${suffix}'
+  name: '${environment}registry${suffix}'
   location: location
   sku: {
     name: 'Basic'

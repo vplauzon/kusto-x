@@ -11,7 +11,7 @@ param workbenchVersion string
 param suffix string
 
 resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
-  name: '${environment}-registry-${suffix}'
+  name: '${environment}registry${suffix}'
 }
 
 resource containerFetchingIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
