@@ -1,4 +1,3 @@
-/**************************************************/
 //  Deploy Kusto-X infra
 
 @description('Name of environment')
@@ -30,6 +29,15 @@ module appModule 'app.bicep' = {
     location: location
     environment: environment
     workbenchVersion: workbenchVersion
+    suffix: suffix
+  }
+}
+
+module frontDoorModule 'front-door.bicep' = {
+  name: '${environment}-frontDoorDeploy'
+  params: {
+    environment: environment
+    workbenchUrl: appModule.outputs.workbenchUrl
     suffix: suffix
   }
 }

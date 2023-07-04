@@ -1,5 +1,4 @@
-/**************************************************/
-//  Deploy Kusto-X infra
+//  Deploy Kusto-X Apps
 
 @description('Deployment location')
 param location string = resourceGroup().location
@@ -97,3 +96,6 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
     }
   }
 }
+
+output test object = workbench
+output workbenchUrl string = workbench.properties.latestRevisionFqdn
