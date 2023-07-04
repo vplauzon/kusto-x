@@ -11,11 +11,11 @@ param workbenchVersion string
 param suffix string
 
 resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
-  name: '${environment}registry${suffix}'
+  name: '${environment}-registry-${suffix}'
 }
 
 resource containerFetchingIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
-  name: '${environment}-container-fetching-${suffix}'
+  name: '${environment}-id-container-${suffix}'
   location: location
 }
 
@@ -33,7 +33,7 @@ resource userIdentityRbacAuthorization 'Microsoft.Authorization/roleAssignments@
 }
 
 resource appEnvironment 'Microsoft.App/managedEnvironments@2022-10-01' = {
-  name: '${environment}env${suffix}'
+  name: '${environment}-env-${suffix}'
   location: location
   sku: {
     name: 'Consumption'
@@ -44,7 +44,7 @@ resource appEnvironment 'Microsoft.App/managedEnvironments@2022-10-01' = {
 }
 
 resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
-  name: '${environment}-workbench-${suffix}'
+  name: '${environment}-app-workbench-${suffix}'
   location: location
   dependsOn: [
     userIdentityRbacAuthorization
