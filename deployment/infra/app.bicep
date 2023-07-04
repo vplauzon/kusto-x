@@ -64,6 +64,12 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
         external: true
         targetPort: 80
         transport: 'auto'
+        traffic: [
+          {
+            latestRevision: true
+            weight: 100
+          }
+        ]
       }
       registries: [
         {
