@@ -12,7 +12,7 @@
             @ViewData["Title"]
         </div>
         <div class="user">
-            @(User?.Identity?.Name)
+            @System.Security.Claims.ClaimsPrincipal.Current?.Identity?.Name
         </div>
     </header>
     <div class="main">

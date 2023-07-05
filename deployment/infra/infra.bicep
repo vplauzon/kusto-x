@@ -33,11 +33,11 @@ module appModule 'app.bicep' = {
   }
 }
 
-module frontDoorModule 'front-door.bicep' = {
-  name: '${environment}-frontDoorDeploy'
-  params: {
-    environment: environment
-    workbenchUrl: appModule.outputs.workbenchUrl
-    suffix: suffix
-  }
-}
+// module frontDoorModule 'front-door.bicep' = {
+//   name: '${environment}-frontDoorDeploy'
+//   params: {
+//     environment: environment
+//     workbenchUrl: appModule.outputs.workbenchUrl
+//     suffix: suffix
+//   }
+// }
