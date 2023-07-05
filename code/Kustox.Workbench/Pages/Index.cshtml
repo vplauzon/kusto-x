@@ -10,19 +10,15 @@
 <div class="result">
     <table id="resultTable" class="resultTable">
         <tr>
-            <th>Company</th>
-            <th>Contact</th>
-            <th>Country</th>
+            <th>Name</th>
+            <th>Value</th>
         </tr>
-        <tr>
-            <td>Alfreds Futterkiste</td>
-            <td>Maria Anders</td>
-            <td>Germany</td>
-        </tr>
-        <tr>
-            <td>Centro comercial Moctezuma</td>
-            <td>Francisco Chang</td>
-            <td>Mexico</td>
-        </tr>
+        @foreach (var pair in Request.Headers.ToList().OrderByDescending(p => p.Key))
+        {
+            <tr>
+                <td>@pair.Key</td>
+                <td>@pair.Value</td>
+            </tr>
+        }
     </table>
 </div>
