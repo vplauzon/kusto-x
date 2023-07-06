@@ -4,6 +4,11 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewData["Title"]</title>
+    <!--    jQuery    -->
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.7.0.min.js"></script>
+    <!--    DataTables    -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.5/css/jquery.dataTables.css" />
+    <!--    App styles    -->
     <link rel="stylesheet" type="text/css" href="css/mainsheet.css">
 </head>
 <body>
@@ -30,5 +35,8 @@
         </div>
     </footer>
     @await RenderSectionAsync("Scripts", required: false)
+
+    <script src="https://cdn.datatables.net/1.13.5/js/jquery.dataTables.js"></script>
+    <script src="~/scripts/mainPage.js"></script>
 </body>
 </html>
