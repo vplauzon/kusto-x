@@ -17,7 +17,7 @@
             @ViewData["Title"]
         </div>
         <div class="user">
-            @System.Security.Claims.ClaimsPrincipal.Current?.Identity?.Name
+            @((Model as BaseModel)?.Identity.Identity?.Name)
         </div>
     </header>
     <div class="main">
