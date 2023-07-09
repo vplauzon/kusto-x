@@ -5,11 +5,11 @@ namespace Kustox.Workbench
 {
     public abstract class BaseModel : PageModel
     {
-        public BaseModel(UserIdentityContext identity)
+        public BaseModel(UserIdentityContext identityContext)
         {
-            Identity = identity;
+            IdentityContext = identityContext;
         }
 
-        public UserIdentityContext Identity { get; }
+        public UserIdentityContext IdentityContext { get; }
     }
 }

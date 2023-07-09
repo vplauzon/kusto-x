@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Builder;
 
 namespace Kustox.Workbench
 {
@@ -16,21 +17,18 @@ namespace Kustox.Workbench
             }
         }
 
-        public static void Main(params string[] args)
+        public static async Task Main(params string[] args)
         {
             var builder = WebApplication.CreateBuilder(args);
 
             // Add services to the container.
             builder.Services.AddRazorPages();
-
-            //  Register UserIdentityContext as a transient service
-            //  Transient so each request can have a different one
-            builder.Services.AddTransient<UserIdentityContext>();
-
-            // Register the UserIdentityMiddleware using IMiddleware interface
-            builder.Services.AddScoped<IMiddleware, UserIdentityCapture>();
+            builder.Services.AddScoped<UserIdentityMiddleware>();
+            builder.Services.AddScoped<UserIdentityContext>();
 
             var app = builder.Build();
+
+            app.UseMiddleware<UserIdentityMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
@@ -42,7 +40,7 @@ namespace Kustox.Workbench
             app.UseAuthorization();
             app.MapRazorPages();
 
-            app.Run();
+            await app.RunAsync();
         }
     }
 }

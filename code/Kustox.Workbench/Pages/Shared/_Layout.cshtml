@@ -17,7 +17,7 @@
             @ViewData["Title"]
         </div>
         <div class="user">
-            @((Model as BaseModel)?.Identity.Identity?.Name)
+            @((Model as BaseModel)?.IdentityContext.Identity?.Name)
         </div>
     </header>
     <div class="main">

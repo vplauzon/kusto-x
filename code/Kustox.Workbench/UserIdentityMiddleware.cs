@@ -3,7 +3,7 @@ using System.Security.Principal;
 
 namespace Kustox.Workbench
 {
-    internal class UserIdentityCapture : IMiddleware
+    public class UserIdentityMiddleware : IMiddleware
     {
         #region Inner Types
         private class UserIdentity : IIdentity
@@ -24,13 +24,13 @@ namespace Kustox.Workbench
         #endregion
 
         private readonly UserIdentityContext _userIdentityContext;
-        
-        public UserIdentityCapture(UserIdentityContext userIdentityContext)
+
+        public UserIdentityMiddleware(UserIdentityContext userIdentityContext)
         {
             _userIdentityContext = userIdentityContext;
         }
 
-        async Task IMiddleware.InvokeAsync(HttpContext context, RequestDelegate next)
+        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
         {
             //  Retrieve the user identity name from the headers
             var identityName = (string?)context.Request.Headers["X-MS-CLIENT-PRINCIPAL-NAME"];
