@@ -23,17 +23,16 @@ namespace Kustox.Workbench
 
             // Add services to the container.
             builder.Services.AddRazorPages();
-            builder.Services.AddScoped<UserIdentityMiddleware>();
             builder.Services.AddScoped<UserIdentityContext>();
 
             var app = builder.Build();
-
-            app.UseMiddleware<UserIdentityMiddleware>();
 
             // Configure the HTTP request pipeline.
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
+                builder.Services.AddScoped<UserIdentityMiddleware>();
+                app.UseMiddleware<UserIdentityMiddleware>();
             }
             app.UseStaticFiles();
             app.UseRouting();
