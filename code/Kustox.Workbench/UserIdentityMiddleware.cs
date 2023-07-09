@@ -40,10 +40,16 @@ namespace Kustox.Workbench
                 var identity = new UserIdentity(identityName);
 
                 _userIdentityContext.Identity = identity;
-            }
 
-            // Call the next middleware
-            await next(context);
+                // Call the next middleware
+                await next(context);
+            }
+            else
+            {   //  Request isn't authenticated:  403
+                context.Response.StatusCode = StatusCodes.Status403Forbidden;
+
+                return;
+            }
         }
     }
 }
