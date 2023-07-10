@@ -24,6 +24,11 @@ namespace Kustox.Workbench
             // Add services to the container.
             builder.Services.AddRazorPages();
             builder.Services.AddScoped<UserIdentityContext>();
+            
+            if(!builder.Environment.IsDevelopment())
+            {
+                builder.Services.AddScoped<UserIdentityMiddleware>();
+            }
 
             var app = builder.Build();
 
@@ -31,7 +36,6 @@ namespace Kustox.Workbench
             if (!app.Environment.IsDevelopment())
             {
                 app.UseExceptionHandler("/Error");
-                builder.Services.AddScoped<UserIdentityMiddleware>();
                 app.UseMiddleware<UserIdentityMiddleware>();
             }
             app.UseStaticFiles();
