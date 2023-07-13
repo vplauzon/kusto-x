@@ -8,6 +8,15 @@ param environment string
 param workbenchVersion string
 @description('Suffix to resource, typically to make the resource name unique')
 param suffix string
+@description('AAD Tenant Id')
+param tenantId string
+@description('Workbench AAD App Id')
+param workbenchAppId string
+@description('Workbench AAD App Secret')
+@secure()
+param workbenchAppSecret string
+
+var workbenchAppSecretName = 'wb-app-secret'
 
 resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
   name: '${environment}registry${suffix}'
@@ -76,6 +85,12 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
           server: registry.properties.loginServer
         }
       ]
+      secrets:[
+        {
+          name:workbenchAppSecretName
+          value: workbenchAppSecret
+        }
+      ]
     }
     environmentId: appEnvironment.id
     template: {
@@ -92,6 +107,35 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
       scale: {
         minReplicas: 1
         maxReplicas: 1
+      }
+    }
+  }
+
+  resource symbolicname 'authConfigs' = {
+    name: 'current'
+    properties: {
+      globalValidation: {
+        redirectToProvider: 'azureactivedirectory'
+        unauthenticatedClientAction: 'RedirectToLoginPage'
+      }
+      identityProviders: {
+        azureActiveDirectory: {
+          isAutoProvisioned: false
+          registration: {
+            clientId: workbenchAppId
+            clientSecretSettingName: workbenchAppSecretName
+            openIdIssuer: 'https://sts.windows.net/${tenantId}/v2.0'
+          }
+          validation: {
+            allowedAudiences: []
+          }
+        }
+      }
+      login: {
+        preserveUrlFragmentsForLogins: false
+      }
+      platform: {
+        enabled: true
       }
     }
   }

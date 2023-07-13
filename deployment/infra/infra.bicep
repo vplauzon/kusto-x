@@ -6,6 +6,13 @@ param environment string
 param workbenchVersion string
 @description('Deployment location')
 param location string = resourceGroup().location
+@description('AAD Tenant Id')
+param tenantId string
+@description('Workbench AAD App Id')
+param workbenchAppId string
+@description('Workbench AAD App Secret')
+@secure()
+param workbenchAppSecret string
 
 module suffixModule '../suffix.bicep' = {
   name: '${environment}-suffix'
@@ -30,6 +37,9 @@ module appModule 'app.bicep' = {
     environment: environment
     workbenchVersion: workbenchVersion
     suffix: suffix
+    tenantId: tenantId
+    workbenchAppId: workbenchAppId
+    workbenchAppSecret: workbenchAppSecret
   }
 }
 
