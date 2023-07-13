@@ -65,4 +65,5 @@ jobs:
     - name: Deploy infra
       run: |
         cd deployment/infra
-        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment ${{ steps.patch-version.outputs.full-version }}
+        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment ${{ steps.patch-version.outputs.full-version }} \
+        ${{ secrets.TENANT_ID }}  ${{ secrets.APP_WB_ID }} ${{ secrets.APP_WB_SECRET }}

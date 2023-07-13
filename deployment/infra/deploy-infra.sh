@@ -2,16 +2,13 @@
 
 ##########################################################################
 ##  Deploys Integration Test Azure infrastructure solution
-##
-##  Parameters:
-##
-##  1- Resource group
-##  2- Environment
-##  3- Workbench full version
 
 rg=$1
 env=$2
 workbenchVersion=$3
+tenantId=$4
+appWorkbenchId=$5
+appWorkbenchSecret=$6
 
 echo "Resource group:  $rg"
 echo "Environment:  $env"
@@ -24,5 +21,4 @@ echo "Deploying ARM template"
 az deployment group create -n "deploy-$(uuidgen)" -g $rg \
     --template-file infra.bicep \
     --parameters environment=$env workbenchVersion=$workbenchVersion \
-    tenantId=${{ secrets.TENANT_ID }} \
-    workbenchAppId=${{ secrets.APP_WB_ID }} workbenchAppSecret=${{ secrets.APP_WB_SECRET }}
+    tenantId=$tenantId workbenchAppId=$appWorkbenchId workbenchAppSecret=$appWorkbenchSecret
