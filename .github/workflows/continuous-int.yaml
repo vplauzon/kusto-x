@@ -64,12 +64,12 @@ jobs:
     # See https://learn.microsoft.com/en-us/azure/container-registry/container-registry-quickstart-task-cli
     - name:  Docker Build / Push workbench
       run:  |
-        az acr build --image kustox/workbench:${{ steps.patch-version.outputs.full-version }} \
+        az acr build --image kustox/workbench:${{ steps.patch-version-workbench.outputs.full-version }} \
           --registry $registry \
           --file deployment/docker/workbench/Dockerfile workbench
     - name:  Docker Build / Push API
       run:  |
-        az acr build --image kustox/api:${{ steps.patch-version.outputs.full-version }} \
+        az acr build --image kustox/api:${{ steps.patch-version-api.outputs.full-version }} \
           --registry $registry \
           --file deployment/docker/api/Dockerfile api
 
