@@ -61,8 +61,8 @@ resource appEnvironment 'Microsoft.App/managedEnvironments@2022-10-01' = {
   }
 }
 
-resource apps 'Microsoft.App/containerApps@2022-10-01' = [for config in appConfigs: {
-  name: '${environment}-app-${config.name}-${suffix}'
+resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
+  name: '${environment}-app-workbench-${suffix}'
   location: location
   dependsOn: [
     userIdentityRbacAuthorization
@@ -106,8 +106,8 @@ resource apps 'Microsoft.App/containerApps@2022-10-01' = [for config in appConfi
     template: {
       containers: [
         {
-          image: '${registry.name}.azurecr.io/kustox/${config.name}:${config.version}'
-          name: 'main-${config.name}'
+          image: '${registry.name}.azurecr.io/kustox/workbench:${workbenchVersion}'
+          name: 'main-workbench'
           resources: {
             cpu: '0.25'
             memory: '0.5Gi'
@@ -120,36 +120,126 @@ resource apps 'Microsoft.App/containerApps@2022-10-01' = [for config in appConfi
       }
     }
   }
-}]
 
-resource symbolicname 'Microsoft.App/containerApps/authConfigs@2022-10-01' = [for config in appConfigs: {
-  name: '${environment}-app-${config.name}-${suffix}/current'
-  properties: {
-    globalValidation: {
-      redirectToProvider: 'azureactivedirectory'
-      unauthenticatedClientAction: 'RedirectToLoginPage'
-    }
-    identityProviders: {
-      azureActiveDirectory: {
-        isAutoProvisioned: false
-        registration: {
-          clientId: appId
-          clientSecretSettingName: appSecretName
-          openIdIssuer: 'https://sts.windows.net/${tenantId}/v2.0'
-        }
-        validation: {
-          allowedAudiences: []
+  resource symbolicname 'authConfigs' = {
+    name: 'current'
+    properties: {
+      globalValidation: {
+        redirectToProvider: 'azureactivedirectory'
+        unauthenticatedClientAction: 'RedirectToLoginPage'
+      }
+      identityProviders: {
+        azureActiveDirectory: {
+          isAutoProvisioned: false
+          registration: {
+            clientId: appId
+            clientSecretSettingName: appSecretName
+            openIdIssuer: 'https://sts.windows.net/${tenantId}/v2.0'
+          }
+          validation: {
+            allowedAudiences: []
+          }
         }
       }
-    }
-    login: {
-      preserveUrlFragmentsForLogins: false
-    }
-    platform: {
-      enabled: true
+      login: {
+        preserveUrlFragmentsForLogins: false
+      }
+      platform: {
+        enabled: true
+      }
     }
   }
-}]
+}
 
-output workbenchUrl string = apps[0].properties.latestRevisionFqdn
-output apiUrl string = apps[1].properties.latestRevisionFqdn
+resource api 'Microsoft.App/containerApps@2022-10-01' = {
+  name: '${environment}-app-api-${suffix}'
+  location: location
+  dependsOn: [
+    userIdentityRbacAuthorization
+  ]
+  identity: {
+    type: 'UserAssigned'
+    userAssignedIdentities: {
+      '${containerFetchingIdentity.id}': {}
+    }
+  }
+  properties: {
+    configuration: {
+      activeRevisionsMode: 'Single'
+      ingress: {
+        allowInsecure: false
+        exposedPort: 0
+        external: true
+        targetPort: 80
+        transport: 'auto'
+        traffic: [
+          {
+            latestRevision: true
+            weight: 100
+          }
+        ]
+      }
+      registries: [
+        {
+          identity: containerFetchingIdentity.id
+          server: registry.properties.loginServer
+        }
+      ]
+      secrets: [
+        {
+          name: appSecretName
+          value: appSecret
+        }
+      ]
+    }
+    environmentId: appEnvironment.id
+    template: {
+      containers: [
+        {
+          image: '${registry.name}.azurecr.io/kustox/api:${apiVersion}'
+          name: 'main-api'
+          resources: {
+            cpu: '0.25'
+            memory: '0.5Gi'
+          }
+        }
+      ]
+      scale: {
+        minReplicas: 1
+        maxReplicas: 1
+      }
+    }
+  }
+
+  resource symbolicname 'authConfigs' = {
+    name: 'current'
+    properties: {
+      globalValidation: {
+        redirectToProvider: 'azureactivedirectory'
+        unauthenticatedClientAction: 'RedirectToLoginPage'
+      }
+      identityProviders: {
+        azureActiveDirectory: {
+          isAutoProvisioned: false
+          registration: {
+            clientId: appId
+            clientSecretSettingName: appSecretName
+            openIdIssuer: 'https://sts.windows.net/${tenantId}/v2.0'
+          }
+          validation: {
+            allowedAudiences: []
+          }
+        }
+      }
+      login: {
+        preserveUrlFragmentsForLogins: false
+      }
+      platform: {
+        enabled: true
+      }
+    }
+  }
+}
+
+output workbenchUrl string = workbench.properties.latestRevisionFqdn
+output apiUrl string = api.properties.latestRevisionFqdn
