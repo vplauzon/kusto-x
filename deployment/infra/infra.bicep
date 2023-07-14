@@ -4,6 +4,8 @@
 param environment string
 @description('Workbench container\'s full version')
 param workbenchVersion string
+@description('API container\'s full version')
+param apiVersion string
 @description('Deployment location')
 param location string = resourceGroup().location
 @description('AAD Tenant Id')
@@ -36,10 +38,11 @@ module appModule 'app.bicep' = {
     location: location
     environment: environment
     workbenchVersion: workbenchVersion
+    apiVersion: apiVersion
     suffix: suffix
     tenantId: tenantId
-    workbenchAppId: workbenchAppId
-    workbenchAppSecret: workbenchAppSecret
+    appId: workbenchAppId
+    appSecret: workbenchAppSecret
   }
 }
 

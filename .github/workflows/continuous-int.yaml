@@ -33,10 +33,10 @@ jobs:
         bash deploy-registry.sh ${{ secrets.RESOURCE_GROUP }} $environment
 
     - name: Patch version workbench
-      id:  patch-version
+      id:  patch-version-workbench
       run: python3 deployment/manage-version.py code/Kustox.Workbench/Kustox.Workbench.csproj ${{ github.run_number }}
     - name: Patch version API
-      id:  patch-version
+      id:  patch-version-api
       run: python3 deployment/manage-version.py code/Kustox.Api/Kustox.Api.csproj ${{ github.run_number }}
     - name: Install dependencies
       run: dotnet restore code
@@ -76,5 +76,6 @@ jobs:
     - name: Deploy infra
       run: |
         cd deployment/infra
-        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment ${{ steps.patch-version.outputs.full-version }} \
+        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment \
+        ${{ steps.patch-version-workbench.outputs.full-version }} ${{ steps.patch-version-api.outputs.full-version }} \
         ${{ secrets.TENANT_ID }}  ${{ secrets.APP_ID }} ${{ secrets.APP_SECRET }}

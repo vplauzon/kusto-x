@@ -6,17 +6,27 @@ param location string = resourceGroup().location
 param environment string
 @description('Workbench container\'s full version')
 param workbenchVersion string
+@description('API container\'s full version')
+param apiVersion string
 @description('Suffix to resource, typically to make the resource name unique')
 param suffix string
 @description('AAD Tenant Id')
 param tenantId string
-@description('Workbench AAD App Id')
-param workbenchAppId string
-@description('Workbench AAD App Secret')
+@description('AAD App Id')
+param appId string
+@description('AAD App Secret')
 @secure()
-param workbenchAppSecret string
+param appSecret string
 
-var workbenchAppSecretName = 'wb-app-secret'
+var appSecretName = 'app-secret'
+var appConfigs = [ {
+    name: 'workbench'
+    version: workbenchVersion
+  }
+  {
+    name: 'api'
+    version: apiVersion
+  } ]
 
 resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' existing = {
   name: '${environment}registry${suffix}'
@@ -51,8 +61,8 @@ resource appEnvironment 'Microsoft.App/managedEnvironments@2022-10-01' = {
   }
 }
 
-resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
-  name: '${environment}-app-workbench-${suffix}'
+resource apps 'Microsoft.App/containerApps@2022-10-01' = [for config in appConfigs: {
+  name: '${environment}-app-${config.name}-${suffix}'
   location: location
   dependsOn: [
     userIdentityRbacAuthorization
@@ -85,10 +95,10 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
           server: registry.properties.loginServer
         }
       ]
-      secrets:[
+      secrets: [
         {
-          name:workbenchAppSecretName
-          value: workbenchAppSecret
+          name: appSecretName
+          value: appSecret
         }
       ]
     }
@@ -96,8 +106,8 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
     template: {
       containers: [
         {
-          image: '${registry.name}.azurecr.io/kustox/workbench:${workbenchVersion}'
-          name: 'main-workbench'
+          image: '${registry.name}.azurecr.io/kustox/${config.name}:${config.version}'
+          name: 'main-${config.name}'
           resources: {
             cpu: '0.25'
             memory: '0.5Gi'
@@ -110,36 +120,36 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
       }
     }
   }
+}]
 
-  resource symbolicname 'authConfigs' = {
-    name: 'current'
-    properties: {
-      globalValidation: {
-        redirectToProvider: 'azureactivedirectory'
-        unauthenticatedClientAction: 'RedirectToLoginPage'
-      }
-      identityProviders: {
-        azureActiveDirectory: {
-          isAutoProvisioned: false
-          registration: {
-            clientId: workbenchAppId
-            clientSecretSettingName: workbenchAppSecretName
-            openIdIssuer: 'https://sts.windows.net/${tenantId}/v2.0'
-          }
-          validation: {
-            allowedAudiences: []
-          }
+resource symbolicname 'Microsoft.App/containerApps/authConfigs@2022-10-01' = [for config in appConfigs: {
+  name: '${environment}-app-${config.name}-${suffix}/current'
+  properties: {
+    globalValidation: {
+      redirectToProvider: 'azureactivedirectory'
+      unauthenticatedClientAction: 'RedirectToLoginPage'
+    }
+    identityProviders: {
+      azureActiveDirectory: {
+        isAutoProvisioned: false
+        registration: {
+          clientId: appId
+          clientSecretSettingName: appSecretName
+          openIdIssuer: 'https://sts.windows.net/${tenantId}/v2.0'
+        }
+        validation: {
+          allowedAudiences: []
         }
       }
-      login: {
-        preserveUrlFragmentsForLogins: false
-      }
-      platform: {
-        enabled: true
-      }
+    }
+    login: {
+      preserveUrlFragmentsForLogins: false
+    }
+    platform: {
+      enabled: true
     }
   }
-}
+}]
 
-output test object = workbench
-output workbenchUrl string = workbench.properties.latestRevisionFqdn
+output workbenchUrl string = apps[0].properties.latestRevisionFqdn
+output apiUrl string = apps[1].properties.latestRevisionFqdn
