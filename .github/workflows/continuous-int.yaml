@@ -35,6 +35,9 @@ jobs:
     - name: Patch version workbench
       id:  patch-version
       run: python3 deployment/manage-version.py code/Kustox.Workbench/Kustox.Workbench.csproj ${{ github.run_number }}
+    - name: Patch version API
+      id:  patch-version
+      run: python3 deployment/manage-version.py code/Kustox.Api/Kustox.Api.csproj ${{ github.run_number }}
     - name: Install dependencies
       run: dotnet restore code
     - name: .NET Build All
@@ -44,8 +47,11 @@ jobs:
       run: dotnet build code/Kustox.Workbench --configuration Release --no-restore
     - name: .NET Publish workbench
       run: dotnet publish code/Kustox.Workbench --configuration Release --no-restore --output workbench
-    - name: Test
-      run: ls -l workbench
+
+    - name: .NET Build API
+      run: dotnet build code/Kustox.Api --configuration Release --no-restore
+    - name: .NET Publish API
+      run: dotnet publish code/Kustox.Api --configuration Release --no-restore --output api
 
     - name: Retrieve docker registry
       run: |
@@ -56,14 +62,19 @@ jobs:
 
 
     # See https://learn.microsoft.com/en-us/azure/container-registry/container-registry-quickstart-task-cli
-    - name:  Docker Build / Push
+    - name:  Docker Build / Push workbench
       run:  |
         az acr build --image kustox/workbench:${{ steps.patch-version.outputs.full-version }} \
           --registry $registry \
           --file deployment/docker/workbench/Dockerfile workbench
+    - name:  Docker Build / Push API
+      run:  |
+        az acr build --image kustox/api:${{ steps.patch-version.outputs.full-version }} \
+          --registry $registry \
+          --file deployment/docker/api/Dockerfile api
 
     - name: Deploy infra
       run: |
         cd deployment/infra
         bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment ${{ steps.patch-version.outputs.full-version }} \
-        ${{ secrets.TENANT_ID }}  ${{ secrets.APP_WB_ID }} ${{ secrets.APP_WB_SECRET }}
+        ${{ secrets.TENANT_ID }}  ${{ secrets.APP_ID }} ${{ secrets.APP_SECRET }}
