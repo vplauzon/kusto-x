@@ -18,7 +18,7 @@ param appId string
 @secure()
 param appSecret string
 
-var appSecretName = 'app-secret'
+var appSecretName = 'appSecret'
 var appConfigs = [ {
     name: 'workbench'
     version: workbenchVersion
