@@ -11,10 +11,10 @@ param location string = resourceGroup().location
 @description('AAD Tenant Id')
 param tenantId string
 @description('Workbench AAD App Id')
-param workbenchAppId string
+param appId string
 @description('Workbench AAD App Secret')
 @secure()
-param workbenchAppSecret string
+param appSecret string
 
 module suffixModule '../suffix.bicep' = {
   name: '${environment}-suffix'
@@ -41,8 +41,8 @@ module appModule 'app.bicep' = {
     apiVersion: apiVersion
     suffix: suffix
     tenantId: tenantId
-    appId: workbenchAppId
-    appSecret: workbenchAppSecret
+    appId: appId
+    appSecret: appSecret
   }
 }
 

@@ -27,4 +27,4 @@ az deployment group create -n "deploy-$(uuidgen)" -g $rg \
     --template-file infra.bicep \
     --parameters environment=$env \
     workbenchVersion=$workbenchVersion apiVersion=$apiVersion \
-    tenantId=$tenantId workbenchAppId=$appWorkbenchId workbenchAppSecret=$appWorkbenchSecret
+    tenantId=$tenantId appId=$appId appSecret=$appSecret
