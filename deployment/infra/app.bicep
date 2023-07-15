@@ -151,95 +151,95 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
   }
 }
 
-resource api 'Microsoft.App/containerApps@2022-10-01' = {
-  name: '${environment}-app-api-${suffix}'
-  location: location
-  dependsOn: [
-    userIdentityRbacAuthorization
-  ]
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${containerFetchingIdentity.id}': {}
-    }
-  }
-  properties: {
-    configuration: {
-      activeRevisionsMode: 'Single'
-      ingress: {
-        allowInsecure: false
-        exposedPort: 0
-        external: true
-        targetPort: 80
-        transport: 'auto'
-        traffic: [
-          {
-            latestRevision: true
-            weight: 100
-          }
-        ]
-      }
-      registries: [
-        {
-          identity: containerFetchingIdentity.id
-          server: registry.properties.loginServer
-        }
-      ]
-      secrets: [
-        {
-          name: appSecretName
-          value: appSecret
-        }
-      ]
-    }
-    environmentId: appEnvironment.id
-    template: {
-      containers: [
-        {
-          image: '${registry.name}.azurecr.io/kustox/api:${apiVersion}'
-          name: 'main-api'
-          resources: {
-            cpu: '0.25'
-            memory: '0.5Gi'
-          }
-        }
-      ]
-      scale: {
-        minReplicas: 1
-        maxReplicas: 1
-      }
-    }
-  }
+// resource api 'Microsoft.App/containerApps@2022-10-01' = {
+//   name: '${environment}-app-api-${suffix}'
+//   location: location
+//   dependsOn: [
+//     userIdentityRbacAuthorization
+//   ]
+//   identity: {
+//     type: 'UserAssigned'
+//     userAssignedIdentities: {
+//       '${containerFetchingIdentity.id}': {}
+//     }
+//   }
+//   properties: {
+//     configuration: {
+//       activeRevisionsMode: 'Single'
+//       ingress: {
+//         allowInsecure: false
+//         exposedPort: 0
+//         external: true
+//         targetPort: 80
+//         transport: 'auto'
+//         traffic: [
+//           {
+//             latestRevision: true
+//             weight: 100
+//           }
+//         ]
+//       }
+//       registries: [
+//         {
+//           identity: containerFetchingIdentity.id
+//           server: registry.properties.loginServer
+//         }
+//       ]
+//       secrets: [
+//         {
+//           name: appSecretName
+//           value: appSecret
+//         }
+//       ]
+//     }
+//     environmentId: appEnvironment.id
+//     template: {
+//       containers: [
+//         {
+//           image: '${registry.name}.azurecr.io/kustox/api:${apiVersion}'
+//           name: 'main-api'
+//           resources: {
+//             cpu: '0.25'
+//             memory: '0.5Gi'
+//           }
+//         }
+//       ]
+//       scale: {
+//         minReplicas: 1
+//         maxReplicas: 1
+//       }
+//     }
+//   }
 
-  resource symbolicname 'authConfigs' = {
-    name: 'current'
-    properties: {
-      globalValidation: {
-        redirectToProvider: 'azureactivedirectory'
-        unauthenticatedClientAction: 'RedirectToLoginPage'
-      }
-      identityProviders: {
-        azureActiveDirectory: {
-          isAutoProvisioned: false
-          registration: {
-            clientId: appId
-            clientSecretSettingName: appSecretName
-            openIdIssuer: 'https://sts.windows.net/${tenantId}/v2.0'
-          }
-          validation: {
-            allowedAudiences: []
-          }
-        }
-      }
-      login: {
-        preserveUrlFragmentsForLogins: false
-      }
-      platform: {
-        enabled: true
-      }
-    }
-  }
+//   resource symbolicname 'authConfigs' = {
+//     name: 'current'
+//     properties: {
+//       globalValidation: {
+//         redirectToProvider: 'azureactivedirectory'
+//         unauthenticatedClientAction: 'RedirectToLoginPage'
+//       }
+//       identityProviders: {
+//         azureActiveDirectory: {
+//           isAutoProvisioned: false
+//           registration: {
+//             clientId: appId
+//             clientSecretSettingName: appSecretName
+//             openIdIssuer: 'https://sts.windows.net/${tenantId}/v2.0'
+//           }
+//           validation: {
+//             allowedAudiences: []
+//           }
+//         }
+//       }
+//       login: {
+//         preserveUrlFragmentsForLogins: false
+//       }
+//       platform: {
+//         enabled: true
+//       }
+//     }
+//   }
 }
 
 output workbenchUrl string = workbench.properties.latestRevisionFqdn
-output apiUrl string = api.properties.latestRevisionFqdn
+// output apiUrl string = api.properties.latestRevisionFqdn
