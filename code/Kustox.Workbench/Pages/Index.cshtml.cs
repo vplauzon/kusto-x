@@ -16,6 +16,8 @@ namespace Kustox.Workbench.Pages
             _logger = logger;
         }
 
+        public string ApiUrl => "api/command";
+
         public void OnGet()
         {
         }

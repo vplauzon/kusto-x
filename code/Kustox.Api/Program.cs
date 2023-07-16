@@ -25,7 +25,6 @@ namespace Kustox.Api
 
             app.UseAuthorization();
 
-
             app.MapControllers();
 
             app.Run();
