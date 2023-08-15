@@ -37,9 +37,14 @@ namespace Kustox.Workbench
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            //  Add services to the container
             builder.Services.AddRazorPages();
+            builder.Services.AddControllers();
             builder.Services.AddScoped<UserIdentityContext>();
+
+            // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+            builder.Services.AddEndpointsApiExplorer();
+            builder.Services.AddSwaggerGen();
 
             if (!builder.Environment.IsDevelopment())
             {
@@ -49,7 +54,13 @@ namespace Kustox.Workbench
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
-            if (!app.Environment.IsDevelopment())
+            if (app.Environment.IsDevelopment())
+            {
+                //  Swagger:  browse at /swagger
+                app.UseSwagger();
+                app.UseSwaggerUI();
+            }
+            else
             {
                 app.UseExceptionHandler("/Error");
                 app.UseMiddleware<UserIdentityMiddleware>();
@@ -58,28 +69,9 @@ namespace Kustox.Workbench
             app.UseRouting();
             app.UseAuthorization();
             app.MapRazorPages();
-            app.MapPost("api/command", CommandApiProxyAsync);
+            app.MapControllers();
 
             await app.RunAsync();
-        }
-
-        private static async Task CommandApiProxyAsync(HttpContext context)
-        {
-            var requestResult = await context.Request.BodyReader.ReadAsync();
-            var requestBuffer = requestResult.Buffer.ToArray();
-#if DEBUG
-            var requestText = ASCIIEncoding.UTF8.GetString(requestBuffer);
-#endif
-
-            using var httpClient = new HttpClient();
-            var response = await httpClient.PostAsync(
-                _externalCommandApi.Value,
-                new ByteArrayContent(requestBuffer));
-
-            context.Response.StatusCode = (int)response.StatusCode;
-            context.Response.ContentType = response.Content.Headers.ContentType?.ToString();
-            
-            await response.Content.CopyToAsync(context.Response.Body);
         }
     }
 }
