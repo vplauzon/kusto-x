@@ -8,20 +8,6 @@ namespace Kustox.Workbench
 {
     public static class Program
     {
-        private static readonly Lazy<Uri> _externalCommandApi = new Lazy<Uri>(() =>
-        {
-            var apiUrl = Environment.GetEnvironmentVariable("ApiUrl");
-
-            if (apiUrl != null)
-            {
-                return new Uri(apiUrl);
-            }
-            else
-            {
-                throw new InvalidOperationException("Environment variable 'ApiUrl' not defined");
-            }
-        });
-
         public static string Version
         {
             get
