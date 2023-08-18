@@ -59,9 +59,9 @@ namespace Kustox.IntegratedTests
         {
             ReadEnvironmentVariables();
 
-            StorageHub = new BlobStorageHub(new DataLakeDirectoryClient(
+            StorageHub = new BlobStorageHub(
                 new Uri(GetEnvironmentVariable("storageRootUrl") + _random.Next()),
-                CreateTestCredentials()));
+                CreateTestCredentials());
             RunnableRuntime = CreateRunnableRuntime();
         }
 

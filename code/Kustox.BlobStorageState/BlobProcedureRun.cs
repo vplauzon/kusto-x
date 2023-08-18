@@ -1,4 +1,5 @@
-﻿using Kustox.BlobStorageState.DataObjects;
+﻿using Azure.Storage.Files.DataLake;
+using Kustox.BlobStorageState.DataObjects;
 using Kustox.Compiler;
 using Kustox.Runtime.State;
 using System.Collections.Immutable;
@@ -9,7 +10,7 @@ namespace Kustox.BlobStorageState
     {
         private long _jobId;
 
-        public BlobProcedureRun(long jobId)
+        public BlobProcedureRun(DataLakeDirectoryClient rootFolder, long jobId)
         {
             _jobId = jobId;
         }

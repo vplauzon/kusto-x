@@ -1,4 +1,7 @@
-﻿using Azure.Storage.Files.DataLake;
+﻿using Azure.Identity;
+using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Specialized;
+using Azure.Storage.Files.DataLake;
 using Kustox.Runtime.State;
 using System;
 using System.Collections.Generic;
@@ -11,15 +14,28 @@ namespace Kustox.BlobStorageState
     public class BlobStorageHub : IStorageHub
     {
         private readonly DataLakeDirectoryClient _rootFolder;
+        private readonly BlobContainerClient _containerClient;
 
         #region Constructors
-        public BlobStorageHub(DataLakeDirectoryClient rootFolder)
+        public BlobStorageHub(
+            Uri rootFolderUri,
+            ClientSecretCredential credential)
         {
-            _rootFolder = rootFolder;
+            var builder = new BlobUriBuilder(rootFolderUri);
+
+            //  Enforce blob storage API
+            builder.Host =
+                builder.Host.Replace(".dfs.core.windows.net", ".blob.core.windows.net");
+
+            var blobClient = new BlobClient(rootFolderUri, credential);
+
+            _rootFolder = new DataLakeDirectoryClient(builder.ToUri(), credential);
+            _containerClient = blobClient.GetParentBlobContainerClient();
         }
         #endregion
 
-        IProcedureRunList IStorageHub.ProcedureRunList =>
-            new BlobProcedureList(_rootFolder.GetSubDirectoryClient("runs"));
+        IProcedureRunList IStorageHub.ProcedureRunList => new BlobProcedureList(
+            _rootFolder.GetSubDirectoryClient("runs"),
+            _containerClient);
     }
 }
