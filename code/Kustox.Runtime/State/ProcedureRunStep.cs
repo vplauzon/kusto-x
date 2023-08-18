@@ -9,11 +9,11 @@ namespace Kustox.Runtime.State
         public ProcedureRunStep(
             IImmutableList<long> stepBreadcrumb,
             StepState state,
-            long timestamp)
+            long timestamp) : this(
+                stepBreadcrumb,
+                state,
+                DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime)
         {
-            StepBreadcrumb = stepBreadcrumb;
-            State = state;
-            Timestamp = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime;
         }
 
         public ProcedureRunStep(
@@ -21,7 +21,31 @@ namespace Kustox.Runtime.State
             StepState state,
             string? captureName,
             TableResult? result,
-            long timestamp) : this(stepBreadcrumb, state, timestamp)
+            long timestamp) : this(
+                stepBreadcrumb,
+                state,
+                captureName,
+                result,
+                DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime)
+        {
+        }
+
+        public ProcedureRunStep(
+            IImmutableList<long> stepBreadcrumb,
+            StepState state,
+            DateTime timestamp)
+        {
+            StepBreadcrumb = stepBreadcrumb;
+            State = state;
+            Timestamp = timestamp;
+        }
+
+        public ProcedureRunStep(
+            IImmutableList<long> stepBreadcrumb,
+            StepState state,
+            string? captureName,
+            TableResult? result,
+            DateTime timestamp) : this(stepBreadcrumb, state, timestamp)
         {
             CaptureName = captureName;
             Result = result;
