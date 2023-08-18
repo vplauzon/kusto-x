@@ -4,6 +4,7 @@ using Azure.Storage.Files.DataLake;
 using Kustox.BlobStorageState.DataObjects;
 using System.Collections.Immutable;
 using System.Text.Json;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Kustox.BlobStorageState
 {
@@ -36,6 +37,30 @@ namespace Kustox.BlobStorageState
                 }
                 stream.Position = 0;
                 await _logBlob.AppendAsync(stream, ct);
+            }
+        }
+
+        public async Task<IImmutableList<T>> ReadAllAsync(CancellationToken ct)
+        {
+            using (var stream = await _logBlob.DownloadContentAsync(ct))
+            {
+                var list = ImmutableArray.CreateBuilder<T>();
+
+                while (true)
+                {
+                    var item = JsonSerializer.Deserialize<T>(stream, JSON_SERIALIZER_OPTIONS);
+
+                    if (item != null)
+                    {
+                        list.Add(item);
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+
+                return list.ToImmutable();
             }
         }
     }

@@ -34,5 +34,13 @@ namespace Kustox.BlobStorageState
             }
             await _blob.AppendBlockAsync(stream, null, ct);
         }
+
+        public async Task<Stream> DownloadContentAsync(CancellationToken ct)
+        {
+            var result = await _blob.DownloadContentAsync(ct);
+            var stream = result.Value.Content.ToStream();
+
+            return stream;
+        }
     }
 }

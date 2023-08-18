@@ -1,9 +1,11 @@
-﻿using Azure.Storage.Blobs;
+﻿using Azure;
+using Azure.Storage.Blobs;
 using Azure.Storage.Files.DataLake;
 using Kustox.BlobStorageState.DataObjects;
 using Kustox.Compiler;
 using Kustox.Runtime.State;
 using System.Collections.Immutable;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Kustox.BlobStorageState
 {
@@ -38,12 +40,31 @@ namespace Kustox.BlobStorageState
 
         Task<TimestampedData<ProcedureRunState>> IProcedureRun.GetControlFlowStateAsync(CancellationToken ct)
         {
-            throw new NotImplementedException();
+            return Task.FromResult(
+                new TimestampedData<ProcedureRunState>(ProcedureRunState.Running, DateTime.Now));
         }
 
-        Task<ProcedureDeclaration> IProcedureRun.GetDeclarationAsync(CancellationToken ct)
+        async Task<ProcedureDeclaration> IProcedureRun.GetDeclarationAsync(CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var data = await _logBlob.ReadAllAsync(ct);
+            var declarationNodes = data.Where(d => !d.Indexes.Any());
+
+            if (declarationNodes.Count() != 1)
+            {
+                throw new InvalidDataException(
+                    $"Should only have one declaration node but have {declarationNodes.Count()}");
+            }
+
+            var declarationNode = declarationNodes.First();
+            var script = declarationNode.Script;
+            var declaration = new KustoxCompiler().CompileScript(script);
+
+            if (declaration == null)
+            {
+                throw new InvalidDataException($"No declaration for job ID '{_jobId}'");
+            }
+
+            return declaration;
         }
 
         Task<IImmutableList<ProcedureRunStep>> IProcedureRun.GetStepsAsync(IImmutableList<long> levelPrefix, CancellationToken ct)
