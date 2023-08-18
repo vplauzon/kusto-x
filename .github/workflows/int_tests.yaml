@@ -40,9 +40,9 @@ jobs:
         echo "cosmosDbContainer=${{ secrets.cosmosDbContainer }}" >> $GITHUB_ENV
         echo "kustoCluster=${{ secrets.kustoCluster }}" >> $GITHUB_ENV
         echo "kustoDb=${{ secrets.kustoDb }}" >> $GITHUB_ENV
-        echo "kustoTenantId=${{ secrets.kustoTenantId }}" >> $GITHUB_ENV
-        echo "kustoClientId=${{ secrets.kustoClientId }}" >> $GITHUB_ENV
-        echo "kustoClientKey=${{ secrets.kustoClientKey }}" >> $GITHUB_ENV
+        echo "kustoTenantId=${{ secrets.Tenant_Id }}" >> $GITHUB_ENV
+        echo "kustoClientId=${{ secrets.DEPLOY_CLIENT_ID }}" >> $GITHUB_ENV
+        echo "kustoClientKey=${{ secrets.DEPLOY_SECRET }}" >> $GITHUB_ENV
         echo "storageContainerUrl=${{ secrets.storageContainerUrl }}" >> $GITHUB_ENV
     # See https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test
     - name: Integration tests
