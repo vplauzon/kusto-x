@@ -16,28 +16,16 @@ namespace Kustox.BlobStorageState
                 WriteIndented = false
             };
         private readonly LogBlob _logBlob;
+        private readonly Func<IEnumerable<T>, IImmutableList<T>>? _compactor;
 
         public JsonLogBlob(
             DataLakeDirectoryClient folder,
             BlobContainerClient containerClient,
-            string blobName)
+            string blobName,
+            Func<IEnumerable<T>, IImmutableList<T>>? compactor = null)
         {
             _logBlob = new LogBlob(folder, containerClient, blobName);
-        }
-
-        public async Task AppendAsync(IEnumerable<T> data, CancellationToken ct)
-        {
-            using (var stream = new MemoryStream())
-            {
-                foreach (var item in data)
-                {
-                    JsonSerializer.Serialize(stream, item, JSON_SERIALIZER_OPTIONS);
-                    //  Append "return"
-                    stream.WriteByte((byte)'\n');
-                }
-                stream.Position = 0;
-                await _logBlob.AppendAsync(stream, ct);
-            }
+            _compactor = compactor;
         }
 
         public async Task<IImmutableList<T>> ReadAllAsync(CancellationToken ct)
@@ -52,8 +40,26 @@ namespace Kustox.BlobStorageState
                 var items = lines
                     .Select(line => JsonSerializer.Deserialize<T>(line, JSON_SERIALIZER_OPTIONS))
                     .ToImmutableArray();
+                var compactedItems = _compactor != null
+                    ? _compactor(items)
+                    : items;
 
-                return items;
+                return compactedItems;
+            }
+        }
+
+        public async Task AppendAsync(IEnumerable<T> data, CancellationToken ct)
+        {
+            using (var stream = new MemoryStream())
+            {
+                foreach (var item in data)
+                {
+                    JsonSerializer.Serialize(stream, item, JSON_SERIALIZER_OPTIONS);
+                    //  Append "return"
+                    stream.WriteByte((byte)'\n');
+                }
+                stream.Position = 0;
+                await _logBlob.AppendAsync(stream, ct);
             }
         }
     }

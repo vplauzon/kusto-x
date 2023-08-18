@@ -19,7 +19,11 @@ namespace Kustox.BlobStorageState
             BlobContainerClient containerClient,
             long jobId)
         {
-            _logBlob = new JsonLogBlob<StepData>(rootFolder, containerClient, "log.json");
+            _logBlob = new JsonLogBlob<StepData>(
+                rootFolder,
+                containerClient,
+                "log.json",
+                Compact);
             _jobId = jobId;
         }
 
@@ -96,7 +100,6 @@ namespace Kustox.BlobStorageState
             TableResult? result,
             CancellationToken ct)
         {
-
             var data = new StepData(
                 _jobId,
                 indexes,
@@ -108,6 +111,16 @@ namespace Kustox.BlobStorageState
             await _logBlob.AppendAsync(ImmutableArray.Create(data), ct);
 
             return data.ToControlFlowStep();
+        }
+
+        private static IImmutableList<StepData> Compact(IEnumerable<StepData> raw)
+        {
+            var compacted = raw
+                .GroupBy(r => string.Join('.', r.Indexes))
+                .Select(g => g.ArgMaxBy(r => r.Timestamp)!)
+                .ToImmutableArray();
+
+            return compacted;
         }
     }
 }
