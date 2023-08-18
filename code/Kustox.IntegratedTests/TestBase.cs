@@ -113,7 +113,7 @@ namespace Kustox.IntegratedTests
             var i2 = _random.Next();
             var jobId = ((long)i1 << 32) | (long)i2;
 
-            return ControlFlowList.GetInstance(jobId);
+            return ControlFlowList.GetRun(jobId);
         }
         #endregion
 
