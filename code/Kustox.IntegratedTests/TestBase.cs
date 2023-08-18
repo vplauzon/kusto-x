@@ -1,8 +1,10 @@
 ﻿using Azure.Core;
 using Azure.Identity;
+using Azure.Storage.Files.DataLake;
 using Kusto.Data;
 using Kusto.Data.Common;
 using Kusto.Data.Net.Client;
+using Kustox.BlobStorageState;
 using Kustox.CosmosDbState;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
@@ -57,7 +59,9 @@ namespace Kustox.IntegratedTests
         {
             ReadEnvironmentVariables();
 
-            ControlFlowList = ProcedureRunListFactory.FromEnvironmentVariables();
+            StorageHub = new BlobStorageHub(new DataLakeDirectoryClient(
+                new Uri(GetEnvironmentVariable("storageRootUrl") + _random.Next()),
+                CreateTestCredentials()));
             RunnableRuntime = CreateRunnableRuntime();
         }
 
@@ -102,10 +106,23 @@ namespace Kustox.IntegratedTests
 
             return value;
         }
+
+        private static ClientSecretCredential CreateTestCredentials()
+        {
+            var kustoTenantId = GetEnvironmentVariable("kustoTenantId");
+            var kustoClientId = GetEnvironmentVariable("kustoClientId");
+            var kustoClientKey = GetEnvironmentVariable("kustoClientKey");
+            var credential =
+                new ClientSecretCredential(kustoTenantId, kustoClientId, kustoClientKey);
+
+            return credential;
+        }
         #endregion
 
         #region IControlFlowList
-        protected static IProcedureRunList ControlFlowList { get; }
+        protected static IStorageHub StorageHub { get; }
+
+        protected static IProcedureRunList ControlFlowList => StorageHub.ProcedureRunList;
 
         protected static IProcedureRun CreateControlFlowInstance()
         {
@@ -129,11 +146,7 @@ namespace Kustox.IntegratedTests
         {
             var kustoCluster = GetEnvironmentVariable("kustoCluster");
             var kustoDb = GetEnvironmentVariable("kustoDb");
-            var kustoTenantId = GetEnvironmentVariable("kustoTenantId");
-            var kustoClientId = GetEnvironmentVariable("kustoClientId");
-            var kustoClientKey = GetEnvironmentVariable("kustoClientKey");
-            var credential =
-                new ClientSecretCredential(kustoTenantId, kustoClientId, kustoClientKey);
+            ClientSecretCredential credential = CreateTestCredentials();
 
             return new ConnectionProvider(new Uri(kustoCluster), kustoDb, credential);
         }
