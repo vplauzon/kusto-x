@@ -38,7 +38,8 @@ namespace Kustox.BlobStorageState
             await _logBlob.AppendAsync(ImmutableArray.Create(data), ct);
         }
 
-        Task<TimestampedData<ProcedureRunState>> IProcedureRun.GetControlFlowStateAsync(CancellationToken ct)
+        Task<TimestampedData<ProcedureRunState>> IProcedureRun.GetControlFlowStateAsync(
+            CancellationToken ct)
         {
             return Task.FromResult(
                 new TimestampedData<ProcedureRunState>(ProcedureRunState.Running, DateTime.Now));
@@ -67,9 +68,19 @@ namespace Kustox.BlobStorageState
             return declaration;
         }
 
-        Task<IImmutableList<ProcedureRunStep>> IProcedureRun.GetStepsAsync(IImmutableList<long> levelPrefix, CancellationToken ct)
+        async Task<IImmutableList<ProcedureRunStep>> IProcedureRun.GetStepsAsync(
+            IImmutableList<long> levelPrefix,
+            CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var data = await _logBlob.ReadAllAsync(ct);
+            var stepsData = data
+                .Where(d => d.HasIndexPrefix(levelPrefix));
+            var steps = stepsData
+                .Select(d => d.ToControlFlowStep())
+                .OrderBy(s => s.StepBreadcrumb.LastOrDefault())
+                .ToImmutableArray();
+
+            return steps;
         }
 
         Task IProcedureRun.SetControlFlowStateAsync(ProcedureRunState state, CancellationToken ct)
@@ -77,9 +88,26 @@ namespace Kustox.BlobStorageState
             throw new NotImplementedException();
         }
 
-        Task<ProcedureRunStep> IProcedureRun.SetStepAsync(IImmutableList<long> indexes, StepState state, string script, string? captureName, TableResult? result, CancellationToken ct)
+        async Task<ProcedureRunStep> IProcedureRun.SetStepAsync(
+            IImmutableList<long> indexes,
+            StepState state,
+            string script,
+            string? captureName,
+            TableResult? result,
+            CancellationToken ct)
         {
-            throw new NotImplementedException();
+
+            var data = new StepData(
+                _jobId,
+                indexes,
+                state,
+                script,
+                captureName,
+                result == null ? null : new TableData(result));
+
+            await _logBlob.AppendAsync(ImmutableArray.Create(data), ct);
+
+            return data.ToControlFlowStep();
         }
     }
 }

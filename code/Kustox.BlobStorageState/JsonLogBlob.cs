@@ -43,24 +43,17 @@ namespace Kustox.BlobStorageState
         public async Task<IImmutableList<T>> ReadAllAsync(CancellationToken ct)
         {
             using (var stream = await _logBlob.DownloadContentAsync(ct))
+            using (var reader = new StreamReader(stream))
             {
-                var list = ImmutableArray.CreateBuilder<T>();
+                var allText = await reader.ReadToEndAsync();
+                var lines = allText
+                    .Split('\n')
+                    .Where(line => !string.IsNullOrWhiteSpace(line));
+                var items = lines
+                    .Select(line => JsonSerializer.Deserialize<T>(line, JSON_SERIALIZER_OPTIONS))
+                    .ToImmutableArray();
 
-                while (true)
-                {
-                    var item = JsonSerializer.Deserialize<T>(stream, JSON_SERIALIZER_OPTIONS);
-
-                    if (item != null)
-                    {
-                        list.Add(item);
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-
-                return list.ToImmutable();
+                return items;
             }
         }
     }

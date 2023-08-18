@@ -35,7 +35,7 @@ namespace Kustox.BlobStorageState.DataObjects
         public string JobId { get; set; } = string.Empty;
 
         public StepState State { get; set; }
-        
+
         public string Script { get; set; } = string.Empty;
 
         public IImmutableList<long> Indexes { get; set; } = ImmutableArray<long>.Empty;
@@ -45,6 +45,24 @@ namespace Kustox.BlobStorageState.DataObjects
         public TableData? Result { get; set; }
 
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
+
+        public bool HasIndexPrefix(IImmutableList<long> levelPrefix)
+        {
+            if (levelPrefix.Count > Indexes.Count)
+            {
+                return false;
+            }
+
+            for (int i = 0; i != levelPrefix.Count; ++i)
+            {
+                if (Indexes[i] != levelPrefix[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
 
         public ProcedureRunStep ToControlFlowStep()
         {
