@@ -1,4 +1,5 @@
-﻿using Azure.Storage.Files.DataLake;
+﻿using Azure.Storage.Blobs;
+using Azure.Storage.Files.DataLake;
 using Kustox.BlobStorageState.DataObjects;
 using Kustox.Compiler;
 using Kustox.Runtime.State;
@@ -8,10 +9,15 @@ namespace Kustox.BlobStorageState
 {
     internal class BlobProcedureRun : IProcedureRun
     {
-        private long _jobId;
+        private readonly JsonLogBlob<StepData> _logBlob;
+        private readonly long _jobId;
 
-        public BlobProcedureRun(DataLakeDirectoryClient rootFolder, long jobId)
+        public BlobProcedureRun(
+            DataLakeDirectoryClient rootFolder,
+            BlobContainerClient containerClient,
+            long jobId)
         {
+            _logBlob = new JsonLogBlob<StepData>(rootFolder, containerClient, "log.json");
             _jobId = jobId;
         }
 

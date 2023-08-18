@@ -21,6 +21,7 @@ namespace Kustox.BlobStorageState
         {
             return new BlobProcedureRun(
                 _rootFolder.GetSubDirectoryClient(jobId.ToString()),
+                _containerClient,
                 jobId);
         }
     }
