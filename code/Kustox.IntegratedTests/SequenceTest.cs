@@ -16,7 +16,7 @@ namespace Kustox.IntegratedTests
 }";
             var flowInstance = CreateControlFlowInstance();
 
-            await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
+            await flowInstance.CreateRunAsync(script, CancellationToken.None);
             await RunInPiecesAsync(flowInstance);
         }
 
@@ -30,7 +30,7 @@ namespace Kustox.IntegratedTests
 }";
             var flowInstance = CreateControlFlowInstance();
 
-            await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
+            await flowInstance.CreateRunAsync(script, CancellationToken.None);
             await RunInPiecesAsync(flowInstance);
         }
     }

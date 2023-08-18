@@ -85,7 +85,7 @@ namespace Kustox.IntegratedTests
 }}";
             var flowInstance = CreateControlFlowInstance();
 
-            await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
+            await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
             var result = await RunInPiecesAsync(flowInstance, maximumNumberOfSteps);
 

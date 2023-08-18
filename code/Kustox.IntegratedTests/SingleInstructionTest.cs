@@ -12,7 +12,7 @@ namespace Kustox.IntegratedTests
             var script = @"@run-procedure{  }";
             var flowInstance = CreateControlFlowInstance();
 
-            await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
+            await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
             var runtime = new ProcedureRuntime(flowInstance, RunnableRuntime);
 
@@ -27,7 +27,7 @@ namespace Kustox.IntegratedTests
 }";
             var flowInstance = CreateControlFlowInstance();
 
-            await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
+            await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
             var runtime = new ProcedureRuntime(flowInstance, RunnableRuntime);
 
@@ -42,7 +42,7 @@ namespace Kustox.IntegratedTests
 }";
             var flowInstance = CreateControlFlowInstance();
 
-            await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
+            await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
             var runtime = new ProcedureRuntime(flowInstance, RunnableRuntime);
 
@@ -57,7 +57,7 @@ namespace Kustox.IntegratedTests
 }";
             var flowInstance = CreateControlFlowInstance();
 
-            await flowInstance.CreateInstanceAsync(script, CancellationToken.None);
+            await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
             var runtime = new ProcedureRuntime(flowInstance, RunnableRuntime);
 

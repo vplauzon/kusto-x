@@ -8,7 +8,7 @@ namespace Kustox.Runtime.State
     {
         long JobId { get; }
 
-        Task CreateInstanceAsync(string script, CancellationToken ct);
+        Task CreateRunAsync(string script, CancellationToken ct);
         
         Task<ProcedureDeclaration> GetDeclarationAsync(CancellationToken ct);
         

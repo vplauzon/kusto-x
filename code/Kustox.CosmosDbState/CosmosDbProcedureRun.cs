@@ -20,7 +20,7 @@ namespace Kustox.CosmosDbState
 
         long IProcedureRun.JobId => _jobId;
 
-        async Task IProcedureRun.CreateInstanceAsync(
+        async Task IProcedureRun.CreateRunAsync(
             string script,
             CancellationToken ct)
         {
