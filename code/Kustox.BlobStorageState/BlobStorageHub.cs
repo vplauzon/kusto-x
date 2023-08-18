@@ -20,6 +20,6 @@ namespace Kustox.BlobStorageState
         #endregion
 
         IProcedureRunList IStorageHub.ProcedureRunList =>
-            throw new NotImplementedException();
+            new BlobProcedureList(_rootFolder.GetSubDirectoryClient("runs"));
     }
 }
