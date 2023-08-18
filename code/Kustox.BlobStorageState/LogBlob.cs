@@ -1,19 +1,38 @@
 ﻿using Azure.Storage.Blobs;
+using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Files.DataLake;
+using Kusto.Data;
+using System.Collections.Immutable;
 
 namespace Kustox.BlobStorageState
 {
     internal class LogBlob
     {
-        private DataLakeDirectoryClient rootFolder;
-        private BlobContainerClient containerClient;
-        private string v;
+        private readonly DataLakeDirectoryClient _folder;
+        private readonly BlobContainerClient _containerClient;
+        private readonly string _blobName;
+        private readonly AppendBlobClient _blob;
+        private bool _doesExist = false;
 
-        public LogBlob(DataLakeDirectoryClient rootFolder, BlobContainerClient containerClient, string v)
+        public LogBlob(
+            DataLakeDirectoryClient folder,
+            BlobContainerClient containerClient,
+            string blobName)
         {
-            this.rootFolder = rootFolder;
-            this.containerClient = containerClient;
-            this.v = v;
+            _folder = folder;
+            _containerClient = containerClient;
+            _blobName = blobName;
+            _blob = containerClient.GetAppendBlobClient($"{_folder.Path}/{blobName}");
+        }
+
+        public async Task AppendAsync(Stream stream, CancellationToken ct)
+        {
+            if (!_doesExist)
+            {
+                _doesExist = true;
+                await _blob.CreateIfNotExistsAsync(null, ct);
+            }
+            await _blob.AppendBlockAsync(stream, null, ct);
         }
     }
 }

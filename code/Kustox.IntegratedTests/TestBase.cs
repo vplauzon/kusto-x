@@ -57,10 +57,12 @@ namespace Kustox.IntegratedTests
 
         static TestBase()
         {
+            var testId = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.ffff");
+
             ReadEnvironmentVariables();
 
             StorageHub = new BlobStorageHub(
-                new Uri(GetEnvironmentVariable("storageRootUrl") + _random.Next()),
+                new Uri(GetEnvironmentVariable("storageRootUrl") + testId),
                 CreateTestCredentials());
             RunnableRuntime = CreateRunnableRuntime();
         }

@@ -23,7 +23,7 @@ namespace Kustox.BlobStorageState
 
         long IProcedureRun.JobId => _jobId;
 
-        Task IProcedureRun.CreateRunAsync(string script, CancellationToken ct)
+        async Task IProcedureRun.CreateRunAsync(string script, CancellationToken ct)
         {
             var data = new StepData(
                 _jobId,
@@ -33,7 +33,7 @@ namespace Kustox.BlobStorageState
                 null,
                 null);
 
-            throw new NotImplementedException();
+            await _logBlob.AppendAsync(ImmutableArray.Create(data), ct);
         }
 
         Task<TimestampedData<ProcedureRunState>> IProcedureRun.GetControlFlowStateAsync(CancellationToken ct)
