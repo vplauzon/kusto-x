@@ -34,14 +34,6 @@ namespace Kustox.CosmosDbState
             await batch.ExecuteAsync(ct);
         }
 
-        Task IProcedureRun.DeleteAsync(CancellationToken ct)
-        {
-            //  See https://learn.microsoft.com/en-us/azure/cosmos-db/nosql/how-to-delete-by-partition-key?tabs=dotnet-example
-            //  For preview
-            //await _container.DeleteAllItemsByPartitionKeyStreamAsync(ct);
-            throw new NotImplementedException();
-        }
-
         async Task<ProcedureDeclaration> IProcedureRun.GetDeclarationAsync(
             CancellationToken ct)
         {

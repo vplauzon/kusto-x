@@ -10,8 +10,6 @@ namespace Kustox.Runtime.State
 
         Task CreateInstanceAsync(string script, CancellationToken ct);
         
-        Task DeleteAsync(CancellationToken ct);
-
         Task<ProcedureDeclaration> GetDeclarationAsync(CancellationToken ct);
         
         Task<TimestampedData<ProcedureRunState>> GetControlFlowStateAsync(CancellationToken ct);
