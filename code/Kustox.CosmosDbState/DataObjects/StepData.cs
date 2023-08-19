@@ -86,6 +86,7 @@ namespace Kustox.CosmosDbState.DataObjects
                     .ToImmutableArray();
 
                 return new ProcedureRunStep(
+                    string.Empty,
                     Indexes,
                     GetState(),
                     CaptureName,
@@ -95,6 +96,7 @@ namespace Kustox.CosmosDbState.DataObjects
             else
             {
                 return new ProcedureRunStep(
+                    string.Empty,
                     Indexes,
                     GetState(),
                     _ts);

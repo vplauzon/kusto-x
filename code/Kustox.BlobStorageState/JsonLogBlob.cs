@@ -4,6 +4,7 @@ using Azure.Storage.Files.DataLake;
 using Kustox.BlobStorageState.DataObjects;
 using System.Collections.Immutable;
 using System.Text.Json;
+using System.Text.Json.Serialization;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Kustox.BlobStorageState
@@ -17,6 +18,11 @@ namespace Kustox.BlobStorageState
             };
         private readonly LogBlob _logBlob;
         private readonly Func<IEnumerable<T>, IImmutableList<T>>? _compactor;
+
+        static JsonLogBlob()
+        {
+            JSON_SERIALIZER_OPTIONS.Converters.Add(new JsonStringEnumConverter());
+        }
 
         public JsonLogBlob(
             DataLakeDirectoryClient folder,

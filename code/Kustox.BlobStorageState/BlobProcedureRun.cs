@@ -52,7 +52,7 @@ namespace Kustox.BlobStorageState
         async Task<ProcedureDeclaration> IProcedureRun.GetDeclarationAsync(CancellationToken ct)
         {
             var data = await _logBlob.ReadAllAsync(ct);
-            var declarationNodes = data.Where(d => !d.Indexes.Any());
+            var declarationNodes = data.Where(d => !d.Breadcrumb.Any());
 
             if (declarationNodes.Count() != 1)
             {
@@ -87,9 +87,11 @@ namespace Kustox.BlobStorageState
             return steps;
         }
 
-        Task IProcedureRun.SetControlFlowStateAsync(ProcedureRunState state, CancellationToken ct)
+        async Task IProcedureRun.SetControlFlowStateAsync(
+            ProcedureRunState state,
+            CancellationToken ct)
         {
-            throw new NotImplementedException();
+            await Task.CompletedTask;
         }
 
         async Task<ProcedureRunStep> IProcedureRun.SetStepAsync(
@@ -116,7 +118,7 @@ namespace Kustox.BlobStorageState
         private static IImmutableList<StepData> Compact(IEnumerable<StepData> raw)
         {
             var compacted = raw
-                .GroupBy(r => string.Join('.', r.Indexes))
+                .GroupBy(r => string.Join('.', r.Breadcrumb))
                 .Select(g => g.ArgMaxBy(r => r.Timestamp)!)
                 .ToImmutableArray();
 

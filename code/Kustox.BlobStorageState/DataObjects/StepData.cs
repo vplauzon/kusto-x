@@ -18,14 +18,14 @@ namespace Kustox.BlobStorageState.DataObjects
 
         public StepData(
             long jobId,
-            IImmutableList<long> indexes,
+            IImmutableList<long> breadcrumb,
             StepState state,
             string script,
             string? captureName,
             TableData? result)
         {
             JobId = jobId.ToString();
-            Indexes = indexes;
+            Breadcrumb = breadcrumb;
             State = state;
             Script = script;
             CaptureName = captureName;
@@ -38,7 +38,7 @@ namespace Kustox.BlobStorageState.DataObjects
 
         public string Script { get; set; } = string.Empty;
 
-        public IImmutableList<long> Indexes { get; set; } = ImmutableArray<long>.Empty;
+        public IImmutableList<long> Breadcrumb { get; set; } = ImmutableArray<long>.Empty;
 
         public string? CaptureName { get; set; }
 
@@ -48,14 +48,14 @@ namespace Kustox.BlobStorageState.DataObjects
 
         public bool HasIndexPrefix(IImmutableList<long> levelPrefix)
         {
-            if (levelPrefix.Count > Indexes.Count)
+            if (levelPrefix.Count > Breadcrumb.Count)
             {
                 return false;
             }
 
             for (int i = 0; i != levelPrefix.Count; ++i)
             {
-                if (Indexes[i] != levelPrefix[i])
+                if (Breadcrumb[i] != levelPrefix[i])
                 {
                     return false;
                 }
@@ -73,7 +73,8 @@ namespace Kustox.BlobStorageState.DataObjects
                     .ToImmutableArray();
 
                 return new ProcedureRunStep(
-                    Indexes,
+                    Script,
+                    Breadcrumb,
                     State,
                     CaptureName,
                     new TableResult(Result!.IsScalar, columns, Result!.Data!),
@@ -82,7 +83,8 @@ namespace Kustox.BlobStorageState.DataObjects
             else
             {
                 return new ProcedureRunStep(
-                    Indexes,
+                    Script,
+                    Breadcrumb,
                     State,
                     Timestamp);
             }
