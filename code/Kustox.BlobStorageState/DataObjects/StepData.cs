@@ -46,7 +46,7 @@ namespace Kustox.BlobStorageState.DataObjects
 
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
-        public bool HasIndexPrefix(IImmutableList<long> levelPrefix)
+        public bool HasBreadcrumbPrefix(IImmutableList<long> levelPrefix)
         {
             if (levelPrefix.Count > Breadcrumb.Count)
             {
