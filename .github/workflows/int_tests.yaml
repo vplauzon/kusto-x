@@ -34,10 +34,6 @@ jobs:
     - name: Set environment variables
       shell:  bash
       run: |
-        echo "cosmosDbAccountEndpoint=${{ secrets.cosmosDbAccountEndpoint }}" >> $GITHUB_ENV
-        echo "cosmosDbAccessKey=${{ secrets.cosmosDbAccessKey }}" >> $GITHUB_ENV
-        echo "cosmosDbDatabase=${{ secrets.cosmosDbDatabase }}" >> $GITHUB_ENV
-        echo "cosmosDbContainer=${{ secrets.cosmosDbContainer }}" >> $GITHUB_ENV
         echo "kustoCluster=${{ secrets.kustoCluster }}" >> $GITHUB_ENV
         echo "kustoDb=${{ secrets.kustoDb }}" >> $GITHUB_ENV
         echo "kustoTenantId=${{ secrets.Tenant_Id }}" >> $GITHUB_ENV
