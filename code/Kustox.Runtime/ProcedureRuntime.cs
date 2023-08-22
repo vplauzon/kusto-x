@@ -5,6 +5,7 @@ using Kusto.Language.Syntax;
 using Kustox.Compiler;
 using Kustox.Runtime.Commands;
 using Kustox.Runtime.State;
+using System.Collections;
 using System.Collections.Immutable;
 using System.Text;
 using System.Text.Json;
@@ -253,7 +254,9 @@ namespace Kustox.Runtime
             ForEachDeclaration forEach,
             RuntimeLevelContext levelContext)
         {
-            var enumatorValue = levelContext.GetCapturedValueIfExist(forEach.Enumerator);
+            var enumatorValue = levelContext
+                .GetCapturedValueIfExist(forEach.Enumerator)
+                ?.AlignDataWithNativeTypes();
 
             if (enumatorValue == null)
             {
@@ -261,31 +264,35 @@ namespace Kustox.Runtime
                     $"Cannot find enumerator '{forEach.Enumerator}' in for-each:  "
                     + $"'{forEach.Code}'");
             }
-            if (enumatorValue.IsScalar)
-            {
-                var array = enumatorValue.Data[0][0] as IEnumerable<object>;
-
-                if (array == null)
-                {
-                    throw new InvalidOperationException(
-                        $"Scalar enumerator '{forEach.Enumerator}' isn't an array in for-each:  "
-                        + $"'{forEach.Code}'");
-                }
-
-                return array
-                    .Select(o => new TableResult(
-                        true,
-                        ImmutableArray.Create(new ColumnSpecification("c", typeof(object))),
-                        ImmutableArray.Create(ImmutableArray.Create(o) as IImmutableList<object>)));
-            }
             else
             {
-                return enumatorValue
-                    .GetColumnData(0)
-                    .Select(o => new TableResult(
-                        true,
-                        ImmutableArray.Create(enumatorValue.Columns.First()),
-                        ImmutableArray.Create(ImmutableArray.Create(o) as IImmutableList<object>)));
+                if (enumatorValue.IsScalar)
+                {
+                    var array = enumatorValue.Data[0][0] as IEnumerable;
+
+                    if (array == null)
+                    {
+                        throw new InvalidOperationException(
+                            $"Scalar enumerator '{forEach.Enumerator}' isn't an array in for-each:  "
+                            + $"'{forEach.Code}'");
+                    }
+
+                    return array
+                        .Cast<object>()
+                        .Select(o => new TableResult(
+                            true,
+                            ImmutableArray.Create(new ColumnSpecification("c", typeof(object))),
+                            ImmutableArray.Create(ImmutableArray.Create(o) as IImmutableList<object>)));
+                }
+                else
+                {
+                    return enumatorValue
+                        .GetColumnData(0)
+                        .Select(o => new TableResult(
+                            true,
+                            ImmutableArray.Create(enumatorValue.Columns.First()),
+                            ImmutableArray.Create(ImmutableArray.Create(o) as IImmutableList<object>)));
+                }
             }
         }
         #endregion

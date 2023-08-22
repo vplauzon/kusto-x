@@ -78,7 +78,7 @@ namespace Kustox.BlobStorageState
         {
             var data = await _logBlob.ReadAllAsync(ct);
             var stepsData = data
-                .Where(d => d.Breadcrumb.Any())
+                .Where(d => d.Breadcrumb.Count() == levelPrefix.Count() + 1)
                 .Where(d => d.HasBreadcrumbPrefix(levelPrefix));
             var steps = stepsData
                 .Select(d => d.ToControlFlowStep())
