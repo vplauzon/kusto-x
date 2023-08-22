@@ -5,7 +5,6 @@ using Kusto.Data;
 using Kusto.Data.Common;
 using Kusto.Data.Net.Client;
 using Kustox.BlobStorageState;
-using Kustox.CosmosDbState;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
 using System;
