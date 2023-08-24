@@ -7,27 +7,60 @@ namespace Kustox.Runtime.State
     {
 
         public ProcedureRunStep(
+            string script,
             IImmutableList<long> stepBreadcrumb,
             StepState state,
-            long timestamp)
+            long timestamp) : this(
+                script,
+                stepBreadcrumb,
+                state,
+                DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime)
         {
-            StepBreadcrumb = stepBreadcrumb;
-            State = state;
-            Timestamp = DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime;
         }
 
         public ProcedureRunStep(
+            string script,
             IImmutableList<long> stepBreadcrumb,
             StepState state,
             string? captureName,
             TableResult? result,
-            long timestamp) : this(stepBreadcrumb, state, timestamp)
+            long timestamp) : this(
+                script,
+                stepBreadcrumb,
+                state,
+                captureName,
+                result,
+                DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime)
+        {
+        }
+
+        public ProcedureRunStep(
+            string script,
+            IImmutableList<long> stepBreadcrumb,
+            StepState state,
+            DateTime timestamp)
+        {
+            Script = script;
+            StepBreadcrumb = stepBreadcrumb;
+            State = state;
+            Timestamp = timestamp;
+        }
+
+        public ProcedureRunStep(
+            string script,
+            IImmutableList<long> stepBreadcrumb,
+            StepState state,
+            string? captureName,
+            TableResult? result,
+            DateTime timestamp) : this(script, stepBreadcrumb, state, timestamp)
         {
             CaptureName = captureName;
             Result = result;
         }
 
         public IImmutableList<long> StepBreadcrumb { get; }
+
+        public string Script { get; }
 
         public StepState State { get; }
 

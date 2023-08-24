@@ -22,7 +22,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\Kustox.CosmosDbState\Kustox.CosmosDbState.csproj" />
+    <ProjectReference Include="..\Kustox.BlobStorageState\Kustox.BlobStorageState.csproj" />
     <ProjectReference Include="..\Kustox.Runtime\Kustox.Runtime.csproj" />
   </ItemGroup>
 

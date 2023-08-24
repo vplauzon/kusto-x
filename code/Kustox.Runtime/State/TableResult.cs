@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
@@ -108,6 +109,16 @@ namespace Kustox.Runtime.State
             }
         }
 
+        public TableResult AlignDataWithNativeTypes()
+        {
+            var alignedData = Data
+                .Select(row => row.Select(item => AlignWithNativeTypes(item)).ToImmutableArray())
+                .Cast<IImmutableList<object>>()
+                .ToImmutableArray();
+
+            return new TableResult(IsScalar, Columns, alignedData);
+        }
+
         public static TableResult Union(IImmutableList<TableResult> results)
         {
             if (!results.Any())
@@ -150,6 +161,33 @@ namespace Kustox.Runtime.State
             var allUnion = datas.Pop().ToImmutableArray();
 
             return new TableResult(false, template, allUnion);
+        }
+
+        private static object AlignWithNativeTypes(object item)
+        {
+            if (item is IEnumerable enumerable)
+            {
+                var newArray = enumerable
+                    .Cast<object>()
+                    .Select(subItem => AlignWithNativeTypes(subItem))
+                    .ToImmutableArray();
+
+                return newArray;
+            }
+            else if(item is JsonElement element)
+            {
+                switch(element.ValueKind)
+                {
+                    case JsonValueKind.Array:
+                        return AlignWithNativeTypes(element.EnumerateArray().ToImmutableArray());
+                    default:
+                        return item;
+                }
+            }
+            else
+            {
+                return item;
+            }
         }
 
         private static object AlignTypeToJsonFriendly(object obj)

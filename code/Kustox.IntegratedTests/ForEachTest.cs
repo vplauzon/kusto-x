@@ -2,6 +2,7 @@ using Kustox.Compiler;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
 using System.Collections.Immutable;
+using System.Text.Json;
 
 namespace Kustox.IntegratedTests
 {
@@ -51,9 +52,9 @@ namespace Kustox.IntegratedTests
             Assert.Equal(typeof(int), result.Columns[0].ColumnType);
 
             Assert.True(Enumerable.SequenceEqual(
-                result.GetColumnData(0),
+                result.GetColumnData(0).Select(e => ((JsonElement)e).GetInt32()),
                 //  Although we cast to int in Kusto, the JSON representation deserialize in long
-                Enumerable.Range(0, 3).Select(i => (object)((long)i))));
+                Enumerable.Range(0, 3)));
         }
 
         [Fact]
@@ -81,7 +82,10 @@ namespace Kustox.IntegratedTests
                 Assert.Single(result.Columns);
                 Assert.Equal(typeof(int), result.Columns[0].ColumnType);
 
-                var resultData = result.GetColumnData(0).Cast<long>().ToImmutableArray();
+                var resultData = result.GetColumnData(0)
+                    .Cast<JsonElement>()
+                    .Select(e => e.GetInt32())
+                    .ToImmutableArray();
 
                 Assert.Equal(7, resultData.Count());
                 foreach (var i in Enumerable.Range(0, 7))

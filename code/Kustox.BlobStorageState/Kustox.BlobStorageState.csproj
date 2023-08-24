@@ -11,4 +11,8 @@
     <ProjectReference Include="..\Kustox.Runtime\Kustox.Runtime.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.15.0" />
+  </ItemGroup>
+
 </Project>
