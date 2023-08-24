@@ -26,7 +26,7 @@ module storageModule 'storage.bicep' = {
   name: '${environment}-storageDeploy'
   params: {
     location: location
-    prefix: environment
+    environment: environment
     suffix: suffix
     retentionInDays: environment == 'tst' ? 1 : 30
   }

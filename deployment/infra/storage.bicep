@@ -3,12 +3,14 @@
 
 @description('Deployment location')
 param location string = resourceGroup().location
-@description('Resource prefix, typically the name of the environment')
-param prefix string
+@description('Name of environment')
+param environment string
 @description('Suffix to resource, typically to make the resource name unique')
 param suffix string
 @description('Retention of blobs in days')
 param retentionInDays int
+
+var prefix = environment
 
 resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: '${prefix}storage${suffix}'
@@ -21,8 +23,15 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   resource blobServices 'blobServices' = {
     name: 'default'
 
-    resource mycontainer 'containers' = {
-      name: 'data'
+    resource environmentContainer 'containers' = {
+      name: environment
+      properties: {
+        publicAccess: 'None'
+      }
+    }
+
+    resource testContainer 'containers' = {
+      name: environment
       properties: {
         publicAccess: 'None'
       }
