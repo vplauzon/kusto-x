@@ -12,9 +12,9 @@ appSecret=$6
 
 echo "Resource group:  $rg"
 echo "Environment:  $env"
+echo "Tenant ID:  $tenantId"
+echo "App ID:  $appId"
 # echo "Workbench Version:  $workbenchVersion"
-# echo "Tenant ID:  $tenantId"
-# echo "App ID:  $appId"
 # echo "App Secret:  $appSecret"
 echo "Current directory:  $(pwd)"
 
