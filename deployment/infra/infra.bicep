@@ -4,17 +4,14 @@
 param environment string
 @description('Deployment location')
 param location string = resourceGroup().location
+@description('AAD Tenant Id')
+param tenantId string
+@description('Test SP App Id')
+param testAppId string
 // @description('Workbench container\'s full version')
 // param workbenchVersion string
 // @description('API container\'s full version')
 // param apiVersion string
-// @description('AAD Tenant Id')
-// param tenantId string
-// @description('Workbench AAD App Id')
-// param appId string
-// @description('Workbench AAD App Secret')
-// @secure()
-// param appSecret string
 
 module suffixModule '../suffix.bicep' = {
   name: '${environment}-suffix'
@@ -29,7 +26,9 @@ module storageModule 'storage.bicep' = {
     environment: environment
     suffix: suffix
     retentionInDays: environment == 'tst' ? 1 : 30
-  }
+    tenantId: tenantId
+    testAppId: testAppId
+}
 }
 
 module kustoModule 'kusto.bicep' = {
@@ -38,7 +37,9 @@ module kustoModule 'kusto.bicep' = {
     location: location
     environment: environment
     suffix: suffix
-  }
+    tenantId: tenantId
+    testAppId: testAppId
+}
 }
 
 module registryModule 'registry.bicep' = {
