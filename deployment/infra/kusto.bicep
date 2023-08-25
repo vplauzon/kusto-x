@@ -31,17 +31,6 @@ resource kusto 'Microsoft.Kusto/clusters@2023-05-02' = {
       hotCachePeriod: 'P1D'
       softDeletePeriod: 'P1D'
     }
-
-    //  We need to authorize test app to admin the DB
-    resource testAssignment 'principalAssignments' = {
-      name: 'test-assignment'
-      properties: {
-        principalId: testAppId
-        principalType: 'App'
-        role: 'Admin'
-        tenantId: tenantId
-      }
-    }
   }
 
   resource env 'databases@2023-05-02' = {
