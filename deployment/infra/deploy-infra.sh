@@ -5,10 +5,10 @@
 
 rg=$1
 env=$2
-workbenchVersion=$3
-tenantId=$4
-appId=$5
-appSecret=$6
+tenantId=$3
+appId=$4
+# workbenchVersion=$3
+# appSecret=$6
 
 echo "Resource group:  $rg"
 echo "Environment:  $env"
