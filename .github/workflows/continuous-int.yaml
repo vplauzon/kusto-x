@@ -33,6 +33,10 @@ jobs:
         cd deployment/infra
         bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment \
         ${{ secrets.TENANT_ID }}  ${{ secrets.DEPLOY_CLIENT_ID }}
+    - name: Copy 
+      run: |
+        rootBlobUrl=$(az storage account list -g vp-kusto-x --query "[0].primaryEndpoints.blob" --output tsv)
+        az storage copy --source code/Kustox.IntegratedTests/Storage --destination "$rootBlobUrl/test/samples"
 
     - name: Patch version workbench
       id:  patch-version-workbench
