@@ -24,8 +24,8 @@ resource kusto 'Microsoft.Kusto/clusters@2023-05-02' = {
     location: location
     kind: 'ReadWrite'
     properties: {
-      hotCachePeriod: '1d'
-      softDeletePeriod: '1d'
+      hotCachePeriod: '1.00:00:00'
+      softDeletePeriod: '1.00:00:00'
     }
   }
 
@@ -34,8 +34,8 @@ resource kusto 'Microsoft.Kusto/clusters@2023-05-02' = {
     location: location
     kind: 'ReadWrite'
     properties: {
-      hotCachePeriod: '30d'
-      softDeletePeriod: '30d'
+      hotCachePeriod: '30.00:00:00'
+      softDeletePeriod: '30.00:00:00'
     }
   }
 }
