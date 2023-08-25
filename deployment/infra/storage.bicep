@@ -15,7 +15,7 @@ param tenantId string
 param testAppId string
 
 resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: 'storage${suffix}'
+  name: 'kustoxsto${suffix}'
   location: location
   sku: {
     name: 'Standard_LRS'
