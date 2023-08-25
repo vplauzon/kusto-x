@@ -10,7 +10,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task ThreeFiles()
         {
-            var url = $"{StorageContainerUrl}/3-files/";
+            var url = $"{SampleRootUrl}/3-files/";
             var script = @$"@run-procedure{{
     .get blobs '{url}'
 }}";
@@ -29,7 +29,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task ThreeFilesNames()
         {
-            var url = $"{StorageContainerUrl}/3-files/";
+            var url = $"{SampleRootUrl}/3-files/";
             var script = @$"@run-procedure{{
     @capture blobs = .get blobs '{url}'
     

@@ -74,14 +74,17 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   }
 }
 
+//  Storage Blob Data Owner
+//  cf https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles
 var dataOwner = 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b'
 
 //  We need to authorize test app to read / write
-resource clusterEventHubAuthorization 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(testAppId, storage.name, dataOwner, 'data-plane')
+resource testStorageAuthorization 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+  name: guid(resourceGroup().id, testAppId, storage.name, dataOwner, 'data-plane')
   //  See https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/scope-extension-resources
   //  for scope for extension
-  scope: storage::blobServices::testContainer
+  // scope: storage::blobServices::testContainer
+  scope: storage
 
   properties: {
     description: 'Give "Storage Blob Data Owner" to the SP'

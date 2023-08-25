@@ -60,6 +60,7 @@ namespace Kustox.IntegratedTests
 
             ReadEnvironmentVariables();
 
+            SampleRootUrl = GetEnvironmentVariable("sampleRootUrl");
             StorageHub = new BlobStorageHub(
                 new Uri(GetEnvironmentVariable("storageRootUrl") + testId),
                 CreateTestCredentials());
@@ -110,9 +111,9 @@ namespace Kustox.IntegratedTests
 
         private static ClientSecretCredential CreateTestCredentials()
         {
-            var tenantId = GetEnvironmentVariable("kustoTenantId");
-            var appId = GetEnvironmentVariable("kustoClientId");
-            var appKey = GetEnvironmentVariable("kustoClientKey");
+            var tenantId = GetEnvironmentVariable("tenantId");
+            var appId = GetEnvironmentVariable("appId");
+            var appKey = GetEnvironmentVariable("appKey");
             var credential = new ClientSecretCredential(tenantId, appId, appKey);
 
             return credential;
@@ -153,8 +154,7 @@ namespace Kustox.IntegratedTests
         #endregion
 
         #region Storage
-        protected static string StorageContainerUrl =>
-            GetEnvironmentVariable("storageContainerUrl");
+        protected static string SampleRootUrl { get; }
         #endregion
 
         protected static async Task<TableResult?> RunInPiecesAsync(
