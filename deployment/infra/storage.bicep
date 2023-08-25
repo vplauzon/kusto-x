@@ -13,9 +13,6 @@ param retentionInDays int
 param tenantId string
 @description('Test SP App Id')
 param testAppId string
-@description('Test SP App Secret')
-@secure()
-param testAppSecret string
 
 resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   name: 'storage${suffix}'
