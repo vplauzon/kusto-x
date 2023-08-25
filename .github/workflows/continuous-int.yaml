@@ -28,10 +28,10 @@ jobs:
     - name: Azure Subscription Set
       run: az account set --name ${{ secrets.SUBSCRIPTION }}
 
-    - name: Deploy container registry
+    - name: Deploy infra
       run: |
-        cd deployment/registry
-        bash deploy-registry.sh ${{ secrets.RESOURCE_GROUP }} $environment
+        cd deployment/infra
+        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment
 
     - name: Patch version workbench
       id:  patch-version-workbench
@@ -61,9 +61,9 @@ jobs:
           --registry $registry \
           --file deployment/docker/workbench/Dockerfile workbench
 
-    - name: Deploy infra
-      run: |
-        cd deployment/infra
-        bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment \
-        ${{ steps.patch-version-workbench.outputs.full-version }} \
-        ${{ secrets.TENANT_ID }}  ${{ secrets.APP_ID }} ${{ secrets.APP_SECRET }}
+    # - name: Deploy infra
+    #   run: |
+    #     cd deployment/infra
+    #     bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment \
+    #     ${{ steps.patch-version-workbench.outputs.full-version }} \
+    #     ${{ secrets.TENANT_ID }}  ${{ secrets.APP_ID }} ${{ secrets.APP_SECRET }}

@@ -10,10 +10,8 @@ param suffix string
 @description('Retention of blobs in days')
 param retentionInDays int
 
-var prefix = environment
-
 resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
-  name: '${prefix}storage${suffix}'
+  name: 'storage${suffix}'
   location: location
   sku: {
     name: 'Standard_LRS'
@@ -31,7 +29,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
     }
 
     resource testContainer 'containers' = {
-      name: environment
+      name: 'test'
       properties: {
         publicAccess: 'None'
       }
@@ -58,7 +56,7 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
                   'appendBlob'
                 ]
                 prefixMatch: [
-                  'data/'
+                  '${environment}/'
                 ]
               }
             }
