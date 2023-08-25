@@ -110,11 +110,10 @@ namespace Kustox.IntegratedTests
 
         private static ClientSecretCredential CreateTestCredentials()
         {
-            var kustoTenantId = GetEnvironmentVariable("kustoTenantId");
-            var kustoClientId = GetEnvironmentVariable("kustoClientId");
-            var kustoClientKey = GetEnvironmentVariable("kustoClientKey");
-            var credential =
-                new ClientSecretCredential(kustoTenantId, kustoClientId, kustoClientKey);
+            var tenantId = GetEnvironmentVariable("kustoTenantId");
+            var appId = GetEnvironmentVariable("kustoClientId");
+            var appKey = GetEnvironmentVariable("kustoClientKey");
+            var credential = new ClientSecretCredential(tenantId, appId, appKey);
 
             return credential;
         }

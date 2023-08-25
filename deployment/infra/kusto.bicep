@@ -32,7 +32,7 @@ resource kusto 'Microsoft.Kusto/clusters@2023-05-02' = {
       softDeletePeriod: 'P1D'
     }
 
-  //  We need to authorize test app to admin the DB
+    //  We need to authorize test app to admin the DB
     resource testAssignment 'principalAssignments' = {
       name: 'test-assignment'
       properties: {
