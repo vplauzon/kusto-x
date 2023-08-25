@@ -11,7 +11,7 @@ resource kusto 'Microsoft.Kusto/clusters@2023-05-02' = {
   sku: {
     capacity: 1
     name: 'Dev(No SLA)_Standard_E2a_v4'
-    tier: 'Standard'
+    tier: 'Basic'
   }
   properties: {
     enableAutoStop: true
