@@ -32,6 +32,15 @@ module storageModule 'storage.bicep' = {
   }
 }
 
+module kustoModule 'kusto.bicep' = {
+  name: '${environment}-kustoDeploy'
+  params: {
+    location: location
+    environment: environment
+    suffix: suffix
+  }
+}
+
 module registryModule 'registry.bicep' = {
   name: '${environment}-registryDeploy'
   params: {
