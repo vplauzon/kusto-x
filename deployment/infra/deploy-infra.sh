@@ -23,4 +23,5 @@ echo "Deploying ARM template"
 
 az deployment group create -n "deploy-$(uuidgen)" -g $rg \
     --template-file infra.bicep \
-    --parameters environment=$env
+    --parameters environment=$env \
+    tenantId=$tenantId testAppId=$appId
