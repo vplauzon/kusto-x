@@ -9,7 +9,6 @@ namespace Kustox.BlobStorageState
     internal class LogBlob
     {
         private readonly DataLakeDirectoryClient _folder;
-        private readonly BlobContainerClient _containerClient;
         private readonly string _blobName;
         private readonly AppendBlobClient _blob;
         private bool _doesExist = false;
@@ -20,7 +19,6 @@ namespace Kustox.BlobStorageState
             string blobName)
         {
             _folder = folder;
-            _containerClient = containerClient;
             _blobName = blobName;
             _blob = containerClient.GetAppendBlobClient($"{_folder.Path}/{blobName}");
         }
