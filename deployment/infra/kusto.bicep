@@ -4,10 +4,6 @@ param location string = resourceGroup().location
 param environment string
 @description('Suffix to resource, typically to make the resource name unique')
 param suffix string
-@description('AAD Tenant Id')
-param tenantId string
-@description('Test SP App Id')
-param testAppId string
 
 resource kusto 'Microsoft.Kusto/clusters@2023-05-02' = {
   name: 'kustox${suffix}'

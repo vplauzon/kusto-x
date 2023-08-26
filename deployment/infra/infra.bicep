@@ -6,8 +6,8 @@ param environment string
 param location string = resourceGroup().location
 @description('AAD Tenant Id')
 param tenantId string
-@description('Test SP App Id')
-param testAppId string
+@description('Test SP Object Id')
+param testObjectId string
 // @description('Workbench container\'s full version')
 // param workbenchVersion string
 // @description('API container\'s full version')
@@ -26,8 +26,7 @@ module storageModule 'storage.bicep' = {
     environment: environment
     suffix: suffix
     retentionInDays: environment == 'tst' ? 1 : 30
-    tenantId: tenantId
-    testAppId: testAppId
+    testObjectId: testObjectId
 }
 }
 
@@ -37,8 +36,6 @@ module kustoModule 'kusto.bicep' = {
     location: location
     environment: environment
     suffix: suffix
-    tenantId: tenantId
-    testAppId: testAppId
 }
 }
 

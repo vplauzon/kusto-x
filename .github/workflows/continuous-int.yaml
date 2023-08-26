@@ -32,7 +32,7 @@ jobs:
       run: |
         cd deployment/infra
         bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment \
-        ${{ secrets.TENANT_ID }}  ${{ secrets.DEPLOY_CLIENT_ID }}
+        ${{ secrets.TENANT_ID }}  ${{ secrets.DEPLOY_OBJECT_ID }}
     - name: Copy 
       run: |
         rootBlobUrl=$(az storage account list -g vp-kusto-x --query "[0].primaryEndpoints.blob" --output tsv)
