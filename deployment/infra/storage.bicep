@@ -83,8 +83,7 @@ resource testStorageAuthorization 'Microsoft.Authorization/roleAssignments@2022-
   name: guid(resourceGroup().id, testAppId, storage.name, dataOwner, 'data-plane')
   //  See https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/scope-extension-resources
   //  for scope for extension
-  // scope: storage::blobServices::testContainer
-  scope: storage
+  scope: storage::blobServices::testContainer
 
   properties: {
     description: 'Give "Storage Blob Data Owner" to the SP'
@@ -94,3 +93,5 @@ resource testStorageAuthorization 'Microsoft.Authorization/roleAssignments@2022-
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', dataOwner)
   }
 }
+
+output roleDefinitionId string = subscriptionResourceId('Microsoft.Authorization/roleDefinitions', dataOwner)
