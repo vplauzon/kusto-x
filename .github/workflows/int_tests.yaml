@@ -43,7 +43,7 @@ jobs:
       shell:  bash
       run: |
         rootBlobUrl=$(az storage account list -g ${{ secrets.RESOURCE_GROUP }} --query "[0].primaryEndpoints.blob" --output tsv)
-        echo "storageContainerUrl=${rootBlobUrl}test/int-tests" >> $GITHUB_ENV
+        echo "storageRootUrl=${rootBlobUrl}test/int-tests" >> $GITHUB_ENV
         echo "sampleRootUrl=${rootBlobUrl}test/samples" >> $GITHUB_ENV
     - name: Set kusto environment variables
       shell:  bash
