@@ -11,7 +11,6 @@ namespace Kustox.BlobStorageState
         private readonly DataLakeDirectoryClient _folder;
         private readonly string _blobName;
         private readonly AppendBlobClient _blob;
-        private bool _doesExist = false;
 
         public LogBlob(
             DataLakeDirectoryClient folder,
@@ -23,13 +22,13 @@ namespace Kustox.BlobStorageState
             _blob = containerClient.GetAppendBlobClient($"{_folder.Path}/{blobName}");
         }
 
+        public async Task CreateIfNotExistsAsync(CancellationToken ct)
+        {
+            await _blob.CreateIfNotExistsAsync(null, ct);
+        }
+
         public async Task AppendAsync(Stream stream, CancellationToken ct)
         {
-            if (!_doesExist)
-            {
-                _doesExist = true;
-                await _blob.CreateIfNotExistsAsync(null, ct);
-            }
             await _blob.AppendBlockAsync(stream, null, ct);
         }
 

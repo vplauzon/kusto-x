@@ -54,6 +54,11 @@ namespace Kustox.BlobStorageState
             }
         }
 
+        public async Task CreateIfNotExistsAsync(CancellationToken ct)
+        {
+            await _logBlob.CreateIfNotExistsAsync(ct);
+        }
+
         public async Task AppendAsync(IEnumerable<T> data, CancellationToken ct)
         {
             using (var stream = new MemoryStream())
