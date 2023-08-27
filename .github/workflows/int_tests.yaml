@@ -33,16 +33,27 @@ jobs:
       run: |
         dotnet test code/Kustox.UnitTests --configuration Release \
           --no-build --verbosity normal
+    
     # Set environment variables
-    - name: Set environment variables
+    - name: Set storage environment variables
       shell:  bash
       run: |
-        echo "kustoCluster=${{ secrets.kustoCluster }}" >> $GITHUB_ENV
-        echo "kustoDb=${{ secrets.kustoDb }}" >> $GITHUB_ENV
-        echo "kustoTenantId=${{ secrets.Tenant_Id }}" >> $GITHUB_ENV
-        echo "kustoClientId=${{ secrets.DEPLOY_CLIENT_ID }}" >> $GITHUB_ENV
-        echo "kustoClientKey=${{ secrets.DEPLOY_SECRET }}" >> $GITHUB_ENV
-        echo "storageContainerUrl=${{ secrets.storageContainerUrl }}" >> $GITHUB_ENV
+        rootBlobUrl=$(az storage account list -g ${{ secrets.RESOURCE_GROUP }} --query "[0].primaryEndpoints.blob" --output tsv)
+        echo "storageContainerUrl=${rootBlobUrl}test/int-tests" >> $GITHUB_ENV
+        echo "sampleRootUrl=${rootBlobUrl}test/samples" >> $GITHUB_ENV
+    - name: Set kusto environment variables
+      shell:  bash
+      run: |
+        kustoUri=$(az kusto cluster list -g ${{ secrets.RESOURCE_GROUP }} --query "[0].uri" --output tsv)
+        echo "kustoCluster=${kustoUri}" >> $GITHUB_ENV
+        echo "kustoDb=tests" >> $GITHUB_ENV
+    - name: Set deploy sp environment variables
+      shell:  bash
+      run: |
+        echo "tenantId=${{ secrets.TENANT_ID }}" >> $GITHUB_ENV
+        echo "appId=${{ secrets.DEPLOY_CLIENT_ID }}" >> $GITHUB_ENV
+        echo "appKey=${{ secrets.DEPLOY_SECRET }}" >> $GITHUB_ENV
+    
     # See https://docs.microsoft.com/en-us/dotnet/core/tools/dotnet-test
     - name: Integration tests
       shell:  bash

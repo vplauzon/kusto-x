@@ -35,7 +35,7 @@ jobs:
         ${{ secrets.TENANT_ID }}  ${{ secrets.DEPLOY_OBJECT_ID }}
     - name: Copy 
       run: |
-        rootBlobUrl=$(az storage account list -g vp-kusto-x --query "[0].primaryEndpoints.blob" --output tsv)
+        rootBlobUrl=$(az storage account list -g ${{ secrets.RESOURCE_GROUP }} --query "[0].primaryEndpoints.blob" --output tsv)
         az storage copy --source code/Kustox.IntegratedTests/samples --destination "${rootBlobUrl}test" --recursive
 
     - name: Patch version workbench
