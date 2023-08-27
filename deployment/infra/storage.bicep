@@ -91,5 +91,3 @@ resource testStorageAuthorization 'Microsoft.Authorization/roleAssignments@2022-
     roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', dataOwner)
   }
 }
-
-output 
