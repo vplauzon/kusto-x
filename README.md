@@ -1,6 +1,7 @@
 # Kusto-X
 
 [![Continuous Build / Unit Test](https://github.com/vplauzon/kusto-x/actions/workflows/continuous-build.yaml/badge.svg)](https://github.com/vplauzon/kusto-x/actions/workflows/continuous-build.yaml)
+[![Continuous Integration](https://github.com/vplauzon/kusto-x/actions/workflows/continuous-int.yaml/badge.svg)](https://github.com/vplauzon/kusto-x/actions/workflows/continuous-int.yaml)
 [![Integration tests](https://github.com/vplauzon/kusto-x/actions/workflows/int_tests.yaml/badge.svg)](https://github.com/vplauzon/kusto-x/actions/workflows/int_tests.yaml)
 
 
