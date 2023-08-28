@@ -22,7 +22,17 @@ namespace Kustox.BlobStorageState
             _containerClient = containerClient;
         }
 
-        IProcedureRun IProcedureRunRegistry.GetRun(long jobId)
+        IProcedureRun IProcedureRunRegistry.NewRun()
+        {
+            var jobId = Guid.NewGuid().ToString();
+
+            return new BlobProcedureRun(
+                _rootFolder.GetSubDirectoryClient(jobId.ToString()),
+                _containerClient,
+                jobId);
+        }
+
+        IProcedureRun IProcedureRunRegistry.GetRun(string jobId)
         {
             return new BlobProcedureRun(
                 _rootFolder.GetSubDirectoryClient(jobId.ToString()),
