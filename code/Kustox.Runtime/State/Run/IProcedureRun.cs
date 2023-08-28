@@ -6,7 +6,7 @@ namespace Kustox.Runtime.State.Run
 {
     public interface IProcedureRun
     {
-        long JobId { get; }
+        string JobId { get; }
 
         Task CreateRunAsync(string script, CancellationToken ct);
         

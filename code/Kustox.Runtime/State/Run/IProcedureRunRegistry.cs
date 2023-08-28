@@ -2,6 +2,8 @@
 {
     public interface IProcedureRunRegistry
     {
-        IProcedureRun GetRun(long jobId);
+        IProcedureRun NewRun();
+        
+        IProcedureRun GetRun(string jobId);
     }
 }

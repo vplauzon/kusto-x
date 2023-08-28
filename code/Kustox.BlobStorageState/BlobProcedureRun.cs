@@ -12,12 +12,12 @@ namespace Kustox.BlobStorageState
     internal class BlobProcedureRun : IProcedureRun
     {
         private readonly JsonLogBlob<StepData> _logBlob;
-        private readonly long _jobId;
+        private readonly string _jobId;
 
         public BlobProcedureRun(
             DataLakeDirectoryClient rootFolder,
             BlobContainerClient containerClient,
-            long jobId)
+            string jobId)
         {
             _logBlob = new JsonLogBlob<StepData>(
                 rootFolder,
@@ -27,7 +27,7 @@ namespace Kustox.BlobStorageState
             _jobId = jobId;
         }
 
-        long IProcedureRun.JobId => _jobId;
+        string IProcedureRun.JobId => _jobId;
 
         async Task IProcedureRun.CreateRunAsync(string script, CancellationToken ct)
         {

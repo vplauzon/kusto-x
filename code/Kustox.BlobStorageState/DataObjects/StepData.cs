@@ -18,7 +18,7 @@ namespace Kustox.BlobStorageState.DataObjects
         }
 
         public StepData(
-            long jobId,
+            string jobId,
             IImmutableList<long> breadcrumb,
             StepState state,
             string script,
