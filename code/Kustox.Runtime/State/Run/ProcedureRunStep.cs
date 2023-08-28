@@ -1,39 +1,10 @@
 ﻿using System.Collections.Immutable;
 using System.Data;
 
-namespace Kustox.Runtime.State
+namespace Kustox.Runtime.State.Run
 {
     public class ProcedureRunStep
     {
-
-        public ProcedureRunStep(
-            string script,
-            IImmutableList<long> stepBreadcrumb,
-            StepState state,
-            long timestamp) : this(
-                script,
-                stepBreadcrumb,
-                state,
-                DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime)
-        {
-        }
-
-        public ProcedureRunStep(
-            string script,
-            IImmutableList<long> stepBreadcrumb,
-            StepState state,
-            string? captureName,
-            TableResult? result,
-            long timestamp) : this(
-                script,
-                stepBreadcrumb,
-                state,
-                captureName,
-                result,
-                DateTimeOffset.FromUnixTimeSeconds(timestamp).DateTime)
-        {
-        }
-
         public ProcedureRunStep(
             string script,
             IImmutableList<long> stepBreadcrumb,

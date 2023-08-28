@@ -5,6 +5,7 @@ using Kusto.Language.Syntax;
 using Kustox.Compiler;
 using Kustox.Runtime.Commands;
 using Kustox.Runtime.State;
+using Kustox.Runtime.State.Run;
 using System.Collections;
 using System.Collections.Immutable;
 using System.Text;

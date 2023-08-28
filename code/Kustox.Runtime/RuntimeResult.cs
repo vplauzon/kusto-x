@@ -4,6 +4,7 @@ using Kusto.Language;
 using Kusto.Language.Syntax;
 using Kustox.Compiler;
 using Kustox.Runtime.State;
+using Kustox.Runtime.State.Run;
 using System.Collections.Immutable;
 using System.Data;
 using System.Reflection.PortableExecutable;

@@ -15,4 +15,8 @@
     <PackageReference Include="Azure.Storage.Files.DataLake" Version="12.15.0" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="DataObjects\" />
+  </ItemGroup>
+
 </Project>

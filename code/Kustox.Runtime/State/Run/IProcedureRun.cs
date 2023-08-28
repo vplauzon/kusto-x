@@ -2,7 +2,7 @@
 using System.Collections.Immutable;
 using System.Data;
 
-namespace Kustox.Runtime.State
+namespace Kustox.Runtime.State.Run
 {
     public interface IProcedureRun
     {

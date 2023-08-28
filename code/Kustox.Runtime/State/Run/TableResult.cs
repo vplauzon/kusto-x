@@ -7,17 +7,12 @@ using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace Kustox.Runtime.State
+namespace Kustox.Runtime.State.Run
 {
     public class TableResult
     {
-        private static readonly Newtonsoft.Json.JsonSerializer _newtonsoftSerializer =
-            Newtonsoft.Json.JsonSerializer.CreateDefault();
-
         public TableResult(
             bool isScalar,
             IImmutableList<ColumnSpecification> columns,
@@ -29,17 +24,14 @@ namespace Kustox.Runtime.State
                 Columns = columns.Take(1).ToImmutableArray();
                 Data = data
                     .Take(1)
-                    .Select(r => r.Take(1).Select(o => AlignTypeToJsonFriendly(o)).ToImmutableArray())
+                    .Select(r => r.Take(1))
                     .Cast<IImmutableList<object>>()
                     .ToImmutableArray();
             }
             else
             {
                 Columns = columns;
-                Data = data
-                    .Select(r => r.Select(o => AlignTypeToJsonFriendly(o)).ToImmutableArray())
-                    .Cast<IImmutableList<object>>()
-                    .ToImmutableArray();
+                Data = data;
             }
             if (Columns.Count <= 0)
             {
@@ -51,22 +43,6 @@ namespace Kustox.Runtime.State
                     nameof(data),
                     "Some row(s) don't have the right column count");
             }
-        }
-
-        public TableResult(bool isScalar, DataTable table)
-            : this(
-                  isScalar,
-                  table.Columns
-                  .Cast<DataColumn>()
-                  .Select(c => new ColumnSpecification(c.ColumnName, c.DataType.FullName!))
-                  .ToImmutableArray(),
-                  table.Rows
-                  .Cast<DataRow>()
-                  .Select(r => r.ItemArray.Select(o => AlignTypeToJsonFriendly(o!)))
-                  .Select(r => r.ToImmutableArray())
-                  .Cast<IImmutableList<object>>()
-                  .ToImmutableArray())
-        {
         }
 
         public bool IsScalar { get; }
@@ -187,46 +163,6 @@ namespace Kustox.Runtime.State
             else
             {
                 return item;
-            }
-        }
-
-        private static object AlignTypeToJsonFriendly(object obj)
-        {
-            if (obj is sbyte)
-            {
-                return Convert.ToBoolean(obj);
-            }
-            else if (obj is SqlDecimal)
-            {
-                var objDec = (SqlDecimal)obj;
-
-                return objDec.ToSqlMoney().ToDecimal();
-            }
-            else if (obj is Newtonsoft.Json.Linq.JObject)
-            {
-                var textWriter = new StringWriter();
-
-                _newtonsoftSerializer.Serialize(textWriter, obj);
-
-                var text = textWriter.ToString();
-                var textObj = JsonSerializer.Deserialize<JsonValue>(text);
-
-                return textObj!;
-            }
-            else if (obj is Newtonsoft.Json.Linq.JArray)
-            {
-                var textWriter = new StringWriter();
-
-                _newtonsoftSerializer.Serialize(textWriter, obj);
-
-                var text = textWriter.ToString();
-                var textObj = JsonSerializer.Deserialize<JsonArray>(text);
-
-                return textObj!;
-            }
-            else
-            {
-                return obj;
             }
         }
     }

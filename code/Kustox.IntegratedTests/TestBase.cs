@@ -7,6 +7,7 @@ using Kusto.Data.Net.Client;
 using Kustox.BlobStorageState;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
+using Kustox.Runtime.State.Run;
 using System;
 using System.Collections.Generic;
 using System.Linq;

@@ -12,6 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
 using System.Text.Json;
+using Kustox.Runtime.State.Run;
 
 namespace Kustox.Runtime
 {
@@ -71,9 +72,8 @@ namespace Kustox.Runtime
                 queryPrefix + query,
                 new ClientRequestProperties());
             var table = reader.ToDataSet().Tables[0];
-            var result = new TableResult(false, table);
 
-            return result;
+            return table.ToTableResult();
         }
 
         private string BuildQueryPrefix(
