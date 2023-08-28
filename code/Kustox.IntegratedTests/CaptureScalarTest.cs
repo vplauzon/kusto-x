@@ -29,7 +29,7 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant2 = print toint(myConstant.profile.memory)
 }}";
-            var flowInstance = CreateControlFlowInstance();
+            var flowInstance = await CreateControlFlowInstanceAsync();
 
             await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
@@ -93,7 +93,7 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant2 = print myConstant
 }}";
-            var flowInstance = CreateControlFlowInstance();
+            var flowInstance = await CreateControlFlowInstanceAsync();
 
             await flowInstance.CreateRunAsync(script, CancellationToken.None);
 

@@ -124,9 +124,10 @@ namespace Kustox.IntegratedTests
         #region IControlFlowList
         protected static IStorageHub StorageHub { get; }
 
-        protected static IProcedureRun CreateControlFlowInstance()
+        protected static Task<IProcedureRun> CreateControlFlowInstanceAsync(
+            CancellationToken ct = default(CancellationToken))
         {
-            return StorageHub.ProcedureRunRegistry.NewRun();
+            return StorageHub.ProcedureRunRegistry.NewRunAsync(ct);
         }
         #endregion
 

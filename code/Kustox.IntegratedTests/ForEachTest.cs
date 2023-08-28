@@ -17,7 +17,7 @@ namespace Kustox.IntegratedTests
     @foreach(i in myRange){
     }
 }";
-            var flowInstance = CreateControlFlowInstance();
+            var flowInstance = await CreateControlFlowInstanceAsync();
 
             await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
@@ -40,7 +40,7 @@ namespace Kustox.IntegratedTests
         print toint(i)
     }
 }";
-            var flowInstance = CreateControlFlowInstance();
+            var flowInstance = await CreateControlFlowInstanceAsync();
 
             await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
@@ -71,7 +71,7 @@ namespace Kustox.IntegratedTests
 
             foreach (var n in numberOfSteps)
             {
-                var flowInstance = CreateControlFlowInstance();
+                var flowInstance = await CreateControlFlowInstanceAsync();
 
                 await flowInstance.CreateRunAsync(script, CancellationToken.None);
 

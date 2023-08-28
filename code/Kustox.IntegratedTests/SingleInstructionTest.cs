@@ -10,7 +10,7 @@ namespace Kustox.IntegratedTests
         public async Task Empty()
         {
             var script = @"@run-procedure{  }";
-            var flowInstance = CreateControlFlowInstance();
+            var flowInstance = await CreateControlFlowInstanceAsync();
 
             await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
@@ -25,7 +25,7 @@ namespace Kustox.IntegratedTests
             var script = @"@run-procedure{
     @capture-scalar myConstant = print 2
 }";
-            var flowInstance = CreateControlFlowInstance();
+            var flowInstance = await CreateControlFlowInstanceAsync();
 
             await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
@@ -40,7 +40,7 @@ namespace Kustox.IntegratedTests
             var script = @"@run-procedure{
     @capture myVersion = .show version
 }";
-            var flowInstance = CreateControlFlowInstance();
+            var flowInstance = await CreateControlFlowInstanceAsync();
 
             await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
@@ -55,7 +55,7 @@ namespace Kustox.IntegratedTests
             var script = @"@run-procedure{
     .show version
 }";
-            var flowInstance = CreateControlFlowInstance();
+            var flowInstance = await CreateControlFlowInstanceAsync();
 
             await flowInstance.CreateRunAsync(script, CancellationToken.None);
 

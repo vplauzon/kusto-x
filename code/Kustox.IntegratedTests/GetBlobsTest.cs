@@ -14,7 +14,7 @@ namespace Kustox.IntegratedTests
             var script = @$"@run-procedure{{
     .get blobs '{url}'
 }}";
-            var flowInstance = CreateControlFlowInstance();
+            var flowInstance = await CreateControlFlowInstanceAsync();
 
             await flowInstance.CreateRunAsync(script, CancellationToken.None);
 
@@ -36,7 +36,7 @@ namespace Kustox.IntegratedTests
     blobs
     | project Name
 }}";
-            var flowInstance = CreateControlFlowInstance();
+            var flowInstance = await CreateControlFlowInstanceAsync();
 
             await flowInstance.CreateRunAsync(script, CancellationToken.None);
 

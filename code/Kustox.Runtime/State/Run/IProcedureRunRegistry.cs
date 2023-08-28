@@ -2,8 +2,8 @@
 {
     public interface IProcedureRunRegistry
     {
-        IProcedureRun NewRun();
+        Task<IProcedureRun> NewRunAsync(CancellationToken ct);
         
-        IProcedureRun GetRun(string jobId);
+        Task<IProcedureRun> GetRunAsync(string jobId, CancellationToken ct);
     }
 }

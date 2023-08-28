@@ -27,6 +27,11 @@ namespace Kustox.BlobStorageState
             _jobId = jobId;
         }
 
+        public async Task CreateAsync(CancellationToken ct)
+        {
+            await _logBlob.CreateIfNotExistsAsync(ct);
+        }
+
         string IProcedureRun.JobId => _jobId;
 
         async Task IProcedureRun.CreateRunAsync(string script, CancellationToken ct)
@@ -39,7 +44,6 @@ namespace Kustox.BlobStorageState
                 null,
                 null);
 
-            await _logBlob.CreateIfNotExistsAsync(ct);
             await _logBlob.AppendAsync(ImmutableArray.Create(data), ct);
         }
 
