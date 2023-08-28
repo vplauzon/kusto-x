@@ -39,6 +39,7 @@ namespace Kustox.BlobStorageState
                 null,
                 null);
 
+            await _logBlob.CreateIfNotExistsAsync(ct);
             await _logBlob.AppendAsync(ImmutableArray.Create(data), ct);
         }
 

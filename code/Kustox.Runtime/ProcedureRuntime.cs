@@ -71,7 +71,7 @@ namespace Kustox.Runtime
                     ct);
 
                 return block.Capture?.IsScalarCapture == true
-                    ? result.ToScale()
+                    ? result.ToScalar()
                     : result;
             }
             else if (block.ForEach != null)

@@ -21,28 +21,38 @@ namespace Kustox.Runtime.State.Run
             IsScalar = isScalar;
             if (isScalar)
             {
-                Columns = columns.Take(1).ToImmutableArray();
-                Data = data
-                    .Take(1)
-                    .Select(r => r.Take(1))
-                    .Cast<IImmutableList<object>>()
-                    .ToImmutableArray();
+                if (columns.Count != 1)
+                {
+                    throw new ArgumentOutOfRangeException(
+                        nameof(columns),
+                        $"For scalar, must be a single column but there are {columns.Count()}");
+                }
+                if (data.Count != 1)
+                {
+                    throw new ArgumentOutOfRangeException(
+                        nameof(data),
+                        $"For scalar, must be a single row but there are {data.Count()}");
+                }
+                if (data.First().Count != 1)
+                {
+                    throw new ArgumentOutOfRangeException(
+                        nameof(data),
+                        $"For scalar, must be a single column in the single row"
+                        + $" but there are {data.First().Count()}");
+                }
             }
-            else
+            if (columns.Count == 0)
             {
-                Columns = columns;
-                Data = data;
+                throw new ArgumentOutOfRangeException(nameof(columns), "There are no columns!");
             }
-            if (Columns.Count <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(columns));
-            }
-            if (data.Select(row => row.Count()).Any(l => l != Columns.Count()))
+            if (data.Select(row => row.Count()).Any(l => l != columns.Count()))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(data),
                     "Some row(s) don't have the right column count");
             }
+            Columns = columns;
+            Data = data;
         }
 
         public bool IsScalar { get; }
@@ -51,9 +61,18 @@ namespace Kustox.Runtime.State.Run
 
         public IImmutableList<IImmutableList<object>> Data { get; }
 
-        public TableResult ToScale()
+        public TableResult ToScalar()
         {
-            return new TableResult(true, Columns, Data);
+            return new TableResult(
+                true,
+                Columns.Count == 1 ? Columns : Columns.Take(1).ToImmutableArray(),
+                Data.Count == 1 && Data.First().Count == 1
+                ? Data
+                : Data
+                .Take(1)
+                .Select(r=>r.Take(1).ToImmutableArray())
+                .Cast<IImmutableList<object>>()
+                .ToImmutableArray());
         }
 
         public DataTable? ToDataTable()
@@ -150,9 +169,9 @@ namespace Kustox.Runtime.State.Run
 
                 return newArray;
             }
-            else if(item is JsonElement element)
+            else if (item is JsonElement element)
             {
-                switch(element.ValueKind)
+                switch (element.ValueKind)
                 {
                     case JsonValueKind.Array:
                         return AlignWithNativeTypes(element.EnumerateArray().ToImmutableArray());
