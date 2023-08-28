@@ -124,15 +124,13 @@ namespace Kustox.IntegratedTests
         #region IControlFlowList
         protected static IStorageHub StorageHub { get; }
 
-        protected static IProcedureRunList ControlFlowList => StorageHub.ProcedureRunList;
-
         protected static IProcedureRun CreateControlFlowInstance()
         {
             var i1 = _random.Next();
             var i2 = _random.Next();
             var jobId = ((long)i1 << 32) | (long)i2;
 
-            return ControlFlowList.GetRun(jobId);
+            return StorageHub.ProcedureRunRegistry.GetRun(jobId);
         }
         #endregion
 
