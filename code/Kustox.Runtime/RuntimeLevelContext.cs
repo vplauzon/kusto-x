@@ -211,7 +211,7 @@ namespace Kustox.Runtime
                 sharedData,
                 root.StepBreadcrumb,
                 root.Script,
-                new ConcurrentStack<RuntimeLevelContext>(subContexts),
+                new ConcurrentStack<RuntimeLevelContext>(subContexts.AsEnumerable().Reverse()),
                 root.CaptureName != null && root.Result != null
                 ? captures.Add(root.CaptureName, root.Result)
                 : captures,

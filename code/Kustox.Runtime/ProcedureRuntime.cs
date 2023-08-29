@@ -135,10 +135,10 @@ namespace Kustox.Runtime
                         captureName,
                         result,
                         ct);
-                    if (captureName != null && result != null)
-                    {
-                        captures = captures.Add(captureName, result);
-                    }
+                }
+                if (captureName != null && result != null)
+                {
+                    captures = captures.Add(captureName, result);
                 }
             }
 
