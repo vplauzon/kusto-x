@@ -4,8 +4,10 @@ namespace Kustox.Runtime.State.Run
 {
     public interface IProcedureRunStore
     {
-        Task<IImmutableList<ProcedureRun>> GetSummariesAsync(CancellationToken ct);
+        Task<IImmutableList<ProcedureRun>> GetAllRunsAsync(CancellationToken ct);
 
-        Task AppendStepAsync(IEnumerable<ProcedureRun> summaries, CancellationToken ct);
+        Task<ProcedureRun> GetLatestRunAsync(string jobId, CancellationToken ct);
+
+        Task AppendRunAsync(IEnumerable<ProcedureRun> runs, CancellationToken ct);
     }
 }

@@ -1,14 +1,12 @@
 ﻿using Kustox.Compiler;
 using Kustox.Runtime.State;
+using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State.RunStep;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
 using System.Linq;
-using System.Net.NetworkInformation;
-using System.Security.AccessControl;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
@@ -41,9 +39,24 @@ namespace Kustox.Runtime
                 return true;
             }
         }
+
+        private class SharedData
+        {
+            public SharedData(
+                IProcedureRunStepStore procedureRunStepStore,
+                ProcedureDeclaration declaration)
+            {
+                ProcedureRunStepStore = procedureRunStepStore;
+                Declaration = declaration;
+            }
+
+            public IProcedureRunStepStore ProcedureRunStepStore { get; }
+
+            public ProcedureDeclaration Declaration { get; }
+        }
         #endregion
 
-        private readonly IProcedureRunStepStore _controlFlowInstance;
+        private readonly SharedData _sharedData;
         private readonly IImmutableList<long> _levelPrefixes;
         private readonly IList<StepState> _stepStates;
         private readonly IDictionary<string, TableResult> _captures;
@@ -51,15 +64,13 @@ namespace Kustox.Runtime
 
         #region Constructors
         private RuntimeLevelContext(
-            IProcedureRunStepStore controlFlowInstance,
-            ProcedureDeclaration declaration,
+            SharedData sharedData,
             IImmutableList<long> levelPrefixes,
             IImmutableList<StepState> stepStates,
             IImmutableList<KeyValuePair<string, TableResult>> captures,
             StepCounter stepCounter)
         {
-            _controlFlowInstance = controlFlowInstance;
-            Declaration = declaration;
+            _sharedData = sharedData;
             _levelPrefixes = levelPrefixes;
             _stepStates = stepStates.ToList();
             _captures = new Dictionary<string, TableResult>(captures);
@@ -67,40 +78,58 @@ namespace Kustox.Runtime
         }
 
         public async static Task<RuntimeLevelContext> LoadContextAsync(
-            IProcedureRunStepStore controlFlowInstance,
+            IProcedureRunStore procedureRunStore,
+            IProcedureRunStepStore procedureRunStepStore,
             int? maximumNumberOfSteps,
             CancellationToken ct)
         {
-            var allSteps = await controlFlowInstance.GetAllLatestStepsAsync(ct);
-            var stepStates = allSteps
-                .Where(s => s.StepBreadcrumb.Count==)
-                .Select(s => s.State)
-                .ToImmutableArray();
-            var captures = allSteps
-                .Where(s => !string.IsNullOrWhiteSpace(s.CaptureName))
-                .Select(s => KeyValuePair.Create(s.CaptureName, s.Result))
+            var jobId = procedureRunStepStore.JobId;
+            var allStepsTask = procedureRunStepStore.GetAllLatestStepsAsync(ct);
+            var run = await procedureRunStore.GetLatestRunAsync(jobId, ct);
+            //  Sort steps in breadcrumb order
+            var sortedSteps = (await allStepsTask)
+                .OrderBy(s => s.StepBreadcrumb.Count)
+                .ThenBy(s => s.StepBreadcrumb.Count == 0 ? -1 : s.StepBreadcrumb.Last())
                 .ToImmutableArray();
 
-            switch (state.Data)
+            if (sortedSteps.Count() == 0)
+            {
+                throw new InvalidDataException($"No steps defined for job {jobId}");
+            }
+            if (sortedSteps.First().StepBreadcrumb.Count != 0)
+            {
+                throw new InvalidDataException(
+                    $"Steps are corrupted for job {jobId}:  no root step");
+            }
+
+            var script = sortedSteps.First().Script;
+
+            switch (run.State)
             {
                 case ProcedureRunState.Pending:
                 case ProcedureRunState.Paused:
                 case ProcedureRunState.Error:
-                    await controlFlowInstance.SetControlFlowStateAsync(
-                        ProcedureRunState.Running,
+                    await procedureRunStore.AppendRunAsync(
+                        new[]
+                        {
+                            new ProcedureRun(
+                                jobId,
+                                ProcedureRunState.Running)
+                        },
                         ct);
                     break;
                 case ProcedureRunState.Running:
                     break;
                 case ProcedureRunState.Completed:
                     throw new InvalidOperationException(
-                        $"Control flow (job id = '{controlFlowInstance.JobId}') "
+                        $"Control flow (job id = '{jobId}') "
                         + "already is completed");
             }
 
             return new RuntimeLevelContext(
-                controlFlowInstance,
-                declaration,
+                new SharedData(
+                    procedureRunStepStore,
+                    declaration),
                 ImmutableArray<long>.Empty,
                 stepStates,
                 captures,
@@ -108,7 +137,7 @@ namespace Kustox.Runtime
         }
         #endregion
 
-        public ProcedureDeclaration Declaration { get; }
+        public ProcedureDeclaration Declaration => _sharedData.Declaration;
 
         #region Level Management
         public async Task<RuntimeLevelContext> GoDownOneLevelAsync(
