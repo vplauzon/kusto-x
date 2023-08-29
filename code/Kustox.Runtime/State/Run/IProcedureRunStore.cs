@@ -1,6 +1,6 @@
 ﻿using System.Collections.Immutable;
 
-namespace Kustox.Runtime.State.RunList
+namespace Kustox.Runtime.State.Run
 {
     public interface IProcedureRunStore
     {

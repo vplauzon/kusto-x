@@ -1,4 +1,4 @@
-﻿namespace Kustox.Runtime.State.RunList
+﻿namespace Kustox.Runtime.State.Run
 {
     public class ProcedureRun
     {
