@@ -26,7 +26,7 @@ namespace Kustox.BlobStorageState
             _jobId = jobId;
         }
 
-        public async Task CreateAsync(CancellationToken ct)
+        public async Task CreateIfNotExistsAsync(CancellationToken ct)
         {
             await _logBlob.CreateIfNotExistsAsync(ct);
         }
@@ -38,7 +38,7 @@ namespace Kustox.BlobStorageState
         {
             var data = await _logBlob.ReadAllAsync(ct);
             var steps = data
-                .Select(d => d.ToControlFlowStep())
+                .Select(d => d.ToImmutable())
                 .ToImmutableArray();
 
             return steps;
@@ -51,7 +51,7 @@ namespace Kustox.BlobStorageState
             var steps = data
                 .GroupBy(r => string.Join('.', r.Breadcrumb))
                 .Select(g => g.ArgMaxBy(r => r.Timestamp)!)
-                .Select(d => d.ToControlFlowStep())
+                .Select(d => d.ToImmutable())
                 .ToImmutableArray();
 
             return steps;

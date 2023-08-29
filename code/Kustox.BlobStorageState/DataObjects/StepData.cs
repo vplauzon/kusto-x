@@ -71,7 +71,7 @@ namespace Kustox.BlobStorageState.DataObjects
             return true;
         }
 
-        public ProcedureRunStep ToControlFlowStep()
+        public ProcedureRunStep ToImmutable()
         {
             if (Result != null)
             {

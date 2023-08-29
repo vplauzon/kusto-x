@@ -30,7 +30,7 @@ namespace Kustox.BlobStorageState
                 _containerClient,
                 jobId);
 
-            await run.CreateAsync(ct);
+            await run.CreateIfNotExistsAsync(ct);
 
             return run;
         }
