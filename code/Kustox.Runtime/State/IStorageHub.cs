@@ -1,5 +1,5 @@
 ﻿using Kustox.Compiler;
-using Kustox.Runtime.State.Run;
+using Kustox.Runtime.State.RunStep;
 
 namespace Kustox.Runtime.State
 {
@@ -7,6 +7,6 @@ namespace Kustox.Runtime.State
     {
         IProcedureRunList ProcedureRunList { get; }
 
-        IProcedureRunRegistry ProcedureRunRegistry { get; }
+        IProcedureRunStepRegistry ProcedureRunRegistry { get; }
     }
 }

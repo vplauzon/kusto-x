@@ -12,7 +12,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
 using System.Text.Json;
-using Kustox.Runtime.State.Run;
+using Kustox.Runtime.State.RunStep;
 
 namespace Kustox.Runtime
 {

@@ -5,7 +5,7 @@ using Kusto.Language.Syntax;
 using Kustox.Compiler;
 using Kustox.Runtime.Commands;
 using Kustox.Runtime.State;
-using Kustox.Runtime.State.Run;
+using Kustox.Runtime.State.RunStep;
 using System.Collections;
 using System.Collections.Immutable;
 using System.Text;
@@ -15,11 +15,11 @@ namespace Kustox.Runtime
 {
     public class ProcedureRuntime
     {
-        private readonly IProcedureRun _controlFlowInstance;
+        private readonly IProcedureRunStepStore _controlFlowInstance;
         private readonly RunnableRuntime _runnableRuntime;
 
         public ProcedureRuntime(
-            IProcedureRun controlFlowInstance,
+            IProcedureRunStepStore controlFlowInstance,
             RunnableRuntime runnableRuntime)
         {
             _controlFlowInstance = controlFlowInstance;

@@ -4,12 +4,12 @@ using Azure.Storage.Files.DataLake;
 using Kustox.BlobStorageState.DataObjects;
 using Kustox.Compiler;
 using Kustox.Runtime.State;
-using Kustox.Runtime.State.Run;
+using Kustox.Runtime.State.RunStep;
 using System.Collections.Immutable;
 
 namespace Kustox.BlobStorageState
 {
-    internal class BlobProcedureRunRegistry : IProcedureRunRegistry
+    internal class BlobProcedureRunRegistry : IProcedureRunStepRegistry
     {
         private readonly DataLakeDirectoryClient _rootFolder;
         private readonly BlobContainerClient _containerClient;
@@ -22,7 +22,7 @@ namespace Kustox.BlobStorageState
             _containerClient = containerClient;
         }
 
-        async Task<IProcedureRun> IProcedureRunRegistry.NewRunAsync(CancellationToken ct)
+        async Task<IProcedureRunStepStore> IProcedureRunStepRegistry.NewRunAsync(CancellationToken ct)
         {
             var jobId = Guid.NewGuid().ToString();
             var run = new BlobProcedureRun(
@@ -35,14 +35,14 @@ namespace Kustox.BlobStorageState
             return run;
         }
 
-        Task<IProcedureRun> IProcedureRunRegistry.GetRunAsync(string jobId, CancellationToken ct)
+        Task<IProcedureRunStepStore> IProcedureRunStepRegistry.GetRunAsync(string jobId, CancellationToken ct)
         {
             var run = new BlobProcedureRun(
                 _rootFolder.GetSubDirectoryClient(jobId.ToString()),
                 _containerClient,
                 jobId);
 
-            return Task.FromResult(run as IProcedureRun);
+            return Task.FromResult(run as IProcedureRunStepStore);
         }
     }
 }

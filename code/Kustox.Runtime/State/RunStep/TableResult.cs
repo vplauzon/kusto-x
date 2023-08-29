@@ -9,7 +9,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Kustox.Runtime.State.Run
+namespace Kustox.Runtime.State.RunStep
 {
     public class TableResult
     {

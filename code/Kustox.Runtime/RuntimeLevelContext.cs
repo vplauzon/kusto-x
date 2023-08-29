@@ -1,6 +1,6 @@
 ﻿using Kustox.Compiler;
 using Kustox.Runtime.State;
-using Kustox.Runtime.State.Run;
+using Kustox.Runtime.State.RunStep;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -43,7 +43,7 @@ namespace Kustox.Runtime
         }
         #endregion
 
-        private readonly IProcedureRun _controlFlowInstance;
+        private readonly IProcedureRunStepStore _controlFlowInstance;
         private readonly IImmutableList<long> _levelPrefixes;
         private readonly IList<StepState> _stepStates;
         private readonly IDictionary<string, TableResult> _captures;
@@ -51,7 +51,7 @@ namespace Kustox.Runtime
 
         #region Constructors
         private RuntimeLevelContext(
-            IProcedureRun controlFlowInstance,
+            IProcedureRunStepStore controlFlowInstance,
             ProcedureDeclaration declaration,
             IImmutableList<long> levelPrefixes,
             IImmutableList<StepState> stepStates,
@@ -67,20 +67,16 @@ namespace Kustox.Runtime
         }
 
         public async static Task<RuntimeLevelContext> LoadContextAsync(
-            IProcedureRun controlFlowInstance,
+            IProcedureRunStepStore controlFlowInstance,
             int? maximumNumberOfSteps,
             CancellationToken ct)
-        {   //  Run in parallel
-            var declarationTask = controlFlowInstance.GetDeclarationAsync(ct);
-            var stateTask = controlFlowInstance.GetControlFlowStateAsync(ct);
-            var stepsTask = controlFlowInstance.GetStepsAsync(ImmutableArray<long>.Empty, ct);
-            var declaration = await declarationTask;
-            var state = await stateTask;
-            var steps = await stepsTask;
-            var stepStates = steps
+        {
+            var allSteps = await controlFlowInstance.GetAllLatestStepsAsync(ct);
+            var stepStates = allSteps
+                .Where(s => s.StepBreadcrumb.Count==)
                 .Select(s => s.State)
                 .ToImmutableArray();
-            var captures = steps
+            var captures = allSteps
                 .Where(s => !string.IsNullOrWhiteSpace(s.CaptureName))
                 .Select(s => KeyValuePair.Create(s.CaptureName, s.Result))
                 .ToImmutableArray();

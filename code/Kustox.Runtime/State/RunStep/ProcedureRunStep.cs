@@ -1,7 +1,7 @@
 ﻿using System.Collections.Immutable;
 using System.Data;
 
-namespace Kustox.Runtime.State.Run
+namespace Kustox.Runtime.State.RunStep
 {
     public class ProcedureRunStep
     {

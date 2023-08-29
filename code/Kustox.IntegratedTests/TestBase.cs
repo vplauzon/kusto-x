@@ -7,7 +7,7 @@ using Kusto.Data.Net.Client;
 using Kustox.BlobStorageState;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
-using Kustox.Runtime.State.Run;
+using Kustox.Runtime.State.RunStep;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -124,7 +124,7 @@ namespace Kustox.IntegratedTests
         #region IControlFlowList
         protected static IStorageHub StorageHub { get; }
 
-        protected static Task<IProcedureRun> CreateControlFlowInstanceAsync(
+        protected static Task<IProcedureRunStepStore> CreateControlFlowInstanceAsync(
             CancellationToken ct = default(CancellationToken))
         {
             return StorageHub.ProcedureRunRegistry.NewRunAsync(ct);
@@ -154,7 +154,7 @@ namespace Kustox.IntegratedTests
         #endregion
 
         protected static async Task<TableResult?> RunInPiecesAsync(
-            IProcedureRun flowInstance,
+            IProcedureRunStepStore flowInstance,
             int? maximumNumberOfSteps = 1)
         {
             while (true)
