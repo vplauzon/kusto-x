@@ -288,6 +288,8 @@ namespace Kustox.Runtime
                 Script,
                 _stepBreadcrumb,
                 StepState.Completed,
+                captureName,
+                result,
                 DateTime.UtcNow);
 
             await _sharedData.ProcedureRunStepStore.AppendStepAsync(
