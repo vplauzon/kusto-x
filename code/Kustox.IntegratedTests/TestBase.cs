@@ -130,9 +130,8 @@ namespace Kustox.IntegratedTests
             string script,
             CancellationToken ct = default(CancellationToken))
         {
-            var store = await StorageHub.ProcedureRunRegistry.NewRunAsync(ct);
-
-            await store.AppendStepAsync(
+            var procedureRunStepStore = await StorageHub.ProcedureRunRegistry.NewRunAsync(ct);
+            var stepTask = procedureRunStepStore.AppendStepAsync(
                 new[]
                 {
                     new ProcedureRunStep(
@@ -143,7 +142,17 @@ namespace Kustox.IntegratedTests
                 },
                 ct);
 
-            return store;
+            await StorageHub.ProcedureRunStore.CreateIfNotExistsAsync(ct);
+            await StorageHub.ProcedureRunStore.AppendRunAsync(
+                new[]
+                {
+                    new ProcedureRun(procedureRunStepStore.JobId, ProcedureRunState.Pending)
+                },
+                ct);
+
+            await stepTask;
+
+            return procedureRunStepStore;
         }
         #endregion
 
@@ -171,7 +180,8 @@ namespace Kustox.IntegratedTests
 
         protected static async Task<TableResult?> RunInPiecesAsync(
             string script,
-            int? maximumNumberOfSteps = 1)
+            int? maximumNumberOfSteps = 1,
+            CancellationToken ct = default(CancellationToken))
         {
             var procedureRunStepStore = await CreateProcedureRunStepStoreAsync(script);
 
