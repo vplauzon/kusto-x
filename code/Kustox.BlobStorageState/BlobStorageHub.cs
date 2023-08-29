@@ -15,9 +15,6 @@ namespace Kustox.BlobStorageState
 {
     public class BlobStorageHub : IStorageHub
     {
-        private readonly DataLakeDirectoryClient _rootFolder;
-        private readonly BlobContainerClient _containerClient;
-
         #region Constructors
         public BlobStorageHub(
             Uri rootFolderUri,
@@ -30,17 +27,21 @@ namespace Kustox.BlobStorageState
                 builder.Host.Replace(".dfs.core.windows.net", ".blob.core.windows.net");
 
             var blobClient = new BlobClient(rootFolderUri, credential);
+            var rootFolder = new DataLakeDirectoryClient(builder.ToUri(), credential);
+            var containerClient = blobClient.GetParentBlobContainerClient();
 
-            _rootFolder = new DataLakeDirectoryClient(builder.ToUri(), credential);
-            _containerClient = blobClient.GetParentBlobContainerClient();
+            ProcedureRunStore = new BlobProcedureRunStore(
+                rootFolder.GetSubDirectoryClient("runs"),
+                containerClient);
+            ProcedureRunRegistry = new BlobProcedureRunStepRegistry(
+                rootFolder.GetSubDirectoryClient("runs"),
+                containerClient);
         }
         #endregion
 
-        IProcedureRunStore IStorageHub.ProcedureRunStore { get; } = new BlobProcedureRunStore();
+        public IProcedureRunStore ProcedureRunStore { get; }
 
-        IProcedureRunStepRegistry IStorageHub.ProcedureRunRegistry => new BlobProcedureRunStepRegistry(
-            _rootFolder.GetSubDirectoryClient("runs"),
-            _containerClient);
+        public IProcedureRunStepRegistry ProcedureRunRegistry { get; }
 
     }
 }

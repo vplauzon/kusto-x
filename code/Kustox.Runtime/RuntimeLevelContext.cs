@@ -97,8 +97,13 @@ namespace Kustox.Runtime
             var jobId = procedureRunStepStore.JobId;
             var runTask = procedureRunStore.GetLatestRunAsync(jobId, ct);
             var sortedSteps = await LoadSortedStepsAsync(procedureRunStepStore, jobId, ct);
+            var run = await runTask;
 
-            await HandleRunStateAsync(procedureRunStore, jobId, (await runTask).State, ct);
+            if (run == null)
+            {
+                throw new InvalidDataException($"Job {jobId} doesn't exist");
+            }
+            await HandleRunStateAsync(procedureRunStore, jobId, run.State, ct);
 
             return CreateExistingContext(
                 new SharedData(
@@ -217,7 +222,7 @@ namespace Kustox.Runtime
         public string Script { get; }
 
         public IImmutableDictionary<string, TableResult> Captures { get; }
-        
+
         public ProcedureRunStep? LatestProcedureRunStep { get; private set; }
 
         #region Level Management
