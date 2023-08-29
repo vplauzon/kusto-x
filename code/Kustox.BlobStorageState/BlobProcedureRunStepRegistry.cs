@@ -26,7 +26,7 @@ namespace Kustox.BlobStorageState
         {
             var jobId = Guid.NewGuid().ToString();
             var run = new BlobProcedureRunStepStore(
-                _rootFolder.GetSubDirectoryClient(jobId.ToString()),
+                _rootFolder,
                 _containerClient,
                 jobId);
 
@@ -38,7 +38,7 @@ namespace Kustox.BlobStorageState
         Task<IProcedureRunStepStore> IProcedureRunStepRegistry.GetRunAsync(string jobId, CancellationToken ct)
         {
             var run = new BlobProcedureRunStepStore(
-                _rootFolder.GetSubDirectoryClient(jobId.ToString()),
+                _rootFolder,
                 _containerClient,
                 jobId);
 

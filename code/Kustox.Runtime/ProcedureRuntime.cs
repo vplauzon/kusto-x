@@ -129,9 +129,9 @@ namespace Kustox.Runtime
                 result = subLevelContext.LatestProcedureRunStep?.Result;
                 if (subLevelContext.LatestProcedureRunStep?.State != StepState.Completed)
                 {
-                    await levelContext.PersistRunningStepAsync(ct);
-                    result = await RunBlockAsync(i, block, levelContext, ct);
-                    await levelContext.PersistCompleteStepAsync(
+                    await subLevelContext.PersistRunningStepAsync(ct);
+                    result = await RunBlockAsync(i, block, subLevelContext, ct);
+                    await subLevelContext.PersistCompleteStepAsync(
                         captureName,
                         result,
                         ct);
