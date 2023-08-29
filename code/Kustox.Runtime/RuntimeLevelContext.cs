@@ -131,7 +131,8 @@ namespace Kustox.Runtime
                         {
                             new ProcedureRun(
                                 jobId,
-                                ProcedureRunState.Running)
+                                ProcedureRunState.Running,
+                                DateTime.UtcNow)
                         },
                         ct);
                     break;

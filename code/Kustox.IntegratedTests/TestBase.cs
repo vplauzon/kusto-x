@@ -146,7 +146,10 @@ namespace Kustox.IntegratedTests
             await StorageHub.ProcedureRunStore.AppendRunAsync(
                 new[]
                 {
-                    new ProcedureRun(procedureRunStepStore.JobId, ProcedureRunState.Pending)
+                    new ProcedureRun(
+                        procedureRunStepStore.JobId,
+                        ProcedureRunState.Pending,
+                        DateTime.UtcNow)
                 },
                 ct);
 

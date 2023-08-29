@@ -1,5 +1,6 @@
 ﻿using Azure.Storage.Blobs;
 using Azure.Storage.Files.DataLake;
+using Kusto.Cloud.Platform.Utils.DecayCache;
 using Kustox.BlobStorageState.DataObjects;
 using Kustox.Runtime.State;
 using Kustox.Runtime.State.Run;
@@ -51,11 +52,14 @@ namespace Kustox.BlobStorageState
             return run;
         }
 
-        Task IProcedureRunStore.AppendRunAsync(
+        async Task IProcedureRunStore.AppendRunAsync(
             IEnumerable<ProcedureRun> runs,
             CancellationToken ct)
         {
-            throw new NotImplementedException();
+            var data = runs
+                .Select(r => new RunData(r));
+
+            await _logBlob.AppendAsync(data, ct);
         }
     }
 }

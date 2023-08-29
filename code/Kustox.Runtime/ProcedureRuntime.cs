@@ -62,7 +62,8 @@ namespace Kustox.Runtime
                     {
                         new ProcedureRun(
                             _procedureRunStepStore.JobId,
-                            ProcedureRunState.Completed),
+                            ProcedureRunState.Completed,
+                            DateTime.UtcNow),
                     },
                     ct);
 
