@@ -29,11 +29,8 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant2 = print toint(myConstant.profile.memory)
 }}";
-            var flowInstance = await CreateControlFlowInstanceAsync();
 
-            await flowInstance.CreateRunAsync(script, CancellationToken.None);
-
-            var result = await RunInPiecesAsync(flowInstance);
+            var result = await RunInPiecesAsync(script);
 
             Assert.NotNull(result);
             Assert.Equal(42, result.Data[0][0]);
@@ -93,12 +90,9 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant2 = print myConstant
 }}";
-            var flowInstance = await CreateControlFlowInstanceAsync();
-
-            await flowInstance.CreateRunAsync(script, CancellationToken.None);
-
-            var result = await RunInPiecesAsync(flowInstance, maximumNumberOfSteps);
-
+            
+            var result = await RunInPiecesAsync(script);
+            
             Assert.NotNull(result);
             Assert.Equal(value, result.Data[0][0]);
         }

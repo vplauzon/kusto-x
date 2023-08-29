@@ -9,12 +9,12 @@ using System.Collections.Immutable;
 
 namespace Kustox.BlobStorageState
 {
-    internal class BlobProcedureRun : IProcedureRunStepStore
+    internal class BlobProcedureRunStepStore : IProcedureRunStepStore
     {
         private readonly JsonLogBlob<StepData> _logBlob;
         private readonly string _jobId;
 
-        public BlobProcedureRun(
+        public BlobProcedureRunStepStore(
             DataLakeDirectoryClient rootFolder,
             BlobContainerClient containerClient,
             string jobId)

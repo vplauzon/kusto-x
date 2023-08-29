@@ -7,9 +7,11 @@ using Kusto.Data.Net.Client;
 using Kustox.BlobStorageState;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
+using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State.RunStep;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -124,10 +126,24 @@ namespace Kustox.IntegratedTests
         #region IControlFlowList
         protected static IStorageHub StorageHub { get; }
 
-        protected static Task<IProcedureRunStepStore> CreateControlFlowInstanceAsync(
+        protected static async Task<IProcedureRunStepStore> CreateProcedureRunStepStoreAsync(
+            string script,
             CancellationToken ct = default(CancellationToken))
         {
-            return StorageHub.ProcedureRunRegistry.NewRunAsync(ct);
+            var store = await StorageHub.ProcedureRunRegistry.NewRunAsync(ct);
+
+            await store.AppendStepAsync(
+                new[]
+                {
+                    new ProcedureRunStep(
+                        script,
+                        ImmutableArray<long>.Empty,
+                        StepState.Completed,
+                        DateTime.UtcNow)
+                },
+                ct);
+
+            return store;
         }
         #endregion
 
@@ -154,12 +170,17 @@ namespace Kustox.IntegratedTests
         #endregion
 
         protected static async Task<TableResult?> RunInPiecesAsync(
-            IProcedureRunStepStore flowInstance,
+            string script,
             int? maximumNumberOfSteps = 1)
         {
+            var procedureRunStepStore = await CreateProcedureRunStepStoreAsync(script);
+
             while (true)
             {
-                var runtime = new ProcedureRuntime(flowInstance, RunnableRuntime);
+                var runtime = new ProcedureRuntime(
+                    StorageHub.ProcedureRunStore,
+                    procedureRunStepStore,
+                    RunnableRuntime);
                 var result = await runtime.RunAsync(maximumNumberOfSteps);
 
                 if (result.HasCompleteSuccessfully)

@@ -17,12 +17,9 @@ namespace Kustox.IntegratedTests
     @foreach(i in myRange){
     }
 }";
-            var flowInstance = await CreateControlFlowInstanceAsync();
-
-            await flowInstance.CreateRunAsync(script, CancellationToken.None);
-
-            var result = await RunInPiecesAsync(flowInstance);
-
+            
+            var result = await RunInPiecesAsync(script);
+            
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
             Assert.Single(result.Columns);
@@ -40,11 +37,8 @@ namespace Kustox.IntegratedTests
         print toint(i)
     }
 }";
-            var flowInstance = await CreateControlFlowInstanceAsync();
 
-            await flowInstance.CreateRunAsync(script, CancellationToken.None);
-
-            var result = await RunInPiecesAsync(flowInstance);
+            var result = await RunInPiecesAsync(script);
 
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
@@ -71,11 +65,7 @@ namespace Kustox.IntegratedTests
 
             foreach (var n in numberOfSteps)
             {
-                var flowInstance = await CreateControlFlowInstanceAsync();
-
-                await flowInstance.CreateRunAsync(script, CancellationToken.None);
-
-                var result = await RunInPiecesAsync(flowInstance, n);
+                var result = await RunInPiecesAsync(script);
 
                 Assert.NotNull(result);
                 Assert.False(result.IsScalar);

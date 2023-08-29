@@ -55,6 +55,16 @@ namespace Kustox.Runtime.State.RunStep
             Data = data;
         }
 
+        public static TableResult CreateEmpty(string columnName, string oneCellContent)
+        {
+            return new TableResult(
+                false,
+                ImmutableArray<ColumnSpecification>.Empty.Add(
+                    new ColumnSpecification(columnName, typeof(string))),
+                ImmutableArray<IImmutableList<object>>.Empty.Add(
+                    ImmutableArray<object>.Empty.Add(oneCellContent)));
+        }
+
         public bool IsScalar { get; }
 
         public IImmutableList<ColumnSpecification> Columns { get; }
@@ -114,7 +124,7 @@ namespace Kustox.Runtime.State.RunStep
             return new TableResult(IsScalar, Columns, alignedData);
         }
 
-        public static TableResult Union(IImmutableList<TableResult> results)
+        public static TableResult Union(IEnumerable<TableResult> results)
         {
             if (!results.Any())
             {

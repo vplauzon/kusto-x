@@ -9,12 +9,12 @@ using System.Collections.Immutable;
 
 namespace Kustox.BlobStorageState
 {
-    internal class BlobProcedureRunRegistry : IProcedureRunStepRegistry
+    internal class BlobProcedureRunStepRegistry : IProcedureRunStepRegistry
     {
         private readonly DataLakeDirectoryClient _rootFolder;
         private readonly BlobContainerClient _containerClient;
 
-        public BlobProcedureRunRegistry(
+        public BlobProcedureRunStepRegistry(
             DataLakeDirectoryClient rootFolder,
             BlobContainerClient containerClient)
         {
@@ -25,7 +25,7 @@ namespace Kustox.BlobStorageState
         async Task<IProcedureRunStepStore> IProcedureRunStepRegistry.NewRunAsync(CancellationToken ct)
         {
             var jobId = Guid.NewGuid().ToString();
-            var run = new BlobProcedureRun(
+            var run = new BlobProcedureRunStepStore(
                 _rootFolder.GetSubDirectoryClient(jobId.ToString()),
                 _containerClient,
                 jobId);
@@ -37,7 +37,7 @@ namespace Kustox.BlobStorageState
 
         Task<IProcedureRunStepStore> IProcedureRunStepRegistry.GetRunAsync(string jobId, CancellationToken ct)
         {
-            var run = new BlobProcedureRun(
+            var run = new BlobProcedureRunStepStore(
                 _rootFolder.GetSubDirectoryClient(jobId.ToString()),
                 _containerClient,
                 jobId);

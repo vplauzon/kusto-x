@@ -1,8 +1,8 @@
-﻿using Kustox.Compiler;
-using Kustox.Runtime.State;
+﻿using Kustox.Runtime.State;
 using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State.RunStep;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
@@ -13,6 +13,16 @@ using System.Threading.Tasks;
 
 namespace Kustox.Runtime
 {
+    /// <summary>
+    /// A context is mapped to a step (i.e. step breadcrumb).
+    /// When loaded, it will hold the existing steps.  Steps are exposed as a
+    /// concurrent stack.  This is meant to save memory by quite quickly unstacking
+    /// the ones that have succeeded.
+    /// 
+    /// Context also keep track of captures.
+    /// 
+    /// New sub steps can be created.
+    /// </summary>
     public class RuntimeLevelContext
     {
         #region Inner Types
@@ -44,39 +54,40 @@ namespace Kustox.Runtime
         {
             public SharedData(
                 IProcedureRunStepStore procedureRunStepStore,
-                ProcedureDeclaration declaration)
+                StepCounter stepCounter)
             {
                 ProcedureRunStepStore = procedureRunStepStore;
-                Declaration = declaration;
+                StepCounter = stepCounter;
             }
 
             public IProcedureRunStepStore ProcedureRunStepStore { get; }
 
-            public ProcedureDeclaration Declaration { get; }
+            public StepCounter StepCounter { get; }
         }
         #endregion
 
         private readonly SharedData _sharedData;
-        private readonly IImmutableList<long> _levelPrefixes;
-        private readonly IList<StepState> _stepStates;
-        private readonly IDictionary<string, TableResult> _captures;
-        private readonly StepCounter _stepCounter;
+        private readonly IImmutableList<long> _stepBreadcrumb;
+        private readonly ConcurrentStack<RuntimeLevelContext> _existingSubContextStack;
 
         #region Constructors
         private RuntimeLevelContext(
             SharedData sharedData,
-            IImmutableList<long> levelPrefixes,
-            IImmutableList<StepState> stepStates,
-            IImmutableList<KeyValuePair<string, TableResult>> captures,
-            StepCounter stepCounter)
+            IImmutableList<long> stepBreadcrumb,
+            string script,
+            ConcurrentStack<RuntimeLevelContext> subContextStack,
+            IImmutableDictionary<string, TableResult> captures,
+            ProcedureRunStep? latestProcedureRunStep)
         {
             _sharedData = sharedData;
-            _levelPrefixes = levelPrefixes;
-            _stepStates = stepStates.ToList();
-            _captures = new Dictionary<string, TableResult>(captures);
-            _stepCounter = stepCounter;
+            _stepBreadcrumb = stepBreadcrumb;
+            _existingSubContextStack = subContextStack;
+            Script = script;
+            Captures = captures;
+            LatestProcedureRunStep = latestProcedureRunStep;
         }
 
+        #region Load Context
         public async static Task<RuntimeLevelContext> LoadContextAsync(
             IProcedureRunStore procedureRunStore,
             IProcedureRunStepStore procedureRunStepStore,
@@ -84,27 +95,28 @@ namespace Kustox.Runtime
             CancellationToken ct)
         {
             var jobId = procedureRunStepStore.JobId;
-            var allStepsTask = procedureRunStepStore.GetAllLatestStepsAsync(ct);
-            var run = await procedureRunStore.GetLatestRunAsync(jobId, ct);
-            //  Sort steps in breadcrumb order
-            var sortedSteps = (await allStepsTask)
-                .OrderBy(s => s.StepBreadcrumb.Count)
-                .ThenBy(s => s.StepBreadcrumb.Count == 0 ? -1 : s.StepBreadcrumb.Last())
-                .ToImmutableArray();
+            var runTask = procedureRunStore.GetLatestRunAsync(jobId, ct);
+            var sortedSteps = await LoadSortedStepsAsync(procedureRunStepStore, jobId, ct);
 
-            if (sortedSteps.Count() == 0)
-            {
-                throw new InvalidDataException($"No steps defined for job {jobId}");
-            }
-            if (sortedSteps.First().StepBreadcrumb.Count != 0)
-            {
-                throw new InvalidDataException(
-                    $"Steps are corrupted for job {jobId}:  no root step");
-            }
+            await HandleRunStateAsync(procedureRunStore, jobId, (await runTask).State, ct);
 
-            var script = sortedSteps.First().Script;
+            return CreateExistingContext(
+                new SharedData(
+                    procedureRunStepStore,
+                    new StepCounter(maximumNumberOfSteps)),
+                sortedSteps,
+                0,
+                sortedSteps.Count(),
+                ImmutableDictionary<string, TableResult>.Empty);
+        }
 
-            switch (run.State)
+        private static async Task HandleRunStateAsync(
+            IProcedureRunStore procedureRunStore,
+            string jobId,
+            ProcedureRunState currentState,
+            CancellationToken ct)
+        {
+            switch (currentState)
             {
                 case ProcedureRunState.Pending:
                 case ProcedureRunState.Paused:
@@ -125,113 +137,161 @@ namespace Kustox.Runtime
                         $"Control flow (job id = '{jobId}') "
                         + "already is completed");
             }
-
-            return new RuntimeLevelContext(
-                new SharedData(
-                    procedureRunStepStore,
-                    declaration),
-                ImmutableArray<long>.Empty,
-                stepStates,
-                captures,
-                new StepCounter(maximumNumberOfSteps));
         }
-        #endregion
 
-        public ProcedureDeclaration Declaration => _sharedData.Declaration;
-
-        #region Level Management
-        public async Task<RuntimeLevelContext> GoDownOneLevelAsync(
-            int stepIndex,
+        private static async Task<ImmutableArray<ProcedureRunStep>> LoadSortedStepsAsync(
+            IProcedureRunStepStore procedureRunStepStore,
+            string jobId,
             CancellationToken ct)
         {
-            var subPrefixes = _levelPrefixes.Add(stepIndex);
-            var steps = await _controlFlowInstance.GetStepsAsync(subPrefixes, ct);
-            var stepStates = steps
-                .Select(s => s.State)
+            var allSteps = await procedureRunStepStore.GetAllLatestStepsAsync(ct);
+            //  Sort steps in breadcrumb order
+            var sortedSteps = allSteps
+                .OrderBy(s => s.StepBreadcrumb.Count)
+                .ThenBy(s => s.StepBreadcrumb.Count == 0 ? -1 : s.StepBreadcrumb.Last())
                 .ToImmutableArray();
 
+            if (sortedSteps.Count() == 0)
+            {
+                throw new InvalidDataException($"No steps defined for job {jobId}");
+            }
+            if (sortedSteps.First().StepBreadcrumb.Count != 0)
+            {
+                throw new InvalidDataException(
+                    $"Steps are corrupted for job {jobId}:  no root step");
+            }
+
+            return sortedSteps;
+        }
+
+        private static RuntimeLevelContext CreateExistingContext(
+            SharedData sharedData,
+            ImmutableArray<ProcedureRunStep> sortedSteps,
+            int index,
+            int length,
+            IImmutableDictionary<string, TableResult> captures)
+        {
+            var root = sortedSteps[index];
+            var rootDepth = root.StepBreadcrumb.Count;
+            var subContexts = new List<RuntimeLevelContext>();
+            var subIndex = index + 1;
+            var subLength = 0;
+            var subCaptures = captures;
+
+            while (subIndex + subLength < length)
+            {
+                ++subLength;
+                if (subIndex + subLength + 1 >= length
+                    || sortedSteps[subIndex + subLength + 1].StepBreadcrumb.Count == rootDepth + 1)
+                {
+                    var subStep = sortedSteps[subIndex];
+
+                    subContexts.Add(CreateExistingContext(
+                        sharedData,
+                        sortedSteps,
+                        subIndex,
+                        subLength,
+                        subCaptures));
+                    subIndex = subIndex + subLength;
+                    subLength = 0;
+                    if (subStep.CaptureName != null && subStep.Result != null)
+                    {
+                        subCaptures = subCaptures.Add(subStep.CaptureName, subStep.Result);
+                    }
+                }
+            }
+
             return new RuntimeLevelContext(
-                _controlFlowInstance,
-                Declaration,
-                subPrefixes,
-                stepStates,
-                _captures.ToImmutableArray(),
-                _stepCounter);
+                sharedData,
+                root.StepBreadcrumb,
+                root.Script,
+                new ConcurrentStack<RuntimeLevelContext>(subContexts),
+                root.CaptureName != null && root.Result != null
+                ? captures.Add(root.CaptureName, root.Result)
+                : captures,
+                root);
+        }
+        #endregion
+        #endregion
+
+        public string Script { get; }
+
+        public IImmutableDictionary<string, TableResult> Captures { get; }
+        
+        public ProcedureRunStep? LatestProcedureRunStep { get; private set; }
+
+        #region Level Management
+        public RuntimeLevelContext GoDownOneLevel(
+            int stepIndex,
+            string script,
+            IImmutableDictionary<string, TableResult> captures)
+        {
+            if (_existingSubContextStack.TryPop(out var subContext))
+            {
+                if (!subContext._stepBreadcrumb.Any()
+                    || subContext._stepBreadcrumb.Last() != stepIndex)
+                {
+                    throw new InvalidDataException("Corrupted data, invalid breadcrumb");
+                }
+
+                return subContext;
+            }
+            else
+            {
+                var subBreadcrumb = _stepBreadcrumb.Add(stepIndex);
+
+                return new RuntimeLevelContext(
+                    _sharedData,
+                    subBreadcrumb,
+                    script,
+                    new ConcurrentStack<RuntimeLevelContext>(),
+                    captures,
+                    null);
+            }
         }
         #endregion
 
         public void PreStepExecution()
         {
-            if (!_stepCounter.IncreaseStep())
+            if (!_sharedData.StepCounter.IncreaseStep())
             {
                 throw new TaskCanceledException("Step Counter done");
             }
         }
 
         #region Step states
-        public IImmutableList<StepState> GetLevelStepStates()
+        public async Task PersistRunningStepAsync(CancellationToken ct)
         {
-            return _stepStates.ToImmutableArray();
-        }
+            LatestProcedureRunStep =
+                new ProcedureRunStep(Script, _stepBreadcrumb, StepState.Running, DateTime.UtcNow);
 
-        public async Task<IImmutableList<ProcedureRunStep>> GetAllStepsAsync(CancellationToken ct)
-        {
-            var steps = await _controlFlowInstance.GetStepsAsync(_levelPrefixes, ct);
-
-            return steps;
-        }
-
-        public async Task PersistRunningStepAsync(
-            int stepIndex,
-            string script,
-            CancellationToken ct)
-        {
-            await _controlFlowInstance.SetStepAsync(
-                _levelPrefixes.Add(stepIndex),
-                StepState.Running,
-                script,
-                null,
-                null,
+            await _sharedData.ProcedureRunStepStore.AppendStepAsync(
+                new[]
+                {
+                    LatestProcedureRunStep
+                },
                 ct);
-
-            if (stepIndex < _stepStates.Count())
-            {
-                _stepStates[stepIndex] = StepState.Running;
-            }
-            else
-            {
-                _stepStates.Add(StepState.Running);
-            }
         }
 
         public async Task PersistCompleteStepAsync(
-            int stepIndex,
-            string script,
             string? captureName,
             TableResult result,
             CancellationToken ct)
         {
-            await _controlFlowInstance.SetStepAsync(
-                _levelPrefixes.Add(stepIndex),
+            LatestProcedureRunStep = new ProcedureRunStep(
+                Script,
+                _stepBreadcrumb,
                 StepState.Completed,
-                script,
-                captureName,
-                result,
+                DateTime.UtcNow);
+
+            await _sharedData.ProcedureRunStepStore.AppendStepAsync(
+                new[]
+                {
+                    LatestProcedureRunStep
+                },
                 //  Do not cancel persistency here
                 CancellationToken.None);
 
-            if (captureName != null)
-            {
-                _captures.Add(captureName, result);
-            }
-            if (stepIndex < _stepStates.Count())
-            {
-                _stepStates[stepIndex] = StepState.Completed;
-            }
-            else
-            {
-                _stepStates.Add(StepState.Completed);
-            }
             //  Compensate not taking the cancellation token into account in persistency
             if (ct.IsCancellationRequested)
             {
@@ -240,10 +300,9 @@ namespace Kustox.Runtime
         }
         #endregion
 
-        #region Captured values
         public TableResult? GetCapturedValueIfExist(string name)
         {
-            if (_captures.TryGetValue(name, out var result))
+            if (Captures.TryGetValue(name, out var result))
             {
                 return result;
             }
@@ -252,11 +311,5 @@ namespace Kustox.Runtime
                 return null;
             }
         }
-
-        public void AddCapturedValue(string cursor, TableResult item)
-        {
-            _captures.Add(cursor, item);
-        }
-        #endregion
     }
 }

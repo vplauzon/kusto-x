@@ -3,6 +3,7 @@ using Azure.Storage.Blobs;
 using Azure.Storage.Blobs.Specialized;
 using Azure.Storage.Files.DataLake;
 using Kustox.Runtime.State;
+using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State.RunStep;
 using System;
 using System.Collections.Generic;
@@ -35,10 +36,11 @@ namespace Kustox.BlobStorageState
         }
         #endregion
 
-        IProcedureRunList IStorageHub.ProcedureRunList => new BlobProcedureList();
+        IProcedureRunStore IStorageHub.ProcedureRunStore { get; } = new BlobProcedureRunStore();
 
-        IProcedureRunStepRegistry IStorageHub.ProcedureRunRegistry => new BlobProcedureRunRegistry(
+        IProcedureRunStepRegistry IStorageHub.ProcedureRunRegistry => new BlobProcedureRunStepRegistry(
             _rootFolder.GetSubDirectoryClient("runs"),
             _containerClient);
+
     }
 }
