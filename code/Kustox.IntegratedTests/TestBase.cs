@@ -138,6 +138,8 @@ namespace Kustox.IntegratedTests
                         script,
                         ImmutableArray<long>.Empty,
                         StepState.Completed,
+                        null,
+                        null,
                         DateTime.UtcNow)
                 },
                 ct);

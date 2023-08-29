@@ -268,8 +268,13 @@ namespace Kustox.Runtime
         #region Step states
         public async Task PersistRunningStepAsync(CancellationToken ct)
         {
-            LatestProcedureRunStep =
-                new ProcedureRunStep(Script, _stepBreadcrumb, StepState.Running, DateTime.UtcNow);
+            LatestProcedureRunStep = new ProcedureRunStep(
+                Script,
+                _stepBreadcrumb,
+                StepState.Running,
+                null,
+                null,
+                DateTime.UtcNow);
 
             await _sharedData.ProcedureRunStepStore.AppendStepAsync(
                 new[]
