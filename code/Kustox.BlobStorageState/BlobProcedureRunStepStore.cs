@@ -22,7 +22,7 @@ namespace Kustox.BlobStorageState
             _logBlob = new JsonLogBlob<StepData>(
                 rootFolder,
                 containerClient,
-                "log.json");
+                $"job-{jobId}.json");
             _jobId = jobId;
         }
 
