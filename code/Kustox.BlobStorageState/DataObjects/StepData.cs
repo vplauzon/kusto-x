@@ -93,6 +93,8 @@ namespace Kustox.BlobStorageState.DataObjects
                     Script,
                     Breadcrumb,
                     State,
+                    null,
+                    null,
                     Timestamp);
             }
         }
