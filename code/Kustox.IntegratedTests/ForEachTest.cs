@@ -17,9 +17,9 @@ namespace Kustox.IntegratedTests
     @foreach(i in myRange){
     }
 }";
-            
+
             var result = await RunInPiecesAsync(script);
-            
+
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
             Assert.Single(result.Columns);
@@ -72,9 +72,10 @@ namespace Kustox.IntegratedTests
                 Assert.Single(result.Columns);
                 Assert.Equal(typeof(int), result.Columns[0].ColumnType);
 
+                //  Weirdest serialization going on:  all elements are JsonElement except
+                //  the last one which is actually an integer!
                 var resultData = result.GetColumnData(0)
-                    .Cast<JsonElement>()
-                    .Select(e => e.GetInt32())
+                    .Select(e => e is JsonElement ? ((JsonElement)e).GetInt32() : (int)e)
                     .ToImmutableArray();
 
                 Assert.Equal(7, resultData.Count());
