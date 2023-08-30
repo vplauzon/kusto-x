@@ -2,7 +2,6 @@
 using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State.RunStep;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
@@ -67,21 +66,22 @@ namespace Kustox.Runtime
         #endregion
 
         private readonly SharedData _sharedData;
-        private readonly IImmutableList<long> _stepBreadcrumb;
-        private readonly ConcurrentStack<RuntimeLevelContext> _existingSubContextStack;
+        private readonly IImmutableList<int> _stepBreadcrumb;
+        private readonly IDictionary<int, RuntimeLevelContext> _existingSubContextMap;
 
         #region Constructors
         private RuntimeLevelContext(
             SharedData sharedData,
-            IImmutableList<long> stepBreadcrumb,
+            IImmutableList<int> stepBreadcrumb,
             string script,
-            ConcurrentStack<RuntimeLevelContext> subContextStack,
+            IEnumerable<RuntimeLevelContext> subContexts,
             IImmutableDictionary<string, TableResult> captures,
             ProcedureRunStep? latestProcedureRunStep)
         {
             _sharedData = sharedData;
             _stepBreadcrumb = stepBreadcrumb;
-            _existingSubContextStack = subContextStack;
+            _existingSubContextMap = subContexts
+                .ToDictionary(s => s._stepBreadcrumb.Last(), s => s);
             Script = script;
             Captures = captures;
             LatestProcedureRunStep = latestProcedureRunStep;
@@ -211,7 +211,7 @@ namespace Kustox.Runtime
                 sharedData,
                 root.StepBreadcrumb,
                 root.Script,
-                new ConcurrentStack<RuntimeLevelContext>(subContexts.AsEnumerable().Reverse()),
+                subContexts,
                 root.CaptureName != null && root.Result != null
                 ? captures.Add(root.CaptureName, root.Result)
                 : captures,
@@ -232,13 +232,14 @@ namespace Kustox.Runtime
             string script,
             IImmutableDictionary<string, TableResult> captures)
         {
-            if (_existingSubContextStack.TryPop(out var subContext))
+            if (_existingSubContextMap.TryGetValue(stepIndex, out var subContext))
             {
                 if (!subContext._stepBreadcrumb.Any()
                     || subContext._stepBreadcrumb.Last() != stepIndex)
                 {
                     throw new InvalidDataException("Corrupted data, invalid breadcrumb");
                 }
+                _existingSubContextMap.Remove(stepIndex);
 
                 return subContext;
             }
@@ -250,7 +251,7 @@ namespace Kustox.Runtime
                     _sharedData,
                     subBreadcrumb,
                     script,
-                    new ConcurrentStack<RuntimeLevelContext>(),
+                    ImmutableArray<RuntimeLevelContext>.Empty,
                     captures,
                     null);
             }

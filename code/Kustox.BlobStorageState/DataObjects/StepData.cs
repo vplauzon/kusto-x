@@ -18,7 +18,7 @@ namespace Kustox.BlobStorageState.DataObjects
         }
 
         public StepData(
-            IImmutableList<long> breadcrumb,
+            IImmutableList<int> breadcrumb,
             StepState state,
             string script,
             string? captureName,
@@ -45,7 +45,7 @@ namespace Kustox.BlobStorageState.DataObjects
 
         public string Script { get; set; } = string.Empty;
 
-        public IImmutableList<long> Breadcrumb { get; set; } = ImmutableArray<long>.Empty;
+        public IImmutableList<int> Breadcrumb { get; set; } = ImmutableArray<int>.Empty;
 
         public string? CaptureName { get; set; }
 

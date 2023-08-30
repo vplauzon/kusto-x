@@ -8,7 +8,7 @@ namespace Kustox.Runtime.State.RunStep
     {
         public ProcedureRunStep(
             string script,
-            IImmutableList<long> stepBreadcrumb,
+            IImmutableList<int> stepBreadcrumb,
             StepState state,
             string? captureName,
             TableResult? result,
@@ -22,7 +22,7 @@ namespace Kustox.Runtime.State.RunStep
             Result = result;
         }
 
-        public IImmutableList<long> StepBreadcrumb { get; }
+        public IImmutableList<int> StepBreadcrumb { get; }
 
         public string Script { get; }
 

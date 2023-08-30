@@ -136,7 +136,7 @@ namespace Kustox.IntegratedTests
                 {
                     new ProcedureRunStep(
                         script,
-                        ImmutableArray<long>.Empty,
+                        ImmutableArray<int>.Empty,
                         StepState.Completed,
                         null,
                         null,
