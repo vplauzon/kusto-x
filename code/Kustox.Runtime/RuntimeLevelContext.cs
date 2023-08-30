@@ -97,7 +97,7 @@ namespace Kustox.Runtime
             var runTask = procedureRunStore.GetLatestRunAsync(jobId, ct);
             var allSteps = await procedureRunStepStore.GetAllLatestStepsAsync(ct);
             ProcedureRunStep root;
-            IDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap;
+            IImmutableDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap;
 
             MapAllSteps(allSteps, jobId, out root, out childrenMap);
 
@@ -152,7 +152,7 @@ namespace Kustox.Runtime
             IEnumerable<ProcedureRunStep> allSteps,
             string jobId,
             out ProcedureRunStep root,
-            out IDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap)
+            out IImmutableDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap)
         {
             var comparer = new BreadcrumbComparer();
 
@@ -167,7 +167,7 @@ namespace Kustox.Runtime
             childrenMap = allSteps
                 .Where(s => s.StepBreadcrumb.Any())
                 .GroupBy(s => s.StepBreadcrumb.SkipLast(1).ToImmutableArray(), comparer)
-                .ToImmutableDictionary(g => g.Key, g => (IImmutableList<ProcedureRunStep>)g.ToImmutableArray());
+                .ToImmutableDictionary(g => g.Key, g => (IImmutableList<ProcedureRunStep>)g.ToImmutableArray(), comparer);
 
             if (!roots.Any())
             {
@@ -187,7 +187,7 @@ namespace Kustox.Runtime
             string jobId,
             SharedData sharedData,
             ProcedureRunStep root,
-            IDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap)
+            IImmutableDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap)
         {
             if (childrenMap.TryGetValue(root.StepBreadcrumb, out var childrenSteps))
             {
