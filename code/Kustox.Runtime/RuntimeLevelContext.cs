@@ -204,10 +204,12 @@ namespace Kustox.Runtime
             }
             else
             {
-                var stepText = string.Join('.', root.StepBreadcrumb);
-
-                throw new InvalidDataException(
-                    $"Corrupted data with job {jobId}:  no children for step {stepText}");
+                return new RuntimeLevelContext(
+                    sharedData,
+                    root.StepBreadcrumb,
+                    root.Script,
+                    ImmutableArray<RuntimeLevelContext>.Empty,
+                    root);
             }
         }
         #endregion
