@@ -75,7 +75,6 @@ namespace Kustox.Runtime
             IImmutableList<int> stepBreadcrumb,
             string script,
             IEnumerable<RuntimeLevelContext> subContexts,
-            IImmutableDictionary<string, TableResult> captures,
             ProcedureRunStep? latestProcedureRunStep)
         {
             _sharedData = sharedData;
@@ -83,7 +82,6 @@ namespace Kustox.Runtime
             _existingSubContextMap = subContexts
                 .ToDictionary(s => s._stepBreadcrumb.Last(), s => s);
             Script = script;
-            Captures = captures;
             LatestProcedureRunStep = latestProcedureRunStep;
         }
 
@@ -95,8 +93,14 @@ namespace Kustox.Runtime
             CancellationToken ct)
         {
             var jobId = procedureRunStepStore.JobId;
+            //  Process in background
             var runTask = procedureRunStore.GetLatestRunAsync(jobId, ct);
-            var sortedSteps = await LoadSortedStepsAsync(procedureRunStepStore, jobId, ct);
+            var allSteps = await procedureRunStepStore.GetAllLatestStepsAsync(ct);
+            ProcedureRunStep root;
+            IDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap;
+
+            MapAllSteps(allSteps, jobId, out root, out childrenMap);
+
             var run = await runTask;
 
             if (run == null)
@@ -106,13 +110,12 @@ namespace Kustox.Runtime
             await HandleRunStateAsync(procedureRunStore, jobId, run.State, ct);
 
             return CreateExistingContext(
+                jobId,
                 new SharedData(
                     procedureRunStepStore,
                     new StepCounter(maximumNumberOfSteps)),
-                sortedSteps,
-                0,
-                sortedSteps.Count(),
-                ImmutableDictionary<string, TableResult>.Empty);
+                root,
+                childrenMap);
         }
 
         private static async Task HandleRunStateAsync(
@@ -145,100 +148,80 @@ namespace Kustox.Runtime
             }
         }
 
-        private static async Task<ImmutableArray<ProcedureRunStep>> LoadSortedStepsAsync(
-            IProcedureRunStepStore procedureRunStepStore,
+        private static void MapAllSteps(
+            IEnumerable<ProcedureRunStep> allSteps,
             string jobId,
-            CancellationToken ct)
+            out ProcedureRunStep root,
+            out IDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap)
         {
-            var allSteps = await procedureRunStepStore.GetAllLatestStepsAsync(ct);
-            //  Sort steps in breadcrumb order
-            var sortedSteps = allSteps
-                .OrderBy(s => s.StepBreadcrumb.Count)
-                .ThenBy(s => s.StepBreadcrumb.Count == 0 ? -1 : s.StepBreadcrumb.Last())
-                .ToImmutableArray();
+            var comparer = new BreadcrumbComparer();
 
-            if (sortedSteps.Count() == 0)
+            if (!allSteps.Any())
             {
                 throw new InvalidDataException($"No steps defined for job {jobId}");
             }
-            if (sortedSteps.First().StepBreadcrumb.Count != 0)
+            var roots = allSteps
+                .Where(s => !s.StepBreadcrumb.Any())
+                .ToImmutableArray();
+
+            childrenMap = allSteps
+                .Where(s => s.StepBreadcrumb.Any())
+                .GroupBy(s => s.StepBreadcrumb.SkipLast(1).ToImmutableArray(), comparer)
+                .ToImmutableDictionary(g => g.Key, g => (IImmutableList<ProcedureRunStep>)g.ToImmutableArray());
+
+            if (!roots.Any())
             {
                 throw new InvalidDataException(
                     $"Steps are corrupted for job {jobId}:  no root step");
             }
+            if (roots.Count() > 1)
+            {
+                throw new InvalidDataException(
+                    $"Steps are corrupted for job {jobId}:  many root steps");
+            }
 
-            return sortedSteps;
+            root = roots.First();
         }
 
         private static RuntimeLevelContext CreateExistingContext(
+            string jobId,
             SharedData sharedData,
-            ImmutableArray<ProcedureRunStep> sortedSteps,
-            int index,
-            int length,
-            IImmutableDictionary<string, TableResult> captures)
+            ProcedureRunStep root,
+            IDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap)
         {
-            var root = sortedSteps[index];
-            var rootDepth = root.StepBreadcrumb.Count;
-            var subContexts = new List<RuntimeLevelContext>();
-            var subIndex = index + 1;
-            var subLength = 0;
-            var subCaptures = captures;
-
-            while (subIndex + subLength < length)
+            if (childrenMap.TryGetValue(root.StepBreadcrumb, out var childrenSteps))
             {
-                ++subLength;
-                if (subIndex + subLength + 1 >= length
-                    || sortedSteps[subIndex + subLength + 1].StepBreadcrumb.Count == rootDepth + 1)
-                {
-                    var subStep = sortedSteps[subIndex];
+                var childrenContext = childrenSteps
+                    .Select(s => CreateExistingContext(jobId, sharedData, s, childrenMap))
+                    .ToImmutableArray();
 
-                    subContexts.Add(CreateExistingContext(
-                        sharedData,
-                        sortedSteps,
-                        subIndex,
-                        subLength,
-                        subCaptures));
-                    subIndex = subIndex + subLength;
-                    subLength = 0;
-                    if (subStep.CaptureName != null && subStep.Result != null)
-                    {
-                        subCaptures = subCaptures.Add(subStep.CaptureName, subStep.Result);
-                    }
-                }
+                return new RuntimeLevelContext(
+                    sharedData,
+                    root.StepBreadcrumb,
+                    root.Script,
+                    childrenContext,
+                    root);
             }
+            else
+            {
+                var stepText = string.Join('.', root.StepBreadcrumb);
 
-            return new RuntimeLevelContext(
-                sharedData,
-                root.StepBreadcrumb,
-                root.Script,
-                subContexts,
-                root.CaptureName != null && root.Result != null
-                ? captures.Add(root.CaptureName, root.Result)
-                : captures,
-                root);
+                throw new InvalidDataException(
+                    $"Corrupted data with job {jobId}:  no children for step {stepText}");
+            }
         }
         #endregion
         #endregion
 
         public string Script { get; }
 
-        public IImmutableDictionary<string, TableResult> Captures { get; }
-
         public ProcedureRunStep? LatestProcedureRunStep { get; private set; }
 
         #region Level Management
-        public RuntimeLevelContext GoDownOneLevel(
-            int stepIndex,
-            string script,
-            IImmutableDictionary<string, TableResult> captures)
+        public RuntimeLevelContext GoDownOneLevel(int stepIndex, string script)
         {
             if (_existingSubContextMap.TryGetValue(stepIndex, out var subContext))
             {
-                if (!subContext._stepBreadcrumb.Any()
-                    || subContext._stepBreadcrumb.Last() != stepIndex)
-                {
-                    throw new InvalidDataException("Corrupted data, invalid breadcrumb");
-                }
                 _existingSubContextMap.Remove(stepIndex);
 
                 return subContext;
@@ -252,7 +235,6 @@ namespace Kustox.Runtime
                     subBreadcrumb,
                     script,
                     ImmutableArray<RuntimeLevelContext>.Empty,
-                    captures,
                     null);
             }
         }
@@ -313,17 +295,5 @@ namespace Kustox.Runtime
             }
         }
         #endregion
-
-        public TableResult? GetCapturedValueIfExist(string name)
-        {
-            if (Captures.TryGetValue(name, out var result))
-            {
-                return result;
-            }
-            else
-            {
-                return null;
-            }
-        }
     }
 }

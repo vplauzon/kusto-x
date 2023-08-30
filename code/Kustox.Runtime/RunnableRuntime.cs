@@ -30,6 +30,7 @@ namespace Kustox.Runtime
         public async Task<TableResult> RunStatementAsync(
             RunnableDeclarationBase statementDeclaration,
             RuntimeLevelContext levelContext,
+            IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
             if (statementDeclaration.Query != null)
@@ -37,6 +38,7 @@ namespace Kustox.Runtime
                 return await RunQueryAsync(
                     statementDeclaration.Query.Code,
                     levelContext,
+                    captures,
                     ct);
             }
             else if (statementDeclaration.Command != null)
@@ -55,6 +57,7 @@ namespace Kustox.Runtime
         private async Task<TableResult> RunQueryAsync(
             string query,
             RuntimeLevelContext levelContext,
+            IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
             var queryBlock = (QueryBlock)KustoCode.Parse(query).Syntax;
@@ -63,7 +66,7 @@ namespace Kustox.Runtime
                 .Select(n => n.Name.SimpleName)
                 .ToImmutableArray();
             var capturedValues = nameReferences
-                .Select(n => KeyValuePair.Create(n, levelContext.GetCapturedValueIfExist(n)))
+                .Select(n => KeyValuePair.Create(n, captures.GetCapturedValueIfExist(n)))
                 .Where(p => p.Value != null)
                 .ToImmutableArray();
             var queryPrefix = BuildQueryPrefix(capturedValues);

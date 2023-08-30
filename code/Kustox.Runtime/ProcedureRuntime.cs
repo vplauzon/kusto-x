@@ -55,6 +55,7 @@ namespace Kustox.Runtime
                 var result = await RunSequenceAsync(
                     declaration.RootSequence,
                     levelContext,
+                    ImmutableDictionary<string, TableResult?>.Empty,
                     ct);
 
                 await _procedureRunStore.AppendRunAsync(
@@ -79,6 +80,7 @@ namespace Kustox.Runtime
             int stepIndex,
             BlockDeclaration block,
             RuntimeLevelContext levelContext,
+            IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
             if (block.Query != null || block.Command != null)
@@ -88,6 +90,7 @@ namespace Kustox.Runtime
                 var result = await _runnableRuntime.RunStatementAsync(
                     block,
                     levelContext,
+                    captures,
                     ct);
 
                 return block.Capture?.IsScalarCapture == true
@@ -101,6 +104,7 @@ namespace Kustox.Runtime
                     block.Capture?.IsScalarCapture ?? false,
                     stepIndex,
                     levelContext,
+                    captures,
                     ct);
             }
             else
@@ -114,23 +118,23 @@ namespace Kustox.Runtime
         private async Task<TableResult?> RunSequenceAsync(
             SequenceDeclaration sequence,
             RuntimeLevelContext levelContext,
+            IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
             var blocks = sequence.Blocks;
             TableResult? result = null;
-            var captures = levelContext.Captures;
 
             for (int i = 0; i != blocks.Count(); ++i)
             {
                 var block = blocks[i];
-                var subLevelContext = levelContext.GoDownOneLevel(i, block.Code, captures);
+                var subLevelContext = levelContext.GoDownOneLevel(i, block.Code);
                 var captureName = block.Capture?.CaptureName;
 
                 result = subLevelContext.LatestProcedureRunStep?.Result;
                 if (subLevelContext.LatestProcedureRunStep?.State != StepState.Completed)
                 {
                     await subLevelContext.PersistRunningStepAsync(ct);
-                    result = await RunBlockAsync(i, block, subLevelContext, ct);
+                    result = await RunBlockAsync(i, block, subLevelContext, captures, ct);
                     await subLevelContext.PersistCompleteStepAsync(
                         captureName,
                         result,
@@ -152,12 +156,13 @@ namespace Kustox.Runtime
             bool isScalarCapture,
             int stepIndex,
             RuntimeLevelContext levelContext,
+            IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
             var enumeratorValues = new Stack<TableResult>(
-                GetForeachEnumeratorValues(forEach, levelContext).Reverse());
+                GetForeachEnumeratorValues(forEach, levelContext, captures).Reverse());
 
-            if (levelContext.GetCapturedValueIfExist(forEach.Cursor) != null)
+            if (captures.GetCapturedValueIfExist(forEach.Cursor) != null)
             {
                 throw new InvalidOperationException(
                     $"Cursor '{forEach.Cursor}' already used in for-each:  "
@@ -167,8 +172,7 @@ namespace Kustox.Runtime
             {
                 var subLevelContext = levelContext.GoDownOneLevel(
                     stepIndex,
-                    forEach.Code,
-                    levelContext.Captures);
+                    forEach.Code);
                 var results = new List<TableResult>(enumeratorValues.Count);
                 var subStepIndex = 0;
                 var tasks = ImmutableArray<Task<TableResult?>>.Empty;
@@ -204,9 +208,9 @@ namespace Kustox.Runtime
                             {
                                 onGoingTasks = onGoingTasks.Add(RunForEachIterationAsync(
                                     forEach,
-                                    iterationValue,
                                     subStepIndex,
                                     subLevelContext,
+                                    captures.Add(forEach.Cursor, iterationValue),
                                     ct));
                             }
                             ++subStepIndex;
@@ -235,21 +239,24 @@ namespace Kustox.Runtime
 
         private async Task<TableResult?> RunForEachIterationAsync(
             ForEachDeclaration forEach,
-            TableResult item,
             int stepIndex,
             RuntimeLevelContext levelContext,
+            IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
             var subLevelContext = levelContext.GoDownOneLevel(
                 stepIndex,
-                forEach.Sequence.Code,
-                levelContext.Captures.Add(forEach.Cursor, item));
+                forEach.Sequence.Code);
 
             if (subLevelContext.LatestProcedureRunStep?.State != StepState.Completed)
             {
                 await subLevelContext.PersistRunningStepAsync(ct);
 
-                var result = await RunSequenceAsync(forEach.Sequence, subLevelContext, ct);
+                var result = await RunSequenceAsync(
+                    forEach.Sequence,
+                    subLevelContext,
+                    captures,
+                    ct);
 
                 await subLevelContext.PersistCompleteStepAsync(
                     null,
@@ -266,10 +273,10 @@ namespace Kustox.Runtime
 
         private static IEnumerable<TableResult> GetForeachEnumeratorValues(
             ForEachDeclaration forEach,
-            RuntimeLevelContext levelContext)
+            RuntimeLevelContext levelContext,
+            IImmutableDictionary<string, TableResult?> captures)
         {
-            var enumatorValue = levelContext
-                .GetCapturedValueIfExist(forEach.Enumerator)
+            var enumatorValue = captures.GetCapturedValueIfExist(forEach.Enumerator)
                 ?.AlignDataWithNativeTypes();
 
             if (enumatorValue == null)
