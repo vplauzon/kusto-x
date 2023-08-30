@@ -45,8 +45,12 @@ namespace Kustox.IntegratedTests
             Assert.Single(result.Columns);
             Assert.Equal(typeof(int), result.Columns[0].ColumnType);
 
+            //  Weirdest serialization going on:  all elements are JsonElement except
+            //  the last one which is actually an integer!
             Assert.True(Enumerable.SequenceEqual(
-                result.GetColumnData(0).Select(e => ((JsonElement)e).GetInt32()),
+                result
+                .GetColumnData(0)
+                .Select(e => e is JsonElement ? ((JsonElement)e).GetInt32() : (int)e),
                 //  Although we cast to int in Kusto, the JSON representation deserialize in long
                 Enumerable.Range(0, 3)));
         }
