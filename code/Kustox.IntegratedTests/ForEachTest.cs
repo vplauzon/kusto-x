@@ -17,11 +17,8 @@ namespace Kustox.IntegratedTests
     @foreach(i in myRange){
     }
 }";
-            var flowInstance = CreateControlFlowInstance();
 
-            await flowInstance.CreateRunAsync(script, CancellationToken.None);
-
-            var result = await RunInPiecesAsync(flowInstance);
+            var result = await RunInPiecesAsync(script);
 
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
@@ -40,19 +37,20 @@ namespace Kustox.IntegratedTests
         print toint(i)
     }
 }";
-            var flowInstance = CreateControlFlowInstance();
 
-            await flowInstance.CreateRunAsync(script, CancellationToken.None);
-
-            var result = await RunInPiecesAsync(flowInstance);
+            var result = await RunInPiecesAsync(script);
 
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
             Assert.Single(result.Columns);
             Assert.Equal(typeof(int), result.Columns[0].ColumnType);
 
+            //  Weirdest serialization going on:  all elements are JsonElement except
+            //  the last one which is actually an integer!
             Assert.True(Enumerable.SequenceEqual(
-                result.GetColumnData(0).Select(e => ((JsonElement)e).GetInt32()),
+                result
+                .GetColumnData(0)
+                .Select(e => e is JsonElement ? ((JsonElement)e).GetInt32() : (int)e),
                 //  Although we cast to int in Kusto, the JSON representation deserialize in long
                 Enumerable.Range(0, 3)));
         }
@@ -71,20 +69,17 @@ namespace Kustox.IntegratedTests
 
             foreach (var n in numberOfSteps)
             {
-                var flowInstance = CreateControlFlowInstance();
-
-                await flowInstance.CreateRunAsync(script, CancellationToken.None);
-
-                var result = await RunInPiecesAsync(flowInstance, n);
+                var result = await RunInPiecesAsync(script);
 
                 Assert.NotNull(result);
                 Assert.False(result.IsScalar);
                 Assert.Single(result.Columns);
                 Assert.Equal(typeof(int), result.Columns[0].ColumnType);
 
+                //  Weirdest serialization going on:  all elements are JsonElement except
+                //  the last one which is actually an integer!
                 var resultData = result.GetColumnData(0)
-                    .Cast<JsonElement>()
-                    .Select(e => e.GetInt32())
+                    .Select(e => e is JsonElement ? ((JsonElement)e).GetInt32() : (int)e)
                     .ToImmutableArray();
 
                 Assert.Equal(7, resultData.Count());

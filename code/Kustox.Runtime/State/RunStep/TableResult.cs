@@ -7,17 +7,12 @@ using System.Data.SqlTypes;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
-using System.Text.Json.Nodes;
 using System.Threading.Tasks;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
-namespace Kustox.Runtime.State
+namespace Kustox.Runtime.State.RunStep
 {
     public class TableResult
     {
-        private static readonly Newtonsoft.Json.JsonSerializer _newtonsoftSerializer =
-            Newtonsoft.Json.JsonSerializer.CreateDefault();
-
         public TableResult(
             bool isScalar,
             IImmutableList<ColumnSpecification> columns,
@@ -26,47 +21,48 @@ namespace Kustox.Runtime.State
             IsScalar = isScalar;
             if (isScalar)
             {
-                Columns = columns.Take(1).ToImmutableArray();
-                Data = data
-                    .Take(1)
-                    .Select(r => r.Take(1).Select(o => AlignTypeToJsonFriendly(o)).ToImmutableArray())
-                    .Cast<IImmutableList<object>>()
-                    .ToImmutableArray();
+                if (columns.Count != 1)
+                {
+                    throw new ArgumentOutOfRangeException(
+                        nameof(columns),
+                        $"For scalar, must be a single column but there are {columns.Count()}");
+                }
+                if (data.Count != 1)
+                {
+                    throw new ArgumentOutOfRangeException(
+                        nameof(data),
+                        $"For scalar, must be a single row but there are {data.Count()}");
+                }
+                if (data.First().Count != 1)
+                {
+                    throw new ArgumentOutOfRangeException(
+                        nameof(data),
+                        $"For scalar, must be a single column in the single row"
+                        + $" but there are {data.First().Count()}");
+                }
             }
-            else
+            if (columns.Count == 0)
             {
-                Columns = columns;
-                Data = data
-                    .Select(r => r.Select(o => AlignTypeToJsonFriendly(o)).ToImmutableArray())
-                    .Cast<IImmutableList<object>>()
-                    .ToImmutableArray();
+                throw new ArgumentOutOfRangeException(nameof(columns), "There are no columns!");
             }
-            if (Columns.Count <= 0)
-            {
-                throw new ArgumentOutOfRangeException(nameof(columns));
-            }
-            if (data.Select(row => row.Count()).Any(l => l != Columns.Count()))
+            if (data.Select(row => row.Count()).Any(l => l != columns.Count()))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(data),
                     "Some row(s) don't have the right column count");
             }
+            Columns = columns;
+            Data = data;
         }
 
-        public TableResult(bool isScalar, DataTable table)
-            : this(
-                  isScalar,
-                  table.Columns
-                  .Cast<DataColumn>()
-                  .Select(c => new ColumnSpecification(c.ColumnName, c.DataType.FullName!))
-                  .ToImmutableArray(),
-                  table.Rows
-                  .Cast<DataRow>()
-                  .Select(r => r.ItemArray.Select(o => AlignTypeToJsonFriendly(o!)))
-                  .Select(r => r.ToImmutableArray())
-                  .Cast<IImmutableList<object>>()
-                  .ToImmutableArray())
+        public static TableResult CreateEmpty(string columnName, string oneCellContent)
         {
+            return new TableResult(
+                false,
+                ImmutableArray<ColumnSpecification>.Empty.Add(
+                    new ColumnSpecification(columnName, typeof(string))),
+                ImmutableArray<IImmutableList<object>>.Empty.Add(
+                    ImmutableArray<object>.Empty.Add(oneCellContent)));
         }
 
         public bool IsScalar { get; }
@@ -75,9 +71,18 @@ namespace Kustox.Runtime.State
 
         public IImmutableList<IImmutableList<object>> Data { get; }
 
-        public TableResult ToScale()
+        public TableResult ToScalar()
         {
-            return new TableResult(true, Columns, Data);
+            return new TableResult(
+                true,
+                Columns.Count == 1 ? Columns : Columns.Take(1).ToImmutableArray(),
+                Data.Count == 1 && Data.First().Count == 1
+                ? Data
+                : Data
+                .Take(1)
+                .Select(r=>r.Take(1).ToImmutableArray())
+                .Cast<IImmutableList<object>>()
+                .ToImmutableArray());
         }
 
         public DataTable? ToDataTable()
@@ -119,7 +124,7 @@ namespace Kustox.Runtime.State
             return new TableResult(IsScalar, Columns, alignedData);
         }
 
-        public static TableResult Union(IImmutableList<TableResult> results)
+        public static TableResult Union(IEnumerable<TableResult> results)
         {
             if (!results.Any())
             {
@@ -174,9 +179,9 @@ namespace Kustox.Runtime.State
 
                 return newArray;
             }
-            else if(item is JsonElement element)
+            else if (item is JsonElement element)
             {
-                switch(element.ValueKind)
+                switch (element.ValueKind)
                 {
                     case JsonValueKind.Array:
                         return AlignWithNativeTypes(element.EnumerateArray().ToImmutableArray());
@@ -187,46 +192,6 @@ namespace Kustox.Runtime.State
             else
             {
                 return item;
-            }
-        }
-
-        private static object AlignTypeToJsonFriendly(object obj)
-        {
-            if (obj is sbyte)
-            {
-                return Convert.ToBoolean(obj);
-            }
-            else if (obj is SqlDecimal)
-            {
-                var objDec = (SqlDecimal)obj;
-
-                return objDec.ToSqlMoney().ToDecimal();
-            }
-            else if (obj is Newtonsoft.Json.Linq.JObject)
-            {
-                var textWriter = new StringWriter();
-
-                _newtonsoftSerializer.Serialize(textWriter, obj);
-
-                var text = textWriter.ToString();
-                var textObj = JsonSerializer.Deserialize<JsonValue>(text);
-
-                return textObj!;
-            }
-            else if (obj is Newtonsoft.Json.Linq.JArray)
-            {
-                var textWriter = new StringWriter();
-
-                _newtonsoftSerializer.Serialize(textWriter, obj);
-
-                var text = textWriter.ToString();
-                var textObj = JsonSerializer.Deserialize<JsonArray>(text);
-
-                return textObj!;
-            }
-            else
-            {
-                return obj;
             }
         }
     }

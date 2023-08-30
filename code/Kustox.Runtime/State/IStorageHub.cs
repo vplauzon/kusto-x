@@ -1,9 +1,13 @@
 ﻿using Kustox.Compiler;
+using Kustox.Runtime.State.Run;
+using Kustox.Runtime.State.RunStep;
 
 namespace Kustox.Runtime.State
 {
     public interface IStorageHub
     {
-        IProcedureRunList ProcedureRunList { get; }
+        IProcedureRunStore ProcedureRunStore { get; }
+
+        IProcedureRunStepRegistry ProcedureRunRegistry { get; }
     }
 }

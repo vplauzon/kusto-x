@@ -13,14 +13,13 @@ rule(interleave=false) query = (. - ".") kqlLine* => { "code": text };
 rule(interleave=false) command = "." kqlLine+ => { "code": text };
 
 #	Capturables:  stuff that can be captured, i.e. runnables & control flows
-rule forEach = "@foreach" "(" cursor:identifier "in" enumerator:identifier ")" properties:optionalWithPropertyAssignationList sequence:sequenceContent => {
+rule forEach = "@foreach" "(" cursor:identifier "in" enumerator:identifier ")"
+	properties:optionalWithPropertyAssignationList sequence:sequenceContent => {
 	"code":text,
 	"properties":properties,
 	"cursor":cursor,
 	"enumerator":enumerator,
-	"sequence":{
-		"blocks":sequence
-	}
+	"sequence":sequence
 };
 rule capturable = forEach:forEach | query:query | command:command;
 rule captureScalar = "@capture-scalar" id:identifier "="
@@ -42,14 +41,14 @@ rule sequenceItem = captureScalar | captureTable
 rule sequenceItemList = head:sequenceItem
 	tail:sequenceItem* => prepend(head, tail);
 rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"
-	=> flatten(sequenceItems);
+	=> {
+		"blocks":  flatten(sequenceItems),
+		"code":  text
+	};
 rule controlFlow = "@run-procedure"
 	properties:optionalWithPropertyAssignationList
 	rootSequence:sequenceContent => {
-		"rootSequence":{
-			"blocks":rootSequence,
-			"code":text
-		}
+		"rootSequence":rootSequence
 	};
 
 #	main rule

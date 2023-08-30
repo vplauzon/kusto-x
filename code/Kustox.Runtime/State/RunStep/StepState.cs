@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kustox.Runtime.State
+namespace Kustox.Runtime.State.RunStep
 {
     public enum StepState
     {

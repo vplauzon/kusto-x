@@ -1,5 +1,6 @@
 ﻿using Kustox.Compiler;
 using Kustox.Runtime.State;
+using Kustox.Runtime.State.RunStep;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -17,14 +18,12 @@ namespace Kustox.BlobStorageState.DataObjects
         }
 
         public StepData(
-            long jobId,
-            IImmutableList<long> breadcrumb,
+            IImmutableList<int> breadcrumb,
             StepState state,
             string script,
             string? captureName,
             TableData? result)
         {
-            JobId = jobId.ToString();
             Breadcrumb = breadcrumb;
             State = state;
             Script = script;
@@ -32,13 +31,21 @@ namespace Kustox.BlobStorageState.DataObjects
             Result = result;
         }
 
-        public string JobId { get; set; } = string.Empty;
+        public StepData(ProcedureRunStep step)
+            : this(
+                  step.StepBreadcrumb,
+                  step.State,
+                  step.Script,
+                  step.CaptureName,
+                  step.Result != null ? new TableData(step.Result) : null)
+        {
+        }
 
         public StepState State { get; set; }
 
         public string Script { get; set; } = string.Empty;
 
-        public IImmutableList<long> Breadcrumb { get; set; } = ImmutableArray<long>.Empty;
+        public IImmutableList<int> Breadcrumb { get; set; } = ImmutableArray<int>.Empty;
 
         public string? CaptureName { get; set; }
 
@@ -64,7 +71,7 @@ namespace Kustox.BlobStorageState.DataObjects
             return true;
         }
 
-        public ProcedureRunStep ToControlFlowStep()
+        public ProcedureRunStep ToImmutable()
         {
             if (Result != null)
             {
@@ -86,6 +93,8 @@ namespace Kustox.BlobStorageState.DataObjects
                     Script,
                     Breadcrumb,
                     State,
+                    null,
+                    null,
                     Timestamp);
             }
         }

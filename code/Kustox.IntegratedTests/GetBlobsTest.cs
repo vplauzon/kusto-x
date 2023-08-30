@@ -14,11 +14,7 @@ namespace Kustox.IntegratedTests
             var script = @$"@run-procedure{{
     .get blobs '{url}'
 }}";
-            var flowInstance = CreateControlFlowInstance();
-
-            await flowInstance.CreateRunAsync(script, CancellationToken.None);
-
-            var result = await RunInPiecesAsync(flowInstance);
+            var result = await RunInPiecesAsync(script);
 
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
@@ -36,11 +32,7 @@ namespace Kustox.IntegratedTests
     blobs
     | project Name
 }}";
-            var flowInstance = CreateControlFlowInstance();
-
-            await flowInstance.CreateRunAsync(script, CancellationToken.None);
-
-            var result = await RunInPiecesAsync(flowInstance);
+            var result = await RunInPiecesAsync(script);
 
             Assert.NotNull(result);
             Assert.False(result.IsScalar);

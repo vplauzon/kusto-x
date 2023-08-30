@@ -1,19 +1,27 @@
-﻿using Kustox.Compiler;
-using Kustox.Runtime.State;
+﻿using Kustox.Runtime.State;
+using Kustox.Runtime.State.Run;
+using Kustox.Runtime.State.RunStep;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Data;
 using System.Linq;
-using System.Net.NetworkInformation;
-using System.Security.AccessControl;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace Kustox.Runtime
 {
+    /// <summary>
+    /// A context is mapped to a step (i.e. step breadcrumb).
+    /// When loaded, it will hold the existing steps.  Steps are exposed as a
+    /// concurrent stack.  This is meant to save memory by quite quickly unstacking
+    /// the ones that have succeeded.
+    /// 
+    /// Context also keep track of captures.
+    /// 
+    /// New sub steps can be created.
+    /// </summary>
     public class RuntimeLevelContext
     {
         #region Inner Types
@@ -40,196 +48,253 @@ namespace Kustox.Runtime
                 return true;
             }
         }
+
+        private class SharedData
+        {
+            public SharedData(
+                IProcedureRunStepStore procedureRunStepStore,
+                StepCounter stepCounter)
+            {
+                ProcedureRunStepStore = procedureRunStepStore;
+                StepCounter = stepCounter;
+            }
+
+            public IProcedureRunStepStore ProcedureRunStepStore { get; }
+
+            public StepCounter StepCounter { get; }
+        }
         #endregion
 
-        private readonly IProcedureRun _controlFlowInstance;
-        private readonly IImmutableList<long> _levelPrefixes;
-        private readonly IList<StepState> _stepStates;
-        private readonly IDictionary<string, TableResult> _captures;
-        private readonly StepCounter _stepCounter;
+        private readonly SharedData _sharedData;
+        private readonly IImmutableList<int> _stepBreadcrumb;
+        private readonly IDictionary<int, RuntimeLevelContext> _existingSubContextMap;
 
         #region Constructors
         private RuntimeLevelContext(
-            IProcedureRun controlFlowInstance,
-            ProcedureDeclaration declaration,
-            IImmutableList<long> levelPrefixes,
-            IImmutableList<StepState> stepStates,
-            IImmutableList<KeyValuePair<string, TableResult>> captures,
-            StepCounter stepCounter)
+            SharedData sharedData,
+            IImmutableList<int> stepBreadcrumb,
+            string script,
+            IEnumerable<RuntimeLevelContext> subContexts,
+            ProcedureRunStep? latestProcedureRunStep)
         {
-            _controlFlowInstance = controlFlowInstance;
-            Declaration = declaration;
-            _levelPrefixes = levelPrefixes;
-            _stepStates = stepStates.ToList();
-            _captures = new Dictionary<string, TableResult>(captures);
-            _stepCounter = stepCounter;
+            _sharedData = sharedData;
+            _stepBreadcrumb = stepBreadcrumb;
+            _existingSubContextMap = subContexts
+                .ToDictionary(s => s._stepBreadcrumb.Last(), s => s);
+            Script = script;
+            LatestProcedureRunStep = latestProcedureRunStep;
         }
 
+        #region Load Context
         public async static Task<RuntimeLevelContext> LoadContextAsync(
-            IProcedureRun controlFlowInstance,
+            IProcedureRunStore procedureRunStore,
+            IProcedureRunStepStore procedureRunStepStore,
             int? maximumNumberOfSteps,
             CancellationToken ct)
-        {   //  Run in parallel
-            var declarationTask = controlFlowInstance.GetDeclarationAsync(ct);
-            var stateTask = controlFlowInstance.GetControlFlowStateAsync(ct);
-            var stepsTask = controlFlowInstance.GetStepsAsync(ImmutableArray<long>.Empty, ct);
-            var declaration = await declarationTask;
-            var state = await stateTask;
-            var steps = await stepsTask;
-            var stepStates = steps
-                .Select(s => s.State)
-                .ToImmutableArray();
-            var captures = steps
-                .Where(s => !string.IsNullOrWhiteSpace(s.CaptureName))
-                .Select(s => KeyValuePair.Create(s.CaptureName, s.Result))
-                .ToImmutableArray();
+        {
+            var jobId = procedureRunStepStore.JobId;
+            //  Process in background
+            var runTask = procedureRunStore.GetLatestRunAsync(jobId, ct);
+            var allSteps = await procedureRunStepStore.GetAllLatestStepsAsync(ct);
+            ProcedureRunStep root;
+            IImmutableDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap;
 
-            switch (state.Data)
+            MapAllSteps(allSteps, jobId, out root, out childrenMap);
+
+            var run = await runTask;
+
+            if (run == null)
+            {
+                throw new InvalidDataException($"Job {jobId} doesn't exist");
+            }
+            await HandleRunStateAsync(procedureRunStore, jobId, run.State, ct);
+
+            return CreateExistingContext(
+                jobId,
+                new SharedData(
+                    procedureRunStepStore,
+                    new StepCounter(maximumNumberOfSteps)),
+                root,
+                childrenMap);
+        }
+
+        private static async Task HandleRunStateAsync(
+            IProcedureRunStore procedureRunStore,
+            string jobId,
+            ProcedureRunState currentState,
+            CancellationToken ct)
+        {
+            switch (currentState)
             {
                 case ProcedureRunState.Pending:
                 case ProcedureRunState.Paused:
                 case ProcedureRunState.Error:
-                    await controlFlowInstance.SetControlFlowStateAsync(
-                        ProcedureRunState.Running,
+                    await procedureRunStore.AppendRunAsync(
+                        new[]
+                        {
+                            new ProcedureRun(
+                                jobId,
+                                ProcedureRunState.Running,
+                                DateTime.UtcNow)
+                        },
                         ct);
                     break;
                 case ProcedureRunState.Running:
                     break;
                 case ProcedureRunState.Completed:
                     throw new InvalidOperationException(
-                        $"Control flow (job id = '{controlFlowInstance.JobId}') "
+                        $"Control flow (job id = '{jobId}') "
                         + "already is completed");
             }
-
-            return new RuntimeLevelContext(
-                controlFlowInstance,
-                declaration,
-                ImmutableArray<long>.Empty,
-                stepStates,
-                captures,
-                new StepCounter(maximumNumberOfSteps));
         }
-        #endregion
 
-        public ProcedureDeclaration Declaration { get; }
-
-        #region Level Management
-        public async Task<RuntimeLevelContext> GoDownOneLevelAsync(
-            int stepIndex,
-            CancellationToken ct)
+        private static void MapAllSteps(
+            IEnumerable<ProcedureRunStep> allSteps,
+            string jobId,
+            out ProcedureRunStep root,
+            out IImmutableDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap)
         {
-            var subPrefixes = _levelPrefixes.Add(stepIndex);
-            var steps = await _controlFlowInstance.GetStepsAsync(subPrefixes, ct);
-            var stepStates = steps
-                .Select(s => s.State)
+            var comparer = new BreadcrumbComparer();
+
+            if (!allSteps.Any())
+            {
+                throw new InvalidDataException($"No steps defined for job {jobId}");
+            }
+            var roots = allSteps
+                .Where(s => !s.StepBreadcrumb.Any())
                 .ToImmutableArray();
 
-            return new RuntimeLevelContext(
-                _controlFlowInstance,
-                Declaration,
-                subPrefixes,
-                stepStates,
-                _captures.ToImmutableArray(),
-                _stepCounter);
+            childrenMap = allSteps
+                .Where(s => s.StepBreadcrumb.Any())
+                .GroupBy(s => s.StepBreadcrumb.SkipLast(1).ToImmutableArray(), comparer)
+                .ToImmutableDictionary(g => g.Key, g => (IImmutableList<ProcedureRunStep>)g.ToImmutableArray(), comparer);
+
+            if (!roots.Any())
+            {
+                throw new InvalidDataException(
+                    $"Steps are corrupted for job {jobId}:  no root step");
+            }
+            if (roots.Count() > 1)
+            {
+                throw new InvalidDataException(
+                    $"Steps are corrupted for job {jobId}:  many root steps");
+            }
+
+            root = roots.First();
+        }
+
+        private static RuntimeLevelContext CreateExistingContext(
+            string jobId,
+            SharedData sharedData,
+            ProcedureRunStep root,
+            IImmutableDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap)
+        {
+            if (childrenMap.TryGetValue(root.StepBreadcrumb, out var childrenSteps))
+            {
+                var childrenContext = childrenSteps
+                    .Select(s => CreateExistingContext(jobId, sharedData, s, childrenMap))
+                    .ToImmutableArray();
+
+                return new RuntimeLevelContext(
+                    sharedData,
+                    root.StepBreadcrumb,
+                    root.Script,
+                    childrenContext,
+                    root);
+            }
+            else
+            {
+                return new RuntimeLevelContext(
+                    sharedData,
+                    root.StepBreadcrumb,
+                    root.Script,
+                    ImmutableArray<RuntimeLevelContext>.Empty,
+                    root);
+            }
+        }
+        #endregion
+        #endregion
+
+        public string Script { get; }
+
+        public ProcedureRunStep? LatestProcedureRunStep { get; private set; }
+
+        #region Level Management
+        public RuntimeLevelContext GoDownOneLevel(int stepIndex, string script)
+        {
+            if (_existingSubContextMap.TryGetValue(stepIndex, out var subContext))
+            {
+                _existingSubContextMap.Remove(stepIndex);
+
+                return subContext;
+            }
+            else
+            {
+                var subBreadcrumb = _stepBreadcrumb.Add(stepIndex);
+
+                return new RuntimeLevelContext(
+                    _sharedData,
+                    subBreadcrumb,
+                    script,
+                    ImmutableArray<RuntimeLevelContext>.Empty,
+                    null);
+            }
         }
         #endregion
 
         public void PreStepExecution()
         {
-            if (!_stepCounter.IncreaseStep())
+            if (!_sharedData.StepCounter.IncreaseStep())
             {
                 throw new TaskCanceledException("Step Counter done");
             }
         }
 
         #region Step states
-        public IImmutableList<StepState> GetLevelStepStates()
+        public async Task PersistRunningStepAsync(CancellationToken ct)
         {
-            return _stepStates.ToImmutableArray();
-        }
-
-        public async Task<IImmutableList<ProcedureRunStep>> GetAllStepsAsync(CancellationToken ct)
-        {
-            var steps = await _controlFlowInstance.GetStepsAsync(_levelPrefixes, ct);
-
-            return steps;
-        }
-
-        public async Task PersistRunningStepAsync(
-            int stepIndex,
-            string script,
-            CancellationToken ct)
-        {
-            await _controlFlowInstance.SetStepAsync(
-                _levelPrefixes.Add(stepIndex),
+            LatestProcedureRunStep = new ProcedureRunStep(
+                Script,
+                _stepBreadcrumb,
                 StepState.Running,
-                script,
                 null,
                 null,
-                ct);
+                DateTime.UtcNow);
 
-            if (stepIndex < _stepStates.Count())
-            {
-                _stepStates[stepIndex] = StepState.Running;
-            }
-            else
-            {
-                _stepStates.Add(StepState.Running);
-            }
+            await _sharedData.ProcedureRunStepStore.AppendStepAsync(
+                new[]
+                {
+                    LatestProcedureRunStep
+                },
+                ct);
         }
 
         public async Task PersistCompleteStepAsync(
-            int stepIndex,
-            string script,
             string? captureName,
             TableResult result,
             CancellationToken ct)
         {
-            await _controlFlowInstance.SetStepAsync(
-                _levelPrefixes.Add(stepIndex),
+            LatestProcedureRunStep = new ProcedureRunStep(
+                Script,
+                _stepBreadcrumb,
                 StepState.Completed,
-                script,
                 captureName,
                 result,
+                DateTime.UtcNow);
+
+            await _sharedData.ProcedureRunStepStore.AppendStepAsync(
+                new[]
+                {
+                    LatestProcedureRunStep
+                },
                 //  Do not cancel persistency here
                 CancellationToken.None);
 
-            if (captureName != null)
-            {
-                _captures.Add(captureName, result);
-            }
-            if (stepIndex < _stepStates.Count())
-            {
-                _stepStates[stepIndex] = StepState.Completed;
-            }
-            else
-            {
-                _stepStates.Add(StepState.Completed);
-            }
             //  Compensate not taking the cancellation token into account in persistency
             if (ct.IsCancellationRequested)
             {
                 throw new TaskCanceledException("After state persisted");
             }
-        }
-        #endregion
-
-        #region Captured values
-        public TableResult? GetCapturedValueIfExist(string name)
-        {
-            if (_captures.TryGetValue(name, out var result))
-            {
-                return result;
-            }
-            else
-            {
-                return null;
-            }
-        }
-
-        public void AddCapturedValue(string cursor, TableResult item)
-        {
-            _captures.Add(cursor, item);
         }
         #endregion
     }

@@ -1,10 +1,10 @@
 ﻿using Kusto.Cloud.Platform.Data;
 using Kusto.Data.Common;
-using Kusto.Language.Syntax;
 using Kustox.Compiler;
-using Kustox.Runtime.State;
+using Kustox.Runtime.State.RunStep;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -30,9 +30,8 @@ namespace Kustox.Runtime.Commands
                 command.Code,
                 _emptyProperties);
             var table = reader.ToDataSet().Tables[0];
-            var result = new TableResult(false, table);
 
-            return result;
+            return table.ToTableResult();
         }
     }
 }

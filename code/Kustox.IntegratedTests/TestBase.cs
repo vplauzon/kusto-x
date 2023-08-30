@@ -7,8 +7,11 @@ using Kusto.Data.Net.Client;
 using Kustox.BlobStorageState;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
+using Kustox.Runtime.State.Run;
+using Kustox.Runtime.State.RunStep;
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Text;
 using System.Text.Json;
@@ -123,15 +126,38 @@ namespace Kustox.IntegratedTests
         #region IControlFlowList
         protected static IStorageHub StorageHub { get; }
 
-        protected static IProcedureRunList ControlFlowList => StorageHub.ProcedureRunList;
-
-        protected static IProcedureRun CreateControlFlowInstance()
+        protected static async Task<IProcedureRunStepStore> CreateProcedureRunStepStoreAsync(
+            string script,
+            CancellationToken ct = default(CancellationToken))
         {
-            var i1 = _random.Next();
-            var i2 = _random.Next();
-            var jobId = ((long)i1 << 32) | (long)i2;
+            var procedureRunStepStore = await StorageHub.ProcedureRunRegistry.NewRunAsync(ct);
+            var stepTask = procedureRunStepStore.AppendStepAsync(
+                new[]
+                {
+                    new ProcedureRunStep(
+                        script,
+                        ImmutableArray<int>.Empty,
+                        StepState.Completed,
+                        null,
+                        null,
+                        DateTime.UtcNow)
+                },
+                ct);
 
-            return ControlFlowList.GetRun(jobId);
+            await StorageHub.ProcedureRunStore.CreateIfNotExistsAsync(ct);
+            await StorageHub.ProcedureRunStore.AppendRunAsync(
+                new[]
+                {
+                    new ProcedureRun(
+                        procedureRunStepStore.JobId,
+                        ProcedureRunState.Pending,
+                        DateTime.UtcNow)
+                },
+                ct);
+
+            await stepTask;
+
+            return procedureRunStepStore;
         }
         #endregion
 
@@ -158,12 +184,18 @@ namespace Kustox.IntegratedTests
         #endregion
 
         protected static async Task<TableResult?> RunInPiecesAsync(
-            IProcedureRun flowInstance,
-            int? maximumNumberOfSteps = 1)
+            string script,
+            int? maximumNumberOfSteps = 1,
+            CancellationToken ct = default(CancellationToken))
         {
+            var procedureRunStepStore = await CreateProcedureRunStepStoreAsync(script);
+
             while (true)
             {
-                var runtime = new ProcedureRuntime(flowInstance, RunnableRuntime);
+                var runtime = new ProcedureRuntime(
+                    StorageHub.ProcedureRunStore,
+                    procedureRunStepStore,
+                    RunnableRuntime);
                 var result = await runtime.RunAsync(maximumNumberOfSteps);
 
                 if (result.HasCompleteSuccessfully)

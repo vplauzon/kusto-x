@@ -4,6 +4,7 @@ using Azure.Storage.Blobs.Models;
 using Azure.Storage.Blobs.Specialized;
 using Kustox.Compiler;
 using Kustox.Runtime.State;
+using Kustox.Runtime.State.RunStep;
 using System.Collections.Immutable;
 
 namespace Kustox.Runtime.Commands
