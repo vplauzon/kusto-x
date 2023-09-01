@@ -3,6 +3,7 @@ using Kustox.Runtime;
 using Kustox.Runtime.State;
 using Newtonsoft.Json.Linq;
 using System.Data.SqlTypes;
+using System.Text.Json;
 
 namespace Kustox.IntegratedTests
 {
@@ -17,7 +18,9 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task DateTime()
         {
-            await TestScalarAsync("datetime(2023-03-01)", new DateTime(2023, 03, 01));
+            await TestScalarAsync(
+                "datetime(2023-03-01)",
+                new DateTime(2023, 03, 01));
         }
 
         [Fact]
@@ -29,7 +32,6 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant2 = print toint(myConstant.profile.memory)
 }}";
-
             var result = await RunInPiecesAsync(script);
 
             Assert.NotNull(result);
@@ -71,7 +73,9 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task TimeSpan()
         {
-            await TestScalarAsync("2s", System.TimeSpan.FromSeconds(2));
+            await TestScalarAsync(
+                "2s",
+                System.TimeSpan.FromSeconds(2));
         }
 
         [Fact]
@@ -80,9 +84,9 @@ namespace Kustox.IntegratedTests
             await TestScalarAsync("decimal(42.23)", (decimal)42.23);
         }
 
-        private async Task TestScalarAsync(
+        private async Task TestScalarAsync<T>(
             string kqlValue,
-            object value,
+            T value,
             int? maximumNumberOfSteps = 1)
         {
             var script = @$"@run-procedure{{
@@ -90,9 +94,8 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant2 = print myConstant
 }}";
-            
             var result = await RunInPiecesAsync(script);
-            
+
             Assert.NotNull(result);
             Assert.Equal(value, result.Data[0][0]);
         }

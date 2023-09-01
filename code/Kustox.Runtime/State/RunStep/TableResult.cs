@@ -185,6 +185,12 @@ namespace Kustox.Runtime.State.RunStep
                 {
                     case JsonValueKind.Array:
                         return AlignWithNativeTypes(element.EnumerateArray().ToImmutableArray());
+                    case JsonValueKind.String:
+                        return element.GetString()!;
+                    case JsonValueKind.False:
+                        return false;
+                    case JsonValueKind.True:
+                        return true;
                     default:
                         return item;
                 }

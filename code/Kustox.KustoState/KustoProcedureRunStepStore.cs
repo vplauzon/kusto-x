@@ -29,7 +29,7 @@ namespace Kustox.KustoState
             CancellationToken ct)
         {
             var data = steps
-                .Select(s => new StepData(s));
+                .Select(s => new StepData(_jobId, s));
 
             await KustoHelper.StreamIngestAsync(
                 _connectionProvider.StreamingIngestClient,
@@ -45,6 +45,8 @@ namespace Kustox.KustoState
             var stepsData = await KustoHelper.QueryAsync<StepData>(
                 _connectionProvider.QueryProvider,
                 $@"RunStep
+| where JobId=='{_jobId}'
+| extend Breadcrumb=tostring(Breadcrumb)
 | extend Breadcrumb=tostring(Breadcrumb)
 | summarize arg_max(Timestamp,*) by JobId, Breadcrumb
 | extend Breadcrumb=todynamic(Breadcrumb)",

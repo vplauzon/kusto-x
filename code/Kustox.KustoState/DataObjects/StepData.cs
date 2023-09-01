@@ -18,6 +18,7 @@ namespace Kustox.KustoState.DataObjects
         }
 
         public StepData(
+            string jobId,
             IImmutableList<int> breadcrumb,
             StepState state,
             string script,
@@ -27,6 +28,7 @@ namespace Kustox.KustoState.DataObjects
             IImmutableList<string>? resultColumnTypes,
             IImmutableList<IImmutableList<object>>? resultData)
         {
+            JobId = jobId;
             Breadcrumb = breadcrumb;
             State = state;
             Script = script;
@@ -37,8 +39,9 @@ namespace Kustox.KustoState.DataObjects
             ResultData = resultData;
         }
 
-        public StepData(ProcedureRunStep step)
+        public StepData(string jobId, ProcedureRunStep step)
             : this(
+                  jobId,
                   step.StepBreadcrumb,
                   step.State,
                   step.Script,
@@ -50,6 +53,8 @@ namespace Kustox.KustoState.DataObjects
         {
         }
 
+        public string JobId { get; set; } = string.Empty;
+        
         public StepState State { get; set; }
 
         public string Script { get; set; } = string.Empty;

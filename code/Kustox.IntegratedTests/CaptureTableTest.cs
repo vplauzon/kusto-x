@@ -86,7 +86,7 @@ namespace Kustox.IntegratedTests
             var result = await RunInPiecesAsync(script, maximumNumberOfSteps);
 
             Assert.NotNull(result);
-            Assert.Equal(value, result.Data[0][0]);
+            Assert.Equal(value, result.AlignDataWithNativeTypes().Data[0][0]);
         }
     }
 }
