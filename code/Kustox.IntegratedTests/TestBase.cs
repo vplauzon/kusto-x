@@ -1,10 +1,4 @@
-﻿using Azure.Core;
-using Azure.Identity;
-using Azure.Storage.Files.DataLake;
-using Kusto.Data;
-using Kusto.Data.Common;
-using Kusto.Data.Net.Client;
-using Kustox.BlobStorageState;
+﻿using Azure.Identity;
 using Kustox.KustoState;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
@@ -55,8 +49,6 @@ namespace Kustox.IntegratedTests
             }
         }
         #endregion
-
-        private static readonly Random _random = new Random();
 
         static TestBase()
         {
