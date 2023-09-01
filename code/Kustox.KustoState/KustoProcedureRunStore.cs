@@ -32,17 +32,6 @@ namespace Kustox.KustoState
                 ct);
         }
 
-        Task IProcedureRunStore.CreateIfNotExistsAsync(CancellationToken ct)
-        {
-            return Task.CompletedTask;
-        }
-
-        Task<IImmutableList<ProcedureRun>> IProcedureRunStore.GetAllRunsAsync(
-            CancellationToken ct)
-        {
-            throw new NotImplementedException();
-        }
-
         async Task<ProcedureRun?> IProcedureRunStore.GetLatestRunAsync(
             string jobId,
             CancellationToken ct)

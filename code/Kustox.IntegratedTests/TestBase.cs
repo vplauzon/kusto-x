@@ -135,7 +135,6 @@ namespace Kustox.IntegratedTests
                 },
                 ct);
 
-            await StorageHub.ProcedureRunStore.CreateIfNotExistsAsync(ct);
             await StorageHub.ProcedureRunStore.AppendRunAsync(
                 new[]
                 {

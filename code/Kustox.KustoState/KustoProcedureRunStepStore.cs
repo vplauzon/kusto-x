@@ -57,11 +57,5 @@ namespace Kustox.KustoState
 
             return steps;
         }
-
-        Task<IImmutableList<ProcedureRunStep>> IProcedureRunStepStore.GetAllStepsAsync(
-            CancellationToken ct)
-        {
-            throw new NotImplementedException();
-        }
     }
 }
