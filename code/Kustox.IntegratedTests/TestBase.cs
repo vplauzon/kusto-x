@@ -5,6 +5,7 @@ using Kusto.Data;
 using Kusto.Data.Common;
 using Kusto.Data.Net.Client;
 using Kustox.BlobStorageState;
+using Kustox.KustoState;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
 using Kustox.Runtime.State.Run;
@@ -64,9 +65,7 @@ namespace Kustox.IntegratedTests
             ReadEnvironmentVariables();
 
             SampleRootUrl = GetEnvironmentVariable("sampleRootUrl");
-            StorageHub = new BlobStorageHub(
-                new Uri(GetEnvironmentVariable("storageRootUrl") + testId),
-                CreateTestCredentials());
+            StorageHub = new KustoStorageHub(CreateConnectionProvider(false));
             RunnableRuntime = CreateRunnableRuntime();
         }
 
@@ -166,13 +165,16 @@ namespace Kustox.IntegratedTests
 
         private static RunnableRuntime CreateRunnableRuntime()
         {
-            return new RunnableRuntime(CreateConnectionProvider());
+            return new RunnableRuntime(CreateConnectionProvider(true));
         }
 
-        private static ConnectionProvider CreateConnectionProvider()
+        private static ConnectionProvider CreateConnectionProvider(bool isSandbox)
         {
             var kustoCluster = GetEnvironmentVariable("kustoCluster");
-            var kustoDb = GetEnvironmentVariable("kustoDb");
+            var dbVariable = isSandbox
+                ? "kustoDb-sandbox"
+                : "kustoDb-state";
+            var kustoDb = GetEnvironmentVariable(dbVariable);
             ClientSecretCredential credential = CreateTestCredentials();
 
             return new ConnectionProvider(new Uri(kustoCluster), kustoDb, credential);
