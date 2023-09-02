@@ -9,7 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Kustox.BlobStorageState.DataObjects
+namespace Kustox.KustoState.DataObjects
 {
     internal class StepData
     {
@@ -18,29 +18,43 @@ namespace Kustox.BlobStorageState.DataObjects
         }
 
         public StepData(
+            string jobId,
             IImmutableList<int> breadcrumb,
             StepState state,
             string script,
             string? captureName,
-            TableData? result)
+            bool? isResultScalar,
+            IImmutableList<string>? resultColumnNames,
+            IImmutableList<string>? resultColumnTypes,
+            IImmutableList<IImmutableList<object>>? resultData)
         {
+            JobId = jobId;
             Breadcrumb = breadcrumb;
             State = state;
             Script = script;
             CaptureName = captureName;
-            Result = result;
+            IsResultScalar = isResultScalar;
+            ResultColumnNames = resultColumnNames;
+            ResultColumnTypes = resultColumnTypes;
+            ResultData = resultData;
         }
 
-        public StepData(ProcedureRunStep step)
+        public StepData(string jobId, ProcedureRunStep step)
             : this(
+                  jobId,
                   step.StepBreadcrumb,
                   step.State,
                   step.Script,
                   step.CaptureName,
-                  step.Result != null ? new TableData(step.Result) : null)
+                  step.Result?.IsScalar,
+                  step.Result?.Columns.Select(c => c.ColumnName).ToImmutableArray(),
+                  step.Result?.Columns.Select(c => c.ColumnType.FullName).ToImmutableArray(),
+                  step.Result?.Data)
         {
         }
 
+        public string JobId { get; set; } = string.Empty;
+        
         public StepState State { get; set; }
 
         public string Script { get; set; } = string.Empty;
@@ -49,34 +63,22 @@ namespace Kustox.BlobStorageState.DataObjects
 
         public string? CaptureName { get; set; }
 
-        public TableData? Result { get; set; }
+        public bool? IsResultScalar { get; set; }
+        
+        public IImmutableList<string>? ResultColumnNames { get; set; }
+        
+        public IImmutableList<string>? ResultColumnTypes { get; set; }
+        
+        public IImmutableList<IImmutableList<object>>? ResultData { get; set; }
 
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
 
-        public bool HasBreadcrumbPrefix(IImmutableList<long> levelPrefix)
-        {
-            if (levelPrefix.Count > Breadcrumb.Count)
-            {
-                return false;
-            }
-
-            for (int i = 0; i != levelPrefix.Count; ++i)
-            {
-                if (Breadcrumb[i] != levelPrefix[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
-        }
-
         public ProcedureRunStep ToImmutable()
         {
-            if (Result != null)
+            if (IsResultScalar != null)
             {
-                var columns = Result!.ColumnNames!
-                    .Zip(Result!.ColumnTypes!, (n, t) => new ColumnSpecification(n, t))
+                var columns = ResultColumnNames!
+                    .Zip(ResultColumnTypes!, (n, t) => new ColumnSpecification(n, t))
                     .ToImmutableArray();
 
                 return new ProcedureRunStep(
@@ -84,7 +86,7 @@ namespace Kustox.BlobStorageState.DataObjects
                     Breadcrumb,
                     State,
                     CaptureName,
-                    new TableResult(Result!.IsScalar, columns, Result!.Data!),
+                    new TableResult(IsResultScalar.Value, columns, ResultData!),
                     Timestamp);
             }
             else

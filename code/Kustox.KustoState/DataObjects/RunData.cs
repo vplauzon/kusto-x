@@ -1,7 +1,7 @@
 ﻿using Kustox.Runtime.State;
 using Kustox.Runtime.State.Run;
 
-namespace Kustox.BlobStorageState.DataObjects
+namespace Kustox.KustoState.DataObjects
 {
     internal class RunData
     {

@@ -50,7 +50,8 @@ jobs:
       run: |
         kustoUri=$(az kusto cluster list -g ${{ secrets.RESOURCE_GROUP }} --query "[0].uri" --output tsv)
         echo "kustoCluster=${kustoUri}" >> $GITHUB_ENV
-        echo "kustoDb=tests" >> $GITHUB_ENV
+        echo "kustoDb-sandbox=tests-sandbox" >> $GITHUB_ENV
+        echo "kustoDb-state=tests" >> $GITHUB_ENV
     - name: Set deploy sp environment variables
       shell:  bash
       run: |
