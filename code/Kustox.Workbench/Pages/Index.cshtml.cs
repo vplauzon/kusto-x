@@ -11,12 +11,10 @@ namespace Kustox.Workbench.Pages
         public IndexModel(
             ILogger<IndexModel> logger,
             UserIdentityContext identity)
-            :base(identity)
+            : base(identity)
         {
             _logger = logger;
         }
-
-        public string ApiUrl => "api/command";
 
         public void OnGet()
         {

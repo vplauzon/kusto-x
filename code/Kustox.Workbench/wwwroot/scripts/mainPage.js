@@ -14,6 +14,7 @@ function initResultTable() {
         });
     });
 }
+
 function setupApiHook(commandApiUrl) {
     // Get the text area element
     const textArea = document.getElementById('scriptText');

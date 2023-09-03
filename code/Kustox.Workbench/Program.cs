@@ -18,6 +18,7 @@ namespace Kustox.Workbench
                 return version!.ToString();
             }
         }
+        public static string ApiUrl => "api/command";
 
         public static async Task Main(params string[] args)
         {

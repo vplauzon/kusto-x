@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace Kustox.Workbench.Controllers.Language
 {
     [ApiController]
-    [Route("[controller]")]
+    [Route("api/[controller]")]
     public class CommandController : ControllerBase
     {
         private readonly ILogger<CommandController> _logger;
