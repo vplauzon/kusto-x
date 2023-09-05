@@ -3,6 +3,7 @@
     const textArea = document.getElementById('scriptText');
 
     initResultTable();
+    textArea.value = readCookie();
     setupCookieUpdate(textArea);
     setupApiHook(commandApiUrl, textArea);
 }
@@ -17,6 +18,26 @@ function initResultTable() {
             "scrollY": "400px"
         });
     });
+}
+
+function readCookie() {
+    var memory = {};
+
+    if (document.cookie.trim().length > 0) {
+        var parts = document.cookie.split(';');
+
+        for (var i = 0; i !== parts.length; ++i) {
+            var subParts = parts[i].split('=');
+
+            memory[subParts[0].trim()] = decodeURIComponent(subParts[1].trim());
+        }
+    }
+    if (memory.hasOwnProperty('query') && typeof memory.query === "string") {
+        return memory.query;
+    }
+    else {
+        return ".show version";
+    }
 }
 
 function setupCookieUpdate(textArea) {
