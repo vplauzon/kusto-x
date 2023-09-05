@@ -1,0 +1,17 @@
+.create table Run(JobId:string, State:string, Timestamp:datetime)
+
+.alter table Run policy streamingingestion enable
+
+.create table RunStep(
+    JobId:string,
+    Breadcrumb:dynamic,
+    Script:string,
+    State:string,
+    CaptureName:string,
+    IsResultScalar:bool,
+    ResultColumnNames:dynamic,
+    ResultColumnTypes:dynamic,
+    ResultData:dynamic,
+    Timestamp:datetime)
+
+.alter table RunStep policy streamingingestion enable

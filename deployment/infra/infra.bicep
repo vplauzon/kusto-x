@@ -23,11 +23,9 @@ module storageModule 'storage.bicep' = {
   name: '${environment}-storageDeploy'
   params: {
     location: location
-    environment: environment
     suffix: suffix
-    retentionInDays: environment == 'tst' ? 1 : 30
     testObjectId: testObjectId
-}
+  }
 }
 
 module kustoModule 'kusto.bicep' = {
@@ -36,7 +34,7 @@ module kustoModule 'kusto.bicep' = {
     location: location
     environment: environment
     suffix: suffix
-}
+  }
 }
 
 module registryModule 'registry.bicep' = {

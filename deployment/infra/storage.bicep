@@ -3,12 +3,8 @@
 
 @description('Deployment location')
 param location string = resourceGroup().location
-@description('Name of environment')
-param environment string
 @description('Suffix to resource, typically to make the resource name unique')
 param suffix string
-@description('Retention of blobs in days')
-param retentionInDays int
 @description('Test SP Object Id')
 param testObjectId string
 
@@ -26,13 +22,6 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
   resource blobServices 'blobServices' = {
     name: 'default'
 
-    resource environmentContainer 'containers' = {
-      name: environment
-      properties: {
-        publicAccess: 'None'
-      }
-    }
-
     resource testContainer 'containers' = {
       name: 'test'
       properties: {
@@ -40,48 +29,15 @@ resource storage 'Microsoft.Storage/storageAccounts@2022-09-01' = {
       }
     }
   }
-
-  resource symbolicname 'managementPolicies' = {
-    name: 'default'
-    properties: {
-      policy: {
-        rules: [
-          {
-            definition: {
-              actions: {
-                baseBlob: {
-                  delete: {
-                    daysAfterModificationGreaterThan: retentionInDays
-                  }
-                }
-              }
-              filters: {
-                blobTypes: [
-                  'blockBlob'
-                  'appendBlob'
-                ]
-                prefixMatch: [
-                  '${environment}/'
-                ]
-              }
-            }
-            enabled: true
-            name: 'retention'
-            type: 'Lifecycle'
-          }
-        ]
-      }
-    }
-  }
 }
 
-//  Storage Blob Data Owner
+//  Storage Blob Data Contributor
 //  cf https://learn.microsoft.com/en-us/azure/role-based-access-control/built-in-roles
-var dataOwner = 'b7e6dc6d-f1e8-4753-8033-0f276bb0955b'
+var dataContributor = 'ba92f5b4-2d11-453d-a403-e96b0029c9fe'
 
 //  We need to authorize test app to read / write
 resource testStorageAuthorization 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
-  name: guid(resourceGroup().id, testObjectId, storage.name, dataOwner, 'data-plane')
+  name: guid(resourceGroup().id, testObjectId, storage.name, dataContributor, 'data-plane')
   //  See https://docs.microsoft.com/en-us/azure/azure-resource-manager/bicep/scope-extension-resources
   //  for scope for extension
   scope: storage::blobServices::testContainer
@@ -91,6 +47,6 @@ resource testStorageAuthorization 'Microsoft.Authorization/roleAssignments@2022-
     principalId: testObjectId
     //  Required in case principal not ready when deploying the assignment
     principalType: 'ServicePrincipal'
-    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', dataOwner)
+    roleDefinitionId: subscriptionResourceId('Microsoft.Authorization/roleDefinitions', dataContributor)
   }
 }
