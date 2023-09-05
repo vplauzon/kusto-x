@@ -2,6 +2,8 @@
 {
     public class CommandOutput
     {
-        public string Text { get; set; } = string.Empty;
+        public string Input { get; set; } = string.Empty;
+
+        public TableOutput? Table { get; set; }
     }
 }

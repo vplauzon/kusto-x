@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
+using System.Collections.Immutable;
 
 namespace Kustox.Workbench.Controllers.Language
 {
@@ -18,7 +19,12 @@ namespace Kustox.Workbench.Controllers.Language
         {
             return new CommandOutput
             {
-                Text = input.Csl
+                Input = input.Csl,
+                Table = new TableOutput
+                {
+                    Columns = ImmutableArray<ColumnOutput>.Empty
+                    .Add(new ColumnOutput { Name = "Id", Type = "System.Int32" })
+                }
             };
         }
     }
