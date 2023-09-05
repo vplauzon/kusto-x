@@ -3,7 +3,6 @@ using Kusto.Language.Syntax;
 using Kusto.Language;
 using Kustox.Compiler;
 using Kustox.Runtime.Commands;
-using Kustox.Runtime.State;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
