@@ -1,6 +1,10 @@
 ﻿function startScript(commandApiUrl) {
+    // Get the text area element
+    const textArea = document.getElementById('scriptText');
+
     initResultTable();
-    setupApiHook(commandApiUrl);
+    setupCookieUpdate(textArea);
+    setupApiHook(commandApiUrl, textArea);
 }
 
 function initResultTable() {
@@ -15,10 +19,13 @@ function initResultTable() {
     });
 }
 
-function setupApiHook(commandApiUrl) {
-    // Get the text area element
-    const textArea = document.getElementById('scriptText');
+function setupCookieUpdate(textArea) {
+    textArea.addEventListener("input", function (event) {
+        document.cookie = "query=" + encodeURIComponent(event.target.value);
+    });
+}
 
+function setupApiHook(commandApiUrl, textArea) {
     // Add event listener for keydown event
     textArea.addEventListener('keydown', function (event) {
         // Check if SHIFT key and ENTER key are pressed simultaneously
