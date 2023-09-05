@@ -101,7 +101,7 @@ function getCurrentQuery(textArea) {
             currentPosition += queryLength;
         }
 
-        return "What happend?";
+        return "";
     }
     else {
         return text.substring(startPosition, endPosition);
