@@ -18,7 +18,7 @@ namespace Kustox.Workbench.Controllers.Language
         {
             return new CommandOutput
             {
-                Number = 42
+                Text = input.Csl
             };
         }
     }
