@@ -69,10 +69,6 @@ header, footer {
     overflow: hidden;
 }
 
-table.resultTable,
-table.resultTable th,
-table.resultTable td {
-    border: 1px solid;
-    border-width: thin;
-    border-color: cornflowerblue;
+table.resultTable th {
+    background-color: lightgray;
 }
