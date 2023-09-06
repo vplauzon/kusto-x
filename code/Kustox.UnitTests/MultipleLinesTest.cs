@@ -7,7 +7,7 @@ namespace Kustox.UnitTests
         [Fact]
         public void CaptureQuery()
         {
-            var script = @"@run-procedure{
+            var script = @".run-procedure <| {
     @capture-scalar myConstant1 = print 2
 
     @capture-scalar myConstant2 = print 4

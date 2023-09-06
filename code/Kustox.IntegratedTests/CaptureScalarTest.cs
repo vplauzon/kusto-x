@@ -26,7 +26,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task Dynamic()
         {
-            var script = @$"@run-procedure{{
+            var script = @$".run-procedure <| {{
     @capture-scalar myConstant = print dynamic(
         {{ ""user"":""bit"", ""events"":[1,2,3], ""profile"": {{""memory"": 42}} }})
 
@@ -89,7 +89,7 @@ namespace Kustox.IntegratedTests
             T value,
             int? maximumNumberOfSteps = 1)
         {
-            var script = @$"@run-procedure{{
+            var script = @$".run-procedure <| {{
     @capture-scalar myConstant = print {kqlValue}
 
     @capture-scalar myConstant2 = print myConstant

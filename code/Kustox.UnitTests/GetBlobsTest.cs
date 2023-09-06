@@ -8,7 +8,7 @@ namespace Kustox.UnitTests
         public void WithUrl()
         {
             var url = "https://myaccount.blob.core.windows.net/mycontainer/myfolder/";
-            var script = @$"@run-procedure{{
+            var script = @$".run-procedure <| {{
     .get blobs '{url}'
 }}";
             var controlFlow = new KustoxCompiler().CompileScript(script);

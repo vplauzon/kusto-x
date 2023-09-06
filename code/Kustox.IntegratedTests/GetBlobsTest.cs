@@ -11,7 +11,7 @@ namespace Kustox.IntegratedTests
         public async Task ThreeFiles()
         {
             var url = $"{SampleRootUrl}/3-files/";
-            var script = @$"@run-procedure{{
+            var script = @$".run-procedure <| {{
     .get blobs '{url}'
 }}";
             var result = await RunInPiecesAsync(script);
@@ -26,7 +26,7 @@ namespace Kustox.IntegratedTests
         public async Task ThreeFilesNames()
         {
             var url = $"{SampleRootUrl}/3-files/";
-            var script = @$"@run-procedure{{
+            var script = @$".run-procedure <| {{
     @capture blobs = .get blobs '{url}'
     
     blobs

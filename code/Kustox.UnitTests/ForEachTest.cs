@@ -7,7 +7,7 @@ namespace Kustox.UnitTests
         [Fact]
         public void EmptyForEach()
         {
-            var script = @"@run-procedure{
+            var script = @".run-procedure <| {
     @foreach(n in names){
     }
 }";
@@ -27,7 +27,7 @@ namespace Kustox.UnitTests
         [Fact]
         public void WithOneQueryForEach()
         {
-            var script = @"@run-procedure{
+            var script = @".run-procedure <| {
     @foreach(n in names){
         print 2
     }

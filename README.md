@@ -28,27 +28,27 @@ Control flow statements are unique to Kusto-X.
 
 # Control flow statements
 
-Here is the most minimalistic Kusto-X procedure script:
+Here is the most minimalistic way to run a Kusto-X procedure:
 
 ```kusto
-@run-procedure{
+.run-procedure <| {
 }
 ```
 
-Running this returns a job-id (a string of character) identifying the instance of the job executing that procedure.
+This commands returns immediatly with a job-id (a string of character) identifying the instance of the job executing that procedure.
 
 That procedure script is empty and doesn't do anything.
 
 We can also persist a procedure (**TODO:  reference**).
 
-Any control flow operations must be inside a procedure.
+Any control flow operations (starting with a `'@'`) must be inside a procedure.
 
 ## Trivial procedure
 
 Having a single Kusto-X statement in a procedure results in a *trivial* procedure, equivalent to simply running the statement itself:
 
 ```kusto
-@run-procedure{
+.run-procedure <| {
     .create table T(Id:string)
 }
 ```
@@ -60,7 +60,7 @@ The only difference between running this control flow and running the command di
 A sequence allows to run more than one statement:
 
 ```kusto
-@run-procedure{
+.run-procedure <| {
     .create table T1(Id:string)
 
     .create table T2(Id:string)
@@ -91,7 +91,7 @@ All control flow statements return values (even `if` & `for`!).
 Captures are used extensively in Kusto-X.  Here are different examples:
 
 ```kusto
-@run-procedure{
+.run-procedure <| {
     @capture-scalar myConstant = print 2
 
     @capture-scalar myNumbers = print dynamic([1,2,3])
@@ -118,7 +118,7 @@ We noticed two forms of capture, one with scalar, the other without.  `capture-s
 Captured values can then be used in other statements.  For instance:
 
 ```kusto
-@run-procedure{
+.run-procedure <| {
     @capture names = datatable(name:string) ["Alice", "Bob"]
 
     .append sampleTable <|
@@ -133,7 +133,7 @@ A captured value has a schema (or a type if it's a scalar).
 *If* allows to branch according to data:
 
 ```kusto
-@run-procedure{
+.run-procedure <| {
     @capture-scalar tableNotExist = .show tables 
         | where TableName == "nyc_taxi"
         | count
@@ -157,7 +157,7 @@ A `if` can be by itself (i.e. without `else`), with `else`.  `else if` can also 
 *Foreach* allows to enumerate a table and run commands for each row:
 
 ```kusto
-@run-procedure{
+.run-procedure <| {
     @capture names = datatable(name:string) ["Alice", "Bob"]
 
     @foreach(name in names) with(concurrency=2)
@@ -206,7 +206,7 @@ Here are a couple of commands unique to Kusto-X.
 Here is an example for a backfill ingestion:
 
 ```kusto
-@run-procedure{
+.run-procedure <| {
     //  Fetch all blobs we want to ingest
     //  Infer the creation-time of each blob given their position in folder hierarchy
     @capture blobs = .get blobs 'https://myaccount.blob.core.windows.net/mycontainer/myfolder/'

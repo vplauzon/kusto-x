@@ -75,7 +75,7 @@ namespace Kustox.IntegratedTests
             object value,
             int? maximumNumberOfSteps = 1)
         {
-            var script = @$"@run-procedure{{
+            var script = @$".run-procedure <| {{
     @capture myTable = print Bool=true, Datetime=datetime(2023-03-01),
         Dynamic=dynamic({{ ""user"":""bit"", ""events"":[1,2,3], ""profile"": {{""memory"": 42}} }}),
         Guid=guid(8c6a39f1-d14d-4f3b-85b7-b4be17fbd5bc), Int=int(42), Long=1234567890123,

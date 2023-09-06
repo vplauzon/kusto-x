@@ -45,7 +45,7 @@ rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"
 		"blocks":  flatten(sequenceItems),
 		"code":  text
 	};
-rule controlFlow = "@run-procedure"
+rule controlFlow = "." "run-procedure" "<|"
 	properties:optionalWithPropertyAssignationList
 	rootSequence:sequenceContent => {
 		"rootSequence":rootSequence
