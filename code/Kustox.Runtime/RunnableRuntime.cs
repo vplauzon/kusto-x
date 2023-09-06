@@ -28,7 +28,6 @@ namespace Kustox.Runtime
 
         public async Task<TableResult> RunStatementAsync(
             RunnableDeclarationBase statementDeclaration,
-            RuntimeLevelContext levelContext,
             IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
@@ -36,7 +35,6 @@ namespace Kustox.Runtime
             {
                 return await RunQueryAsync(
                     statementDeclaration.Query.Code,
-                    levelContext,
                     captures,
                     ct);
             }
@@ -55,7 +53,6 @@ namespace Kustox.Runtime
         #region Queries
         private async Task<TableResult> RunQueryAsync(
             string query,
-            RuntimeLevelContext levelContext,
             IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {

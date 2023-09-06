@@ -89,7 +89,6 @@ namespace Kustox.Runtime
 
                 var result = await _runnableRuntime.RunStatementAsync(
                     block,
-                    levelContext,
                     captures,
                     ct);
 
