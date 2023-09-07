@@ -68,7 +68,7 @@ rule queueIngestCommand = "." "queue" "ingest"=> "QueueIngest";
 rule(interleave=false) genericQuery = (. - ".") kqlLine* => { "code": text };
 rule wholeQuery = (. - ".") .* => { "code": text };
 rule(interleave=false) genericCommand = "." kqlLine+ => { "code": text };
-rule wholeGenericCommand = "." .* => { "code": text };
+rule wholeGenericCommand = "." .* => {"genericCommand":{ "code": text }};
 rule runProcedureCommand = "." "run-procedure" "<|"
 	properties:optionalWithPropertyAssignationList
 	rootSequence:sequenceContent => {
@@ -81,4 +81,4 @@ rule command = runProcedureCommand:runProcedureCommand
 	| genericCommand:genericCommand;
 
 #	main rule
-rule main = query:query | command:command;
+rule main = query:(query | wholeQuery) | command:(command | wholeGenericCommand);
