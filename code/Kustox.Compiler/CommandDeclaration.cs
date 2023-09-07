@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace Kustox.Compiler
 {
-    public class CommandDeclaration : DeclarationCodeBase
+    public class CommandDeclaration : DeclarationBase
     {
         public RunProcedureCommandDeclaration? RunProcedureCommand { get; set; }
 

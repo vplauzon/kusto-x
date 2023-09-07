@@ -11,12 +11,12 @@ using System.Threading.Tasks;
 
 namespace Kustox.Runtime.Commands
 {
-    internal class KustoCommandRunner : CommandRunnerBase
+    internal class GenericCommandRunner : CommandRunnerBase
     {
         private static readonly ClientRequestProperties _emptyProperties =
             new ClientRequestProperties();
 
-        public KustoCommandRunner(ConnectionProvider connectionProvider)
+        public GenericCommandRunner(ConnectionProvider connectionProvider)
             : base(connectionProvider)
         {
         }
@@ -27,7 +27,7 @@ namespace Kustox.Runtime.Commands
         {
             var reader = await ConnectionProvider.CommandProvider.ExecuteControlCommandAsync(
                 string.Empty,
-                command.Code,
+                command.GenericCommand!.Code,
                 _emptyProperties);
             var table = reader.ToDataSet().Tables[0];
 

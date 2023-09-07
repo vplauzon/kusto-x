@@ -18,7 +18,7 @@ namespace Kustox.Runtime.Commands
 
         public CommandRunnerRouter(ConnectionProvider connectionProvider)
         {
-            _generic = new KustoCommandRunner(connectionProvider);
+            _generic = new GenericCommandRunner(connectionProvider);
             _getBlobs = new GetBlobsCommandRunner(connectionProvider);
         }
 

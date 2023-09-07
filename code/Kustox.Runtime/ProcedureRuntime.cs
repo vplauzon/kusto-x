@@ -90,7 +90,6 @@ namespace Kustox.Runtime
                 var result = await _runnableRuntime.RunStatementAsync(
                     new StatementDeclaration
                     {
-                        Code = block.Code,
                         Command = block.Command,
                         Query = block.Query
                     },
