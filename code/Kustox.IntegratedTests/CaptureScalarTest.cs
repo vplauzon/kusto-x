@@ -89,7 +89,7 @@ namespace Kustox.IntegratedTests
             T value,
             int? maximumNumberOfSteps = 1)
         {
-            var script = @$".run-procedure <| {{
+            var script = @$"{{
     @capture-scalar myConstant = print {kqlValue}
 
     @capture-scalar myConstant2 = print myConstant
