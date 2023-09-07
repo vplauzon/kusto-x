@@ -70,6 +70,7 @@ function setupApiHook(commandApiUrl, textArea) {
                 .then(data => {
                     // Handle the API response data
                     console.log(data);
+                    updateResultTable(data);
                 })
                 .catch(error => {
                     // Handle any API call errors
@@ -77,6 +78,50 @@ function setupApiHook(commandApiUrl, textArea) {
                 });
         }
     });
+}
+
+function updateResultTable(data) {
+    //  Destroy the dataTable
+    const dataTable = $('#resultTable').DataTable();
+
+    dataTable.destroy();
+
+    //  Repopulate the underlying HTML table
+    const resultTable = document.getElementById('resultTable');
+    const thead = document.createElement('thead');
+    const theadRow = document.createElement('tr');
+    const tbody = document.createElement('tbody');
+
+    //  Populate new header
+    for (const column of Object.values(data.table.columns)) {
+        const th = document.createElement('th');
+
+        th.textContent = column.name;
+        theadRow.appendChild(th);
+    }
+    thead.appendChild(theadRow);
+
+    //  Populate new data rows
+    for (const dataRow of Object.values(data.table.data)) {
+        const tr = document.createElement('tr');
+
+        for (const item of Object.values(dataRow)) {
+            const td = document.createElement('td');
+
+            td.textContent = item;
+            tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+    }
+    thead.appendChild(theadRow);
+
+    // Flip content
+    resultTable.innerHTML = '';
+    resultTable.appendChild(thead);
+    resultTable.appendChild(tbody);
+
+    //  Re-bind dataTables
+    initResultTable();
 }
 
 function getCurrentQuery(textArea) {
