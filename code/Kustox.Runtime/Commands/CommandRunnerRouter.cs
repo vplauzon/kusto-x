@@ -30,7 +30,7 @@ namespace Kustox.Runtime.Commands
             {
                 return await _generic.RunCommandAsync(command, ct);
             }
-            else if (command.GetBlobs != null)
+            else if (command.GetBlobsCommand != null)
             {
                 return await _getBlobs.RunCommandAsync(command, ct);
             }

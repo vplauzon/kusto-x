@@ -14,7 +14,7 @@ namespace Kustox.Compiler
     {
         public RunProcedureCommandDeclaration? RunProcedureCommand { get; set; }
 
-        public GetBlobDeclaration? GetBlobs { get; set; }
+        public GetBlobDeclaration? GetBlobsCommand { get; set; }
 
         public GenericCommandDeclaration? GenericCommand { get; set; }
 
@@ -23,7 +23,7 @@ namespace Kustox.Compiler
             base.Validate();
 
             var commandCount = (RunProcedureCommand == null ? 0 : 1)
-                + (GetBlobs == null ? 0 : 1)
+                + (GetBlobsCommand == null ? 0 : 1)
                 + (GenericCommand == null ? 0 : 1);
 
             if (commandCount != 1)
@@ -33,7 +33,7 @@ namespace Kustox.Compiler
                     + $" {typeof(CommandDeclaration).Name}");
             }
             RunProcedureCommand?.Validate();
-            GetBlobs?.Validate();
+            GetBlobsCommand?.Validate();
             GenericCommand?.Validate();
         }
     }

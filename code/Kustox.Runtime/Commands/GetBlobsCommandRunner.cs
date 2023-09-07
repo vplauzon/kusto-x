@@ -20,7 +20,7 @@ namespace Kustox.Runtime.Commands
             CommandDeclaration command,
             CancellationToken ct)
         {
-            var rootUrl = new Uri(command.GetBlobs!.RootUrl);
+            var rootUrl = new Uri(command.GetBlobsCommand!.RootUrl);
             var blobClient = new BlobClient(rootUrl, ConnectionProvider.Credential);
             var containerClient = blobClient.GetParentBlobContainerClient();
             var pageable = containerClient.GetBlobsAsync(

@@ -63,7 +63,7 @@ rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"
 
 #	Commands and queries:  stuff that can be run
 rule(interleave=false) kqlLine = ((. - "\n")* - blockSpacer*) "\n"=> text;
-rule getBlobsCommand = "." "get" "blobs" rootUrl:quotedString => {'getBlobs':{'rootUrl':rootUrl}};
+rule getBlobsCommand = "." "get" "blobs" rootUrl:quotedString => {'rootUrl':rootUrl};
 rule queueIngestCommand = "." "queue" "ingest"=> "QueueIngest";
 rule(interleave=false) genericQuery = (. - ".") kqlLine* => { "code": text };
 rule wholeQuery = (. - ".") .* => { "code": text };

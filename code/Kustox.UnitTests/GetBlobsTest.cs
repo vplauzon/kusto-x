@@ -22,7 +22,7 @@ namespace Kustox.UnitTests
                 statement.Command.RunProcedureCommand.RootSequence.Blocks.First().Command;
 
             Assert.NotNull(command);
-            Assert.NotNull(command.GetBlobs);
+            Assert.NotNull(command.GetBlobsCommand);
         }
     }
 }
