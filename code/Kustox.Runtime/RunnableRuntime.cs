@@ -3,7 +3,6 @@ using Kusto.Language.Syntax;
 using Kusto.Language;
 using Kustox.Compiler;
 using Kustox.Runtime.Commands;
-using Kustox.Runtime.State;
 using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -28,8 +27,7 @@ namespace Kustox.Runtime
         }
 
         public async Task<TableResult> RunStatementAsync(
-            RunnableDeclarationBase statementDeclaration,
-            RuntimeLevelContext levelContext,
+            StatementDeclaration statementDeclaration,
             IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
@@ -37,7 +35,6 @@ namespace Kustox.Runtime
             {
                 return await RunQueryAsync(
                     statementDeclaration.Query.Code,
-                    levelContext,
                     captures,
                     ct);
             }
@@ -56,7 +53,6 @@ namespace Kustox.Runtime
         #region Queries
         private async Task<TableResult> RunQueryAsync(
             string query,
-            RuntimeLevelContext levelContext,
             IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {

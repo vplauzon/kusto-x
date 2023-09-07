@@ -1,8 +1,11 @@
+using Azure.Core;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Builder;
 using System.Buffers;
 using System.Text;
+using Azure.Identity;
+using Kustox.Compiler;
 
 namespace Kustox.Workbench
 {
@@ -28,6 +31,8 @@ namespace Kustox.Workbench
             builder.Services.AddRazorPages();
             builder.Services.AddControllers();
             builder.Services.AddScoped<UserIdentityContext>();
+            builder.Services.AddSingleton(CreateTokenCredential());
+            builder.Services.AddSingleton(new KustoxCompiler());
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -59,6 +64,26 @@ namespace Kustox.Workbench
             app.MapControllers();
 
             await app.RunAsync();
+        }
+
+        private static TokenCredential CreateTokenCredential()
+        {
+            var tenantId = Environment.GetEnvironmentVariable("tenantId");
+            var appId = Environment.GetEnvironmentVariable("appId");
+            var appKey = Environment.GetEnvironmentVariable("appKey");
+
+            if (string.IsNullOrWhiteSpace(tenantId)
+                || string.IsNullOrWhiteSpace(appId)
+                || string.IsNullOrWhiteSpace(appKey))
+            {
+                return new ManagedIdentityCredential();
+            }
+            else
+            {
+                var credential = new ClientSecretCredential(tenantId, appId, appKey);
+
+                return credential;
+            }
         }
     }
 }

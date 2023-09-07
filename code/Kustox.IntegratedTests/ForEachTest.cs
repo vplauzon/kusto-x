@@ -11,13 +11,12 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task RangeEmptySequence()
         {
-            var script = @"@run-procedure{
+            var script = @"{
     @capture-scalar myRange = print range(0, 2, 1)
 
     @foreach(i in myRange){
     }
 }";
-
             var result = await RunInPiecesAsync(script);
 
             Assert.NotNull(result);
@@ -30,14 +29,13 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task RangePrintSequence()
         {
-            var script = @"@run-procedure{
+            var script = @"{
     @capture-scalar myRange = print range(0, 2, 1)
 
     @foreach(i in myRange){
         print toint(i)
     }
 }";
-
             var result = await RunInPiecesAsync(script);
 
             Assert.NotNull(result);
@@ -58,7 +56,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task ConcurrentRangePrintSequence()
         {
-            var script = @"@run-procedure{
+            var script = @"{
     @capture-scalar myRange = print range(0, 6, 1)
 
     @foreach(i in myRange) with(concurrency=3){

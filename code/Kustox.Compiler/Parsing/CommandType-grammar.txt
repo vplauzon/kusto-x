@@ -1,6 +1,0 @@
-﻿rule(interleave=false) kqlLine = ((. - "\n")* - blockSpacer*) "\n"=> text;
-rule getBlobs = "." "get" "blobs" => "GetBlobs";
-rule queueIngest = "." "queue" "ingest"=> "QueueIngest";
-
-#	main rule
-rule main = a:(getBlobs | queueIngest) kqlLine+ => a;

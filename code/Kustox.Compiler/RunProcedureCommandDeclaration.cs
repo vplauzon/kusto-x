@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Kustox.Compiler
 {
-    public class ProcedureDeclaration : DeclarationBase
+    public class RunProcedureCommandDeclaration : DeclarationBase
     {
         public SequenceDeclaration RootSequence { get; set; } = new SequenceDeclaration();
 
@@ -20,13 +20,6 @@ namespace Kustox.Compiler
                 throw new InvalidDataException($"No '{nameof(RootSequence)}'");
             }
             RootSequence.Validate();
-        }
-
-        internal override void SubParsing(KustoxCompiler compiler)
-        {
-            base.SubParsing(compiler);
-
-            RootSequence.SubParsing(compiler);
         }
     }
 }

@@ -11,23 +11,32 @@ namespace Kustox.Compiler.Parsing
 {
     internal class KustoxParser
     {
-        private readonly Grammar _controlFlowGrammar = LoadControlFlowGrammar();
-        private readonly Grammar _commandTypeGrammar = LoadCommandTypeGrammar();
-        private readonly Grammar _commandGrammar = LoadCommandGrammar();
+        private readonly Grammar _grammar = LoadGrammar();
 
-        public ProcedureDeclaration? ParseControlFlow(string text)
+        public StatementDeclaration? ParseStatement(string text)
         {
-            var match = _controlFlowGrammar.Match("main", text);
+            return Parse<StatementDeclaration>("main", text);
+        }
+
+        public SequenceDeclaration? ParseProcedure(string text)
+        {
+            return Parse<SequenceDeclaration>("sequenceContent", text);
+        }
+
+        private T? Parse<T>(string? ruleName, string text)
+        where T : class
+        {
+            var match = _grammar.Match(ruleName, text);
 
             if (match != null)
             {
                 if (match.Text.Length != text.Length)
                 {
-                    throw new InvalidDataException($"Can't parse control flow:  '{text}'");
+                    throw new InvalidDataException($"Can't parse statement:  '{text}'");
                 }
                 else
                 {
-                    var plan = match.ComputeTypedOutput<ProcedureDeclaration>();
+                    var plan = match.ComputeTypedOutput<T>();
 
                     return plan;
                 }
@@ -36,43 +45,6 @@ namespace Kustox.Compiler.Parsing
             {
                 return null;
             }
-        }
-
-        public ExtendedCommandType ParseCommandType(string command)
-        {
-            var match = _commandTypeGrammar.Match("main", command);
-
-            if (match != null)
-            {
-                var output = match.ComputeTypedOutput<string>();
-
-                if (output != null)
-                {
-                    if (Enum.TryParse<ExtendedCommandType>(output, out var commandType))
-                    {
-                        return commandType;
-                    }
-                }
-            }
-
-            return ExtendedCommandType.Kusto;
-        }
-
-        public CommandDeclaration ParseExtendedCommands(string command)
-        {
-            var match = _commandGrammar.Match("main", command);
-
-            if (match != null)
-            {
-                var output = match.ComputeTypedOutput<CommandDeclaration>();
-
-                if (output != null)
-                {
-                    return output;
-                }
-            }
-
-            return new CommandDeclaration();
         }
 
         private static string LoadFileContent(string path)
@@ -97,43 +69,14 @@ namespace Kustox.Compiler.Parsing
             }
         }
 
-        private static Grammar LoadControlFlowGrammar()
+        private static Grammar LoadGrammar()
         {
-            var tokenText = LoadFileContent("Parsing.Token-grammar.txt");
-            var controlFlowText = LoadFileContent("Parsing.Controlflow-grammar.txt");
-            var grammar = MetaGrammar.ParseGrammar(tokenText + controlFlowText);
+            var text = LoadFileContent("Parsing.Kustox-grammar.txt");
+            var grammar = MetaGrammar.ParseGrammar(text);
 
             if (grammar == null)
             {
-                throw new NotSupportedException("Control flow grammar couldn't be parsed");
-            }
-
-            return grammar;
-        }
-
-        private static Grammar LoadCommandTypeGrammar()
-        {
-            var tokenText = LoadFileContent("Parsing.Token-grammar.txt");
-            var commandTypeText = LoadFileContent("Parsing.CommandType-grammar.txt");
-            var grammar = MetaGrammar.ParseGrammar(tokenText + commandTypeText);
-
-            if (grammar == null)
-            {
-                throw new NotSupportedException("Command type grammar couldn't be parsed");
-            }
-
-            return grammar;
-        }
-
-        private static Grammar LoadCommandGrammar()
-        {
-            var tokenText = LoadFileContent("Parsing.Token-grammar.txt");
-            var commandText = LoadFileContent("Parsing.Command-grammar.txt");
-            var grammar = MetaGrammar.ParseGrammar(tokenText + commandText);
-
-            if (grammar == null)
-            {
-                throw new NotSupportedException("Command grammar couldn't be parsed");
+                throw new NotSupportedException("Grammar couldn't be parsed");
             }
 
             return grammar;

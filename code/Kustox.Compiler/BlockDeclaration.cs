@@ -3,9 +3,13 @@ using Kusto.Language.Syntax;
 
 namespace Kustox.Compiler
 {
-    public class BlockDeclaration : RunnableDeclarationBase
+    public class BlockDeclaration : DeclarationCodeBase
     {
         public CaptureDeclaration? Capture { get; set; }
+
+        public QueryDeclaration? Query { get; set; }
+
+        public CommandDeclaration? Command { get; set; }
 
         public ForEachDeclaration? ForEach { get; set; }
 
@@ -24,15 +28,9 @@ namespace Kustox.Compiler
                     + $" {typeof(BlockDeclaration).Name}");
             }
             Capture?.Validate();
+            Query?.Validate();
+            Command?.Validate();
             ForEach?.Validate();
-        }
-
-        internal override void SubParsing(KustoxCompiler compiler)
-        {
-            base.SubParsing(compiler);
-
-            Capture?.SubParsing(compiler);
-            ForEach?.SubParsing(compiler);
         }
     }
 }

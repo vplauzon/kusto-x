@@ -9,7 +9,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task Empty()
         {
-            var script = @"@run-procedure{  }";
+            var script = @"{  }";
             
             await RunInPiecesAsync(script);
         }
@@ -17,7 +17,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task CapturePrint()
         {
-            var script = @"@run-procedure{
+            var script = @"{
     @capture-scalar myConstant = print 2
 }";
 
@@ -27,7 +27,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task CaptureShowVersion()
         {
-            var script = @"@run-procedure{
+            var script = @"{
     @capture myVersion = .show version
 }";
 
@@ -37,7 +37,7 @@ namespace Kustox.IntegratedTests
         [Fact]
         public async Task NoCaptureShowVersion()
         {
-            var script = @"@run-procedure{
+            var script = @"{
     .show version
 }";
 
