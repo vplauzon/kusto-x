@@ -9,19 +9,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <None Remove="Parsing\Command-grammar.txt" />
-    <None Remove="Parsing\CommandType-grammar.txt" />
-    <None Remove="Parsing\controlflow-grammar.txt" />
     <None Remove="Parsing\Kustox-grammar.txt" />
-    <None Remove="Parsing\Token-grammar.txt" />
   </ItemGroup>
 
   <ItemGroup>
-    <EmbeddedResource Include="Parsing\Command-grammar.txt" />
-    <EmbeddedResource Include="Parsing\CommandType-grammar.txt" />
     <EmbeddedResource Include="Parsing\Kustox-grammar.txt" />
-    <EmbeddedResource Include="Parsing\Token-grammar.txt" />
-    <EmbeddedResource Include="Parsing\Controlflow-grammar.txt" />
   </ItemGroup>
 
   <ItemGroup>

@@ -28,23 +28,26 @@ namespace Kustox.Workbench.Controllers.Language
         [HttpPost]
         public async Task<CommandOutput> PostAsync(CommandInput input, CancellationToken ct)
         {
-            var runtime = GetRuntime();
+            var statement = _compiler.CompileStatement(input.Csl);
 
-            await Task.CompletedTask;
-            //await runtime.RunStatementAsync(
-            //    ,
-            //    ImmutableDictionary<string, TableResult?>.Empty,
-            //    ct);
-
-            return new CommandOutput
+            if (statement == null)
             {
-                Input = input.Csl,
-                Table = new TableOutput
+                throw new InvalidOperationException($"Can't compile '{input.Csl}'");
+            }
+            else
+            {
+                var runtime = GetRuntime();
+                var result = await runtime.RunStatementAsync(
+                    statement,
+                    ImmutableDictionary<string, TableResult?>.Empty,
+                    ct);
+
+                return new CommandOutput
                 {
-                    Columns = ImmutableArray<ColumnOutput>.Empty
-                    .Add(new ColumnOutput { Name = "Id", Type = "System.Int32" })
-                }
-            };
+                    Input = input.Csl,
+                    Table = new TableOutput(result)
+                };
+            }
         }
 
         private RunnableRuntime GetRuntime()
