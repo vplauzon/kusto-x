@@ -17,7 +17,6 @@ namespace Kustox.IntegratedTests
     @foreach(i in myRange){
     }
 }";
-
             var result = await RunInPiecesAsync(script);
 
             Assert.NotNull(result);
@@ -37,7 +36,6 @@ namespace Kustox.IntegratedTests
         print toint(i)
     }
 }";
-
             var result = await RunInPiecesAsync(script);
 
             Assert.NotNull(result);
