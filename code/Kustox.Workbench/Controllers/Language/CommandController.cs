@@ -44,7 +44,6 @@ namespace Kustox.Workbench.Controllers.Language
 
                 return new CommandOutput
                 {
-                    Input = input.Csl,
                     Table = new TableOutput(result)
                 };
             }
