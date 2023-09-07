@@ -12,26 +12,27 @@ namespace Kustox.UnitTests
 
     @capture-scalar myConstant2 = print 4
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
+            var statement = new KustoxCompiler().CompileStatement(script);
 
-            Assert.NotNull(controlFlow);
-            Assert.Equal(2, controlFlow.RootSequence.Blocks.Count());
+            Assert.NotNull(statement);
+            Assert.NotNull(statement.Command);
+            Assert.NotNull(statement.Command.RunProcedureCommand);
+            Assert.Equal(2, statement.Command.RunProcedureCommand.RootSequence.Blocks.Count());
+
+            var block1 = statement.Command.RunProcedureCommand.RootSequence.Blocks.First();
+            var block2 = statement.Command.RunProcedureCommand.RootSequence.Blocks.Last();
 
             //  1st constant
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capture);
-            Assert.True(controlFlow.RootSequence.Blocks.First().Capture!.IsScalarCapture);
-            Assert.Equal(
-                "myConstant1",
-                controlFlow.RootSequence.Blocks.First().Capture!.CaptureName);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Query);
+            Assert.NotNull(block1.Capture);
+            Assert.True(block1.Capture!.IsScalarCapture);
+            Assert.Equal("myConstant1", block1.Capture!.CaptureName);
+            Assert.NotNull(block1.Query);
 
             //  2nd constant
-            Assert.NotNull(controlFlow.RootSequence.Blocks.Last().Capture);
-            Assert.True(controlFlow.RootSequence.Blocks.Last().Capture!.IsScalarCapture);
-            Assert.Equal(
-                "myConstant2",
-                controlFlow.RootSequence.Blocks.Last().Capture!.CaptureName);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.Last().Query);
+            Assert.NotNull(block2.Capture);
+            Assert.True(block2.Capture!.IsScalarCapture);
+            Assert.Equal("myConstant2", block2.Capture!.CaptureName);
+            Assert.NotNull(block2.Query);
         }
     }
 }

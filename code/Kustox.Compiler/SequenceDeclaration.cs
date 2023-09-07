@@ -16,15 +16,5 @@ namespace Kustox.Compiler
                 block.Validate();
             }
         }
-
-        internal override void SubParsing(KustoxCompiler compiler)
-        {
-            base.SubParsing(compiler);
-
-            foreach (var block in Blocks)
-            {
-                block.SubParsing(compiler);
-            }
-        }
     }
 }

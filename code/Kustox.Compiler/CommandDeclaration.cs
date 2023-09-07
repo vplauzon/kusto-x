@@ -1,5 +1,7 @@
 ﻿using Kusto.Language;
+using Kusto.Language.Syntax;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -10,18 +12,29 @@ namespace Kustox.Compiler
 {
     public class CommandDeclaration : DeclarationCodeBase
     {
-        public ExtendedCommandType CommandType { get; set; }
+        public RunProcedureCommandDeclaration? RunProcedureCommand { get; set; }
 
         public GetBlobDeclaration? GetBlobs { get; set; }
 
-        internal override void SubParsing(KustoxCompiler compiler)
+        public GenericCommandDeclaration? GenericCommand { get; set; }
+
+        internal override void Validate()
         {
-            base.SubParsing(compiler);
+            base.Validate();
 
-            var block = compiler.ParseCommand(Code);
+            var commandCount = (RunProcedureCommand == null ? 0 : 1)
+                + (GetBlobs == null ? 0 : 1)
+                + (GenericCommand == null ? 0 : 1);
 
-            CommandType = block.CommandType;
-            GetBlobs = block.GetBlobs;
+            if (commandCount != 1)
+            {
+                throw new InvalidDataException(
+                    "Must have one and only one command in"
+                    + $" {typeof(CommandDeclaration).Name}");
+            }
+            RunProcedureCommand?.Validate();
+            GetBlobs?.Validate();
+            GenericCommand?.Validate();
         }
     }
 }

@@ -11,17 +11,21 @@ namespace Kustox.UnitTests
     @foreach(n in names){
     }
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
+            var statement = new KustoxCompiler().CompileStatement(script);
 
-            Assert.NotNull(controlFlow);
-            Assert.Single(controlFlow.RootSequence.Blocks);
+            Assert.NotNull(statement);
+            Assert.NotNull(statement.Command);
+            Assert.NotNull(statement.Command.RunProcedureCommand);
+            Assert.Single(statement.Command.RunProcedureCommand.RootSequence.Blocks);
+
+            var blocks = statement.Command.RunProcedureCommand.RootSequence.Blocks;
 
             //  For each
-            Assert.Null(controlFlow.RootSequence.Blocks.First().Capture);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().ForEach);
-            Assert.Equal("n", controlFlow.RootSequence.Blocks.First().ForEach!.Cursor);
-            Assert.Equal("names", controlFlow.RootSequence.Blocks.First().ForEach!.Enumerator);
-            Assert.Empty(controlFlow.RootSequence.Blocks.First().ForEach!.Sequence.Blocks);
+            Assert.Null(blocks.First().Capture);
+            Assert.NotNull(blocks.First().ForEach);
+            Assert.Equal("n", blocks.First().ForEach!.Cursor);
+            Assert.Equal("names", blocks.First().ForEach!.Enumerator);
+            Assert.Empty(blocks.First().ForEach!.Sequence.Blocks);
         }
 
         [Fact]
@@ -32,18 +36,22 @@ namespace Kustox.UnitTests
         print 2
     }
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
+            var statement = new KustoxCompiler().CompileStatement(script);
 
-            Assert.NotNull(controlFlow);
-            Assert.Single(controlFlow.RootSequence.Blocks);
+            Assert.NotNull(statement);
+            Assert.NotNull(statement.Command);
+            Assert.NotNull(statement.Command.RunProcedureCommand);
+            Assert.Single(statement.Command.RunProcedureCommand.RootSequence.Blocks);
 
+            var blocks = statement.Command.RunProcedureCommand.RootSequence.Blocks;
+            
             //  For each
-            Assert.Null(controlFlow.RootSequence.Blocks.First().Capture);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().ForEach);
-            Assert.Equal("n", controlFlow.RootSequence.Blocks.First().ForEach!.Cursor);
-            Assert.Equal("names", controlFlow.RootSequence.Blocks.First().ForEach!.Enumerator);
+            Assert.Null(blocks.First().Capture);
+            Assert.NotNull(blocks.First().ForEach);
+            Assert.Equal("n", blocks.First().ForEach!.Cursor);
+            Assert.Equal("names", blocks.First().ForEach!.Enumerator);
 
-            var subBlocks = controlFlow.RootSequence.Blocks.First().ForEach!.Sequence.Blocks;
+            var subBlocks = blocks.First().ForEach!.Sequence.Blocks;
 
             Assert.Single(subBlocks);
             Assert.NotNull(subBlocks.First().Query);

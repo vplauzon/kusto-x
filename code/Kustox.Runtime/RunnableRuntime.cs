@@ -27,7 +27,7 @@ namespace Kustox.Runtime
         }
 
         public async Task<TableResult> RunStatementAsync(
-            RunnableDeclarationBase statementDeclaration,
+            StatementDeclaration statementDeclaration,
             IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {

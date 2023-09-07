@@ -6,38 +6,28 @@ namespace Kustox.Compiler
     {
         private readonly KustoxParser _parser = new KustoxParser();
 
-        public ProcedureDeclaration? CompileScript(string controlFlowScript)
+        public StatementDeclaration? CompileStatement(string text)
         {
-            var declaration = _parser.ParseControlFlow(controlFlowScript);
+            var declaration = _parser.ParseStatement(text);
 
             if (declaration != null)
             {
-                declaration.SubParsing(this);
                 declaration.Validate();
             }
 
             return declaration;
         }
 
-        public CommandDeclaration ParseCommand(string command)
+        public SequenceDeclaration? CompileProcedure(string text)
         {
-            var commandType = _parser.ParseCommandType(command);
+            var declaration = _parser.ParseProcedure(text);
 
-            if (commandType == ExtendedCommandType.Kusto)
+            if (declaration != null)
             {
-                return new CommandDeclaration
-                {
-                    CommandType = commandType
-                };
+                declaration.Validate();
             }
-            else
-            {
-                var declaration = _parser.ParseExtendedCommands(command);
 
-                declaration.CommandType = commandType;
-
-                return declaration;
-            }
+            return declaration;
         }
     }
 }

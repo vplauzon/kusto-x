@@ -52,12 +52,5 @@ namespace Kustox.Compiler
                 }
             }
         }
-
-        internal override void SubParsing(KustoxCompiler compiler)
-        {
-            base.SubParsing(compiler);
-
-            Sequence.SubParsing(compiler);
-        }
     }
 }

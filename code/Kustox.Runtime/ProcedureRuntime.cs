@@ -41,7 +41,7 @@ namespace Kustox.Runtime
                 _procedureRunStepStore,
                 maximumNumberOfSteps,
                 ct);
-            var declaration = new KustoxCompiler().CompileScript(
+            var declaration = new KustoxCompiler().CompileProcedure(
                 levelContext.LatestProcedureRunStep!.Script);
 
             if (declaration == null)
@@ -53,7 +53,7 @@ namespace Kustox.Runtime
             try
             {
                 var result = await RunSequenceAsync(
-                    declaration.RootSequence,
+                    declaration,
                     levelContext,
                     ImmutableDictionary<string, TableResult?>.Empty,
                     ct);
@@ -88,7 +88,12 @@ namespace Kustox.Runtime
                 levelContext.PreStepExecution();
 
                 var result = await _runnableRuntime.RunStatementAsync(
-                    block,
+                    new StatementDeclaration
+                    {
+                        Code = block.Code,
+                        Command = block.Command,
+                        Query = block.Query
+                    },
                     captures,
                     ct);
 

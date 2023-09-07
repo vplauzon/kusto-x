@@ -1,0 +1,84 @@
+﻿#	Comments & interleaves
+rule(interleave=false) comment = "//" (. - ("\r" | "\n"))*;
+interleave = (" " | "\r" | "\n" | "\t") | comment;
+
+#	tokens
+rule(interleave=false) identifier = ("a".."z" | "A".."Z") ("a".."z" | "A".."Z" | "0".."9")* => text;
+rule(interleave=false) number = ("0".."9")+;
+rule(interleave=false) double = "-"? number* ("." number+)?;
+rule(interleave=false) character = normal:(. - ("\"" | "\r" | "\n" | "\\"))
+	| escapeQuote:("\\" "\"") | escapeBackslash:"\\\\"
+	| escapeLetter:("\\" l:("n" | "r" | "t" | "v"))
+	| escapeHexa:("\\x" h:("0".."9" | "a".."f" | "A".."F"){1,2});
+rule(interleave=false) singleQuotableString = ((. - "'") | "\\'")* => text;
+rule(interleave=false) doubleQuotableString = ((. - '"') | '\\"')* => text;
+rule(interleave=false) singleQuotedString = "'" quotedString:singleQuotableString "'" => quotedString;
+rule(interleave=false) doubleQuotedString = '"' quotedString:doubleQuotableString '"' => quotedString;
+rule(interleave=false) quotedString = doubleQuotedString | singleQuotedString;
+rule(interleave=false) integer = number+ => integer(text);
+rule(interleave=false) boolean = "true" | "false" => boolean(text);
+rule(interleave=false) blockSpacer = " " | "\t" | "\r";
+
+#	Property rules
+rule propertyValue = boolean:boolean | integer:integer | string:quotedString;
+rule propertyAssignation = id:identifier "=" value:propertyValue => merge({"id" : id}, value);
+rule propertyAssignationList = head:propertyAssignation
+	tail:("," pa:propertyAssignation => pa)* => prepend(head, tail);
+rule withPropertyAssignationList = "with" "(" list:propertyAssignationList? ")" => flatten(list);
+rule optionalWithPropertyAssignationList = withPropertyAssignationList? => flatten(defaultOutput);
+
+#	Capturables:  stuff that can be captured, i.e. runnables & control flows
+rule forEach = "@foreach" "(" cursor:identifier "in" enumerator:identifier ")"
+	properties:optionalWithPropertyAssignationList sequence:sequenceContent => {
+	"code":text,
+	"properties":properties,
+	"cursor":cursor,
+	"enumerator":enumerator,
+	"sequence":sequence
+};
+rule capturable = forEach:forEach | query:query | command:command;
+rule captureScalar = "@capture-scalar" id:identifier "="
+	capturable:capturable => merge({
+		"capture":{
+			"captureName":id,
+			"isScalarCapture":true
+		}
+	}, capturable);
+rule captureTable = "@capture" id:identifier "=" capturable:capturable =>
+	merge({
+		"capture":{
+			"captureName":id,
+			"isScalarCapture":false
+		}
+	}, capturable);
+rule sequenceItem = captureScalar | captureTable
+   | capturable => merge(defaultOutput, {"code": text});
+rule sequenceItemList = head:sequenceItem
+	tail:sequenceItem* => prepend(head, tail);
+rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"
+	=> {
+		"blocks":  flatten(sequenceItems),
+		"code":  text
+	};
+
+#	Commands and queries:  stuff that can be run
+rule(interleave=false) kqlLine = ((. - "\n")* - blockSpacer*) "\n"=> text;
+rule getBlobsCommand = "." "get" "blobs" rootUrl:quotedString => {'getBlobs':{'rootUrl':rootUrl}};
+rule queueIngestCommand = "." "queue" "ingest"=> "QueueIngest";
+rule(interleave=false) genericQuery = (. - ".") kqlLine* => { "code": text };
+rule wholeQuery = (. - ".") .* => { "code": text };
+rule(interleave=false) genericCommand = "." kqlLine+ => { "code": text };
+rule wholeGenericCommand = "." .* => { "code": text };
+rule runProcedureCommand = "." "run-procedure" "<|"
+	properties:optionalWithPropertyAssignationList
+	rootSequence:sequenceContent => {
+		"rootSequence":rootSequence
+	};
+rule query = genericQuery;
+rule command = runProcedureCommand:runProcedureCommand
+	| getBlobsCommand:getBlobsCommand
+	| queueIngestCommand:queueIngestCommand
+	| genericCommand:genericCommand;
+
+#	main rule
+rule main = query:query | command:command;

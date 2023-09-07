@@ -11,14 +11,18 @@ namespace Kustox.UnitTests
             var script = @$".run-procedure <| {{
     .get blobs '{url}'
 }}";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
+            var statement = new KustoxCompiler().CompileStatement(script);
 
-            Assert.NotNull(controlFlow);
-            Assert.Single(controlFlow.RootSequence.Blocks);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Command);
-            Assert.Equal(
-                ExtendedCommandType.GetBlobs,
-                controlFlow.RootSequence.Blocks.First().Command!.CommandType);
+            Assert.NotNull(statement);
+            Assert.NotNull(statement.Command);
+            Assert.NotNull(statement.Command.RunProcedureCommand);
+            Assert.Single(statement.Command.RunProcedureCommand.RootSequence.Blocks);
+
+            var command =
+                statement.Command.RunProcedureCommand.RootSequence.Blocks.First().Command;
+
+            Assert.NotNull(command);
+            Assert.NotNull(command.GetBlobs);
         }
     }
 }

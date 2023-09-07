@@ -13,31 +13,34 @@ namespace Kustox.Runtime.Commands
 {
     internal class CommandRunnerRouter
     {
-        private readonly IImmutableDictionary<ExtendedCommandType, CommandRunnerBase>
-            _commandTypeToRunnerMap;
+        private readonly CommandRunnerBase _generic;
+        private readonly CommandRunnerBase _getBlobs;
 
         public CommandRunnerRouter(ConnectionProvider connectionProvider)
         {
-            var builder = ImmutableDictionary<ExtendedCommandType, CommandRunnerBase>
-                .Empty
-                .ToBuilder();
-
-            builder.Add(ExtendedCommandType.Kusto, new KustoCommandRunner(connectionProvider));
-            builder.Add(ExtendedCommandType.GetBlobs, new GetBlobsCommandRunner(connectionProvider));
-            _commandTypeToRunnerMap = builder.ToImmutableDictionary();
+            _generic = new KustoCommandRunner(connectionProvider);
+            _getBlobs = new GetBlobsCommandRunner(connectionProvider);
         }
 
         public async Task<TableResult> RunCommandAsync(
             CommandDeclaration command,
             CancellationToken ct)
         {
-            if (_commandTypeToRunnerMap.TryGetValue(command.CommandType, out var runner))
+            if (command.GenericCommand != null)
             {
-                return await runner.RunCommandAsync(command, ct);
+                return await _generic.RunCommandAsync(command, ct);
+            }
+            else if (command.GetBlobs != null)
+            {
+                return await _getBlobs.RunCommandAsync(command, ct);
+            }
+            else if (command.RunProcedureCommand != null)
+            {
+                throw new NotImplementedException();
             }
             else
             {
-                throw new NotSupportedException($"Command type '{command.CommandType}'");
+                throw new NotSupportedException($"Command type");
             }
         }
     }

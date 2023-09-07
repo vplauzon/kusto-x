@@ -8,10 +8,12 @@ namespace Kustox.UnitTests
         public void Empty()
         {
             var script = @".run-procedure <| {  }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
+            var statement = new KustoxCompiler().CompileStatement(script);
 
-            Assert.NotNull(controlFlow);
-            Assert.Empty(controlFlow.RootSequence.Blocks);
+            Assert.NotNull(statement);
+            Assert.NotNull(statement.Command);
+            Assert.NotNull(statement.Command.RunProcedureCommand);
+            Assert.Empty(statement.Command.RunProcedureCommand.RootSequence.Blocks);
         }
 
         [Fact]
@@ -20,16 +22,19 @@ namespace Kustox.UnitTests
             var script = @".run-procedure <| {
     @capture-scalar myConstant = print 2
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
+            var statement = new KustoxCompiler().CompileStatement(script);
 
-            Assert.NotNull(controlFlow);
-            Assert.Single(controlFlow.RootSequence.Blocks);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capture);
-            Assert.True(controlFlow.RootSequence.Blocks.First().Capture!.IsScalarCapture);
-            Assert.Equal(
-                "myConstant",
-                controlFlow.RootSequence.Blocks.First().Capture!.CaptureName);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Query);
+            Assert.NotNull(statement);
+            Assert.NotNull(statement.Command);
+            Assert.NotNull(statement.Command.RunProcedureCommand);
+            Assert.Single(statement.Command.RunProcedureCommand.RootSequence.Blocks);
+
+            var block = statement.Command.RunProcedureCommand.RootSequence.Blocks.First();
+
+            Assert.NotNull(block.Capture);
+            Assert.True(block.Capture!.IsScalarCapture);
+            Assert.Equal("myConstant", block.Capture!.CaptureName);
+            Assert.NotNull(block.Query);
         }
 
         [Fact]
@@ -38,19 +43,20 @@ namespace Kustox.UnitTests
             var script = @".run-procedure <| {
     @capture-scalar myVersionTable = .show version
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
+            var statement = new KustoxCompiler().CompileStatement(script);
 
-            Assert.NotNull(controlFlow);
-            Assert.Single(controlFlow.RootSequence.Blocks);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Capture);
-            Assert.True(controlFlow.RootSequence.Blocks.First().Capture!.IsScalarCapture);
-            Assert.Equal(
-                "myVersionTable",
-                controlFlow.RootSequence.Blocks.First().Capture!.CaptureName);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Command);
-            Assert.Equal(
-                ExtendedCommandType.Kusto,
-                controlFlow.RootSequence.Blocks.First().Command!.CommandType);
+            Assert.NotNull(statement);
+            Assert.NotNull(statement.Command);
+            Assert.NotNull(statement.Command.RunProcedureCommand);
+            Assert.Single(statement.Command.RunProcedureCommand.RootSequence.Blocks);
+
+            var block = statement.Command.RunProcedureCommand.RootSequence.Blocks.First();
+            
+            Assert.NotNull(block.Capture);
+            Assert.True(block.Capture.IsScalarCapture);
+            Assert.Equal("myVersionTable", block.Capture.CaptureName);
+            Assert.NotNull(block.Command);
+            Assert.NotNull(block.Command.GenericCommand);
         }
 
         [Fact]
@@ -59,15 +65,18 @@ namespace Kustox.UnitTests
             var script = @".run-procedure <| {
     .create table T(Id:string)
 }";
-            var controlFlow = new KustoxCompiler().CompileScript(script);
+            var statement = new KustoxCompiler().CompileStatement(script);
 
-            Assert.NotNull(controlFlow);
-            Assert.Single(controlFlow.RootSequence.Blocks);
-            Assert.Null(controlFlow.RootSequence.Blocks.First().Capture);
-            Assert.NotNull(controlFlow.RootSequence.Blocks.First().Command);
-            Assert.Equal(
-                ExtendedCommandType.Kusto,
-                controlFlow.RootSequence.Blocks.First().Command!.CommandType);
+            Assert.NotNull(statement);
+            Assert.NotNull(statement.Command);
+            Assert.NotNull(statement.Command.RunProcedureCommand);
+            Assert.Single(statement.Command.RunProcedureCommand.RootSequence.Blocks);
+
+            var block = statement.Command.RunProcedureCommand.RootSequence.Blocks.First();
+
+            Assert.Null(block.Capture);
+            Assert.NotNull(block.Command);
+            Assert.NotNull(block.Command.GenericCommand);
         }
     }
 }

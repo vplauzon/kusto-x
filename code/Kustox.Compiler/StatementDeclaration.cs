@@ -3,8 +3,12 @@ using Kusto.Language.Syntax;
 
 namespace Kustox.Compiler
 {
-    public abstract class RunnableDeclaration : RunnableDeclarationBase
+    public class StatementDeclaration : DeclarationCodeBase
     {
+        public QueryDeclaration? Query { get; set; }
+
+        public CommandDeclaration? Command { get; set; }
+
         internal override void Validate()
         {
             base.Validate();
@@ -16,8 +20,10 @@ namespace Kustox.Compiler
             {
                 throw new InvalidDataException(
                     "Statement must be either a query or a command in "
-                    + $" {typeof(RunnableDeclaration).Name}");
+                    + $" {typeof(StatementDeclaration).Name}");
             }
+            Query?.Validate();
+            Command?.Validate();
         }
     }
 }
