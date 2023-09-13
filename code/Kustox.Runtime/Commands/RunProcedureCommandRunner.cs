@@ -14,6 +14,7 @@ namespace Kustox.Runtime.Commands
             CommandDeclaration command,
             CancellationToken ct)
         {
+            //command.RunProcedureCommand.RootSequence;
             throw new NotImplementedException();
         }
     }
