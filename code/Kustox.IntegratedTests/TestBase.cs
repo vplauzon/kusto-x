@@ -116,39 +116,6 @@ namespace Kustox.IntegratedTests
 
         #region IControlFlowList
         protected static IStorageHub StorageHub { get; }
-
-        protected static async Task<IProcedureRunStepStore> CreateProcedureRunStepStoreAsync(
-            string script,
-            CancellationToken ct = default(CancellationToken))
-        {
-            var procedureRunStepStore = await StorageHub.ProcedureRunRegistry.NewRunAsync(ct);
-            var stepTask = procedureRunStepStore.AppendStepAsync(
-                new[]
-                {
-                    new ProcedureRunStep(
-                        script,
-                        ImmutableArray<int>.Empty,
-                        StepState.Completed,
-                        null,
-                        null,
-                        DateTime.UtcNow)
-                },
-                ct);
-
-            await StorageHub.ProcedureRunStore.AppendRunAsync(
-                new[]
-                {
-                    new ProcedureRun(
-                        procedureRunStepStore.JobId,
-                        ProcedureRunState.Pending,
-                        DateTime.UtcNow)
-                },
-                ct);
-
-            await stepTask;
-
-            return procedureRunStepStore;
-        }
         #endregion
 
         #region Kusto
@@ -181,7 +148,17 @@ namespace Kustox.IntegratedTests
             int? maximumNumberOfSteps = 1,
             CancellationToken ct = default(CancellationToken))
         {
-            var procedureRunStepStore = await CreateProcedureRunStepStoreAsync(script);
+            var environmentRuntime = new ProcedureEnvironmentRuntime(
+                StorageHub.ProcedureRunStore,
+                StorageHub.ProcedureRunRegistry,
+                RunnableRuntime);
+
+            await environmentRuntime.StartAsync(false, ct);
+
+            var procedureRunStepStore = await environmentRuntime.QueueProcedureAsync(
+                script,
+                true,
+                ct);
 
             while (true)
             {
@@ -193,6 +170,8 @@ namespace Kustox.IntegratedTests
 
                 if (result.HasCompleteSuccessfully)
                 {
+                    await environmentRuntime.StopAsync(ct);
+
                     return result.Result;
                 }
             }
