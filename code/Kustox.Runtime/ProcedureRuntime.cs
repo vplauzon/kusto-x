@@ -17,31 +17,36 @@ namespace Kustox.Runtime
 {
     public class ProcedureRuntime
     {
+        private readonly KustoxCompiler _compiler;
         private readonly IProcedureRunStore _procedureRunStore;
         private readonly IProcedureRunStepStore _procedureRunStepStore;
         private readonly RunnableRuntime _runnableRuntime;
 
         public ProcedureRuntime(
+            KustoxCompiler compiler,
             IProcedureRunStore procedureRunStore,
             IProcedureRunStepStore procedureRunStepStore,
             RunnableRuntime runnableRuntime)
         {
+            _compiler = compiler;
             _procedureRunStore = procedureRunStore;
             _procedureRunStepStore = procedureRunStepStore;
             _runnableRuntime = runnableRuntime;
         }
 
+        public string JobId => _procedureRunStepStore.JobId;
+
         #region Run Infra
         public async Task<RuntimeResult> RunAsync(
-            int? maximumNumberOfSteps = null,
-            CancellationToken ct = default(CancellationToken))
+            int? maximumNumberOfSteps,
+            CancellationToken ct)
         {
             var levelContext = await RuntimeLevelContext.LoadContextAsync(
                 _procedureRunStore,
                 _procedureRunStepStore,
                 maximumNumberOfSteps,
                 ct);
-            var declaration = new KustoxCompiler().CompileProcedure(
+            var declaration = _compiler.CompileProcedure(
                 levelContext.LatestProcedureRunStep!.Script);
 
             if (declaration == null)

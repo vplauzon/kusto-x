@@ -1,4 +1,5 @@
 ﻿using Azure.Identity;
+using Kustox.Compiler;
 using Kustox.KustoState;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
@@ -58,7 +59,6 @@ namespace Kustox.IntegratedTests
 
             SampleRootUrl = GetEnvironmentVariable("sampleRootUrl");
             StorageHub = new KustoStorageHub(CreateConnectionProvider(false));
-            RunnableRuntime = CreateRunnableRuntime();
         }
 
         #region Environment variables
@@ -114,51 +114,11 @@ namespace Kustox.IntegratedTests
         }
         #endregion
 
-        #region IControlFlowList
+        protected static KustoxCompiler Compiler { get; } = new KustoxCompiler();
+
         protected static IStorageHub StorageHub { get; }
 
-        protected static async Task<IProcedureRunStepStore> CreateProcedureRunStepStoreAsync(
-            string script,
-            CancellationToken ct = default(CancellationToken))
-        {
-            var procedureRunStepStore = await StorageHub.ProcedureRunRegistry.NewRunAsync(ct);
-            var stepTask = procedureRunStepStore.AppendStepAsync(
-                new[]
-                {
-                    new ProcedureRunStep(
-                        script,
-                        ImmutableArray<int>.Empty,
-                        StepState.Completed,
-                        null,
-                        null,
-                        DateTime.UtcNow)
-                },
-                ct);
-
-            await StorageHub.ProcedureRunStore.AppendRunAsync(
-                new[]
-                {
-                    new ProcedureRun(
-                        procedureRunStepStore.JobId,
-                        ProcedureRunState.Pending,
-                        DateTime.UtcNow)
-                },
-                ct);
-
-            await stepTask;
-
-            return procedureRunStepStore;
-        }
-        #endregion
-
         #region Kusto
-        protected static RunnableRuntime RunnableRuntime { get; }
-
-        private static RunnableRuntime CreateRunnableRuntime()
-        {
-            return new RunnableRuntime(CreateConnectionProvider(true));
-        }
-
         private static ConnectionProvider CreateConnectionProvider(bool isSandbox)
         {
             var kustoCluster = GetEnvironmentVariable("kustoCluster");
@@ -176,25 +136,59 @@ namespace Kustox.IntegratedTests
         protected static string SampleRootUrl { get; }
         #endregion
 
+        #region MyRegion
+        protected static ProcedureEnvironmentRuntime CreateEnvironmentRuntime()
+        {
+            return new ProcedureEnvironmentRuntime(
+                Compiler,
+                StorageHub.ProcedureRunStore,
+                StorageHub.ProcedureRunRegistry,
+                CreateConnectionProvider(true));
+        }
+        #endregion
+
         protected static async Task<TableResult?> RunInPiecesAsync(
             string script,
             int? maximumNumberOfSteps = 1,
             CancellationToken ct = default(CancellationToken))
         {
-            var procedureRunStepStore = await CreateProcedureRunStepStoreAsync(script);
+            var environmentRuntime = CreateEnvironmentRuntime();
 
-            while (true)
+            await environmentRuntime.StartAsync(false, ct);
+
+            try
             {
-                var runtime = new ProcedureRuntime(
-                    StorageHub.ProcedureRunStore,
-                    procedureRunStepStore,
-                    RunnableRuntime);
-                var result = await runtime.RunAsync(maximumNumberOfSteps);
+                var procedureQueue = (IProcedureQueue)environmentRuntime;
+                var procedureDeclaration = Compiler.CompileProcedure(script);
 
-                if (result.HasCompleteSuccessfully)
+                if (procedureDeclaration == null)
                 {
-                    return result.Result;
+                    throw new InvalidOperationException($"Can't compile '{script}'");
                 }
+
+                var procedureRunStepStore = await procedureQueue.QueueProcedureAsync(
+                    procedureDeclaration,
+                    false,
+                    ct);
+
+                while (true)
+                {
+                    var runtime = new ProcedureRuntime(
+                        Compiler,
+                        StorageHub.ProcedureRunStore,
+                        procedureRunStepStore,
+                        environmentRuntime.RunnableRuntime);
+                    var result = await runtime.RunAsync(maximumNumberOfSteps, ct);
+
+                    if (result.HasCompleteSuccessfully)
+                    {
+                        return result.Result;
+                    }
+                }
+            }
+            finally
+            {
+                await environmentRuntime.StopAsync(ct);
             }
         }
     }

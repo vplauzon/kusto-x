@@ -12,23 +12,22 @@ namespace Kustox.Workbench.Controllers.Language
     public class CommandController : ControllerBase
     {
         private readonly ILogger<CommandController> _logger;
-        private readonly KustoxCompiler _compiler;
-        private readonly TokenCredential _credentials;
+        private readonly ProcedureEnvironmentRuntime _procedureEnvironmentRuntime;
 
         public CommandController(
             ILogger<CommandController> logger,
-            KustoxCompiler compiler,
-            TokenCredential credentials)
+            ProcedureEnvironmentRuntime procedureEnvironmentRuntime)
         {
             _logger = logger;
-            _compiler = compiler;
-            _credentials = credentials;
+            _procedureEnvironmentRuntime = procedureEnvironmentRuntime;
         }
 
         [HttpPost]
         public async Task<CommandOutput> PostAsync(CommandInput input, CancellationToken ct)
         {
-            var statement = _compiler.CompileStatement(input.Csl);
+            var statement = _procedureEnvironmentRuntime
+                .Compiler
+                .CompileStatement(input.Csl);
 
             if (statement == null)
             {
@@ -36,7 +35,7 @@ namespace Kustox.Workbench.Controllers.Language
             }
             else
             {
-                var runtime = GetRuntime();
+                var runtime = _procedureEnvironmentRuntime.RunnableRuntime;
                 var result = await runtime.RunStatementAsync(
                     statement,
                     ImmutableDictionary<string, TableResult?>.Empty,
@@ -46,28 +45,6 @@ namespace Kustox.Workbench.Controllers.Language
                 {
                     Table = new TableOutput(result)
                 };
-            }
-        }
-
-        private RunnableRuntime GetRuntime()
-        {
-            var kustoCluster = Environment.GetEnvironmentVariable("kustoCluster");
-            var kustoDbSandbox = Environment.GetEnvironmentVariable("kustoDb-sandbox");
-
-            if (string.IsNullOrWhiteSpace(kustoCluster)
-                || string.IsNullOrWhiteSpace(kustoDbSandbox))
-            {
-                throw new InvalidDataException("Kusto Cluster configuration missing");
-            }
-            else
-            {
-                var clusterUri = new Uri(kustoCluster);
-                var connectionProvider = new ConnectionProvider(
-                    clusterUri,
-                    kustoDbSandbox,
-                    _credentials);
-
-                return new RunnableRuntime(connectionProvider);
             }
         }
     }

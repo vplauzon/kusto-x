@@ -15,11 +15,17 @@ namespace Kustox.Runtime.Commands
     {
         private readonly CommandRunnerBase _generic;
         private readonly CommandRunnerBase _getBlobs;
+        private readonly CommandRunnerBase _runProcedure;
 
-        public CommandRunnerRouter(ConnectionProvider connectionProvider)
+        public CommandRunnerRouter(
+            ConnectionProvider connectionProvider,
+            IProcedureQueue procedureQueue)
         {
             _generic = new GenericCommandRunner(connectionProvider);
             _getBlobs = new GetBlobsCommandRunner(connectionProvider);
+            _runProcedure = new RunProcedureCommandRunner(
+                connectionProvider,
+                procedureQueue);
         }
 
         public async Task<TableResult> RunCommandAsync(
@@ -36,7 +42,7 @@ namespace Kustox.Runtime.Commands
             }
             else if (command.RunProcedureCommand != null)
             {
-                throw new NotImplementedException();
+                return await _runProcedure.RunCommandAsync(command, ct);
             }
             else
             {

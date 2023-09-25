@@ -6,6 +6,8 @@ using System.Buffers;
 using System.Text;
 using Azure.Identity;
 using Kustox.Compiler;
+using Kustox.Runtime;
+using Kustox.KustoState;
 
 namespace Kustox.Workbench
 {
@@ -31,8 +33,7 @@ namespace Kustox.Workbench
             builder.Services.AddRazorPages();
             builder.Services.AddControllers();
             builder.Services.AddScoped<UserIdentityContext>();
-            builder.Services.AddSingleton(CreateTokenCredential());
-            builder.Services.AddSingleton(new KustoxCompiler());
+            builder.Services.AddSingleton(CreateProcedureEnvironmentRuntime());
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
             builder.Services.AddEndpointsApiExplorer();
@@ -66,6 +67,27 @@ namespace Kustox.Workbench
             await app.RunAsync();
         }
 
+        #region Services
+        private static ProcedureEnvironmentRuntime CreateProcedureEnvironmentRuntime()
+        {
+            var kustoCluster = Environment.GetEnvironmentVariable("kustoCluster");
+            var kustoDbSandbox = Environment.GetEnvironmentVariable("kustoDb-sandbox");
+            var kustoDbState = Environment.GetEnvironmentVariable("kustoDb-state");
+            var credentials = CreateTokenCredential();
+            var connectionProviderState =
+                new ConnectionProvider(new Uri(kustoCluster!), kustoDbState!, credentials);
+            var connectionProviderSandbox =
+                new ConnectionProvider(new Uri(kustoCluster!), kustoDbSandbox!, credentials);
+            var hubStore = new KustoStorageHub(connectionProviderState);
+            var runtime = new ProcedureEnvironmentRuntime(
+                new KustoxCompiler(),
+                hubStore.ProcedureRunStore,
+                hubStore.ProcedureRunRegistry,
+                connectionProviderSandbox);
+
+            return runtime;
+        }
+
         private static TokenCredential CreateTokenCredential()
         {
             var tenantId = Environment.GetEnvironmentVariable("tenantId");
@@ -85,5 +107,6 @@ namespace Kustox.Workbench
                 return credential;
             }
         }
+        #endregion
     }
 }

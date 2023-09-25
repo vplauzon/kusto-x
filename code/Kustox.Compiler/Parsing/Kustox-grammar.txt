@@ -69,7 +69,7 @@ rule(interleave=false) genericQuery = (. - ".") kqlLine* => { "code": text };
 rule wholeQuery = (. - ".") .* => { "code": text };
 rule(interleave=false) genericCommand = "." kqlLine+ => { "code": text };
 rule wholeGenericCommand = "." .* => {"genericCommand":{ "code": text }};
-rule runProcedureCommand = "." "run-procedure" "<|"
+rule runProcedureCommand = "." "run" ("procedure" | "proc") "<|"
 	properties:optionalWithPropertyAssignationList
 	rootSequence:sequenceContent => {
 		"rootSequence":rootSequence
