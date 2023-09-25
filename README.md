@@ -183,7 +183,15 @@ Currently, there is no "until" semantic in Kusto-X.
 
 Here are a couple of commands unique to Kusto-X.
 
-### .execute command-text?
+### .run procedure
+
+```
+.run procedure <| {
+    //  Procedure body
+}
+```
+
+Alternatively, `.run proc` is also accepted.
 
 ### .get blobs
 

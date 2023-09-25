@@ -7,7 +7,7 @@ namespace Kustox.UnitTests
         [Fact]
         public void Empty()
         {
-            var script = @".run-procedure <| {  }";
+            var script = @".run procedure <| {  }";
             var statement = new KustoxCompiler().CompileStatement(script);
 
             Assert.NotNull(statement);
@@ -19,7 +19,7 @@ namespace Kustox.UnitTests
         [Fact]
         public void CaptureQuery()
         {
-            var script = @".run-procedure <| {
+            var script = @".run procedure <| {
     @capture-scalar myConstant = print 2
 }";
             var statement = new KustoxCompiler().CompileStatement(script);
@@ -40,7 +40,7 @@ namespace Kustox.UnitTests
         [Fact]
         public void CaptureCommand()
         {
-            var script = @".run-procedure <| {
+            var script = @".run procedure <| {
     @capture-scalar myVersionTable = .show version
 }";
             var statement = new KustoxCompiler().CompileStatement(script);
@@ -62,7 +62,7 @@ namespace Kustox.UnitTests
         [Fact]
         public void ExecCommand()
         {
-            var script = @".run-procedure <| {
+            var script = @".run procedure <| {
     .create table T(Id:string)
 }";
             var statement = new KustoxCompiler().CompileStatement(script);

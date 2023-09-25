@@ -22,7 +22,7 @@ namespace Kustox.IntegratedTests
 
             try
             {
-                var script = @".run-procedure <| {
+                var script = @".run proc <| {
     @capture-scalar a = print 40
 
     @capture-scalar b = print 2;
