@@ -22,9 +22,9 @@ namespace Kustox.IntegratedTests
             try
             {
                 var script = @".run-procedure <| {
-    @capture-scalar a = 40
+    @capture-scalar a = print 40
 
-    @capture-scalar b = 2;
+    @capture-scalar b = print 2;
 
     print a+b
 }";
@@ -34,7 +34,8 @@ namespace Kustox.IntegratedTests
                     ImmutableDictionary<string, TableResult?>.Empty,
                     ct);
                 var jobId = (string)result.Data[0][0];
-                var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
+                //  Timeout for completion:  account for running on a laptop tethering on mobile!
+                var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(12));
 
                 //  Prob until completion
                 while (true)

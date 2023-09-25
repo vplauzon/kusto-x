@@ -112,7 +112,10 @@ namespace Kustox.Runtime
         {
             await readyToStartTask;
             await runtime.RunAsync(null, compoundCt.Token);
-            _packageIndex.TryRemove(runtime.JobId, out var package);
+            if (!_packageIndex.TryRemove(runtime.JobId, out var package))
+            {
+                throw new InvalidOperationException("Package index corrupted in runtime");
+            }
         }
         #endregion
 
