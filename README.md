@@ -201,6 +201,14 @@ Alternatively, `.run proc` is also accepted.
 
 A query can be appended.  Alternatively, `.show proc runs` can be used.
 
+### .show procedure run steps
+
+```
+.show procedure run steps [where Breadcrumb startswith [step0.step1...]]
+```
+
+A query can be appended.  Alternatively, `.show proc run` can be used.
+
 ### .get blobs
 
 ```
