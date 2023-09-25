@@ -13,18 +13,19 @@ namespace Kustox.Runtime
 {
     public class ProcedureEnvironmentRuntime : IProcedureQueue
     {
-        private readonly IProcedureRunStore _procedureRunStore;
-        private readonly IProcedureRunStepRegistry _procedureRunRegistry;
-
         public ProcedureEnvironmentRuntime(
             IProcedureRunStore procedureRunStore,
             IProcedureRunStepRegistry procedureRunRegistry,
             ConnectionProvider connectionProvider)
         {
-            _procedureRunStore = procedureRunStore;
-            _procedureRunRegistry = procedureRunRegistry;
+            ProcedureRunStore = procedureRunStore;
+            ProcedureRunRegistry = procedureRunRegistry;
             RunnableRuntime = new RunnableRuntime(connectionProvider, this);
         }
+
+        public IProcedureRunStore ProcedureRunStore { get; }
+        
+        public IProcedureRunStepRegistry ProcedureRunRegistry { get; }
 
         public RunnableRuntime RunnableRuntime { get; }
 
@@ -63,7 +64,7 @@ namespace Kustox.Runtime
             string script,
             CancellationToken ct)
         {
-            var procedureRunStepStore = await _procedureRunRegistry.NewRunAsync(ct);
+            var procedureRunStepStore = await ProcedureRunRegistry.NewRunAsync(ct);
             var stepTask = procedureRunStepStore.AppendStepAsync(
                 new[]
                 {
@@ -77,7 +78,7 @@ namespace Kustox.Runtime
                 },
             ct);
 
-            await _procedureRunStore.AppendRunAsync(
+            await ProcedureRunStore.AppendRunAsync(
                 new[]
                 {
                     new ProcedureRun(

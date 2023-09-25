@@ -51,8 +51,6 @@ namespace Kustox.IntegratedTests
         }
         #endregion
 
-        private static readonly KustoxCompiler _compiler = new KustoxCompiler();
-
         static TestBase()
         {
             var testId = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.ffff");
@@ -116,9 +114,9 @@ namespace Kustox.IntegratedTests
         }
         #endregion
 
-        #region IControlFlowList
+        protected static KustoxCompiler Compiler { get; } = new KustoxCompiler();
+
         protected static IStorageHub StorageHub { get; }
-        #endregion
 
         #region Kusto
         private static ConnectionProvider CreateConnectionProvider(bool isSandbox)
@@ -138,47 +136,58 @@ namespace Kustox.IntegratedTests
         protected static string SampleRootUrl { get; }
         #endregion
 
+        #region MyRegion
+        protected static ProcedureEnvironmentRuntime CreateEnvironmentRuntime()
+        {
+            return new ProcedureEnvironmentRuntime(
+                StorageHub.ProcedureRunStore,
+                StorageHub.ProcedureRunRegistry,
+                CreateConnectionProvider(true));
+        }
+        #endregion
+
         protected static async Task<TableResult?> RunInPiecesAsync(
             string script,
             int? maximumNumberOfSteps = 1,
             CancellationToken ct = default(CancellationToken))
         {
-            var connectionProvider = CreateConnectionProvider(true);
-            var environmentRuntime = new ProcedureEnvironmentRuntime(
-                StorageHub.ProcedureRunStore,
-                StorageHub.ProcedureRunRegistry,
-                connectionProvider);
+            var environmentRuntime = CreateEnvironmentRuntime();
 
             await environmentRuntime.StartAsync(false, ct);
 
-            var procedureQueue = (IProcedureQueue)environmentRuntime;
-            var procedureDeclaration = _compiler.CompileProcedure(script);
-
-            if(procedureDeclaration == null)
+            try
             {
-                throw new InvalidOperationException($"Can't compile '{script}'");
-            }
+                var procedureQueue = (IProcedureQueue)environmentRuntime;
+                var procedureDeclaration = Compiler.CompileProcedure(script);
 
-            var procedureRunStepStore = await procedureQueue.QueueProcedureAsync(
-                procedureDeclaration,
-                false,
-                ct);
-
-            while (true)
-            {
-                var runtime = new ProcedureRuntime(
-                    _compiler,
-                    StorageHub.ProcedureRunStore,
-                    procedureRunStepStore,
-                    environmentRuntime.RunnableRuntime);
-                var result = await runtime.RunAsync(maximumNumberOfSteps);
-
-                if (result.HasCompleteSuccessfully)
+                if (procedureDeclaration == null)
                 {
-                    await environmentRuntime.StopAsync(ct);
-
-                    return result.Result;
+                    throw new InvalidOperationException($"Can't compile '{script}'");
                 }
+
+                var procedureRunStepStore = await procedureQueue.QueueProcedureAsync(
+                    procedureDeclaration,
+                    false,
+                    ct);
+
+                while (true)
+                {
+                    var runtime = new ProcedureRuntime(
+                        Compiler,
+                        StorageHub.ProcedureRunStore,
+                        procedureRunStepStore,
+                        environmentRuntime.RunnableRuntime);
+                    var result = await runtime.RunAsync(maximumNumberOfSteps);
+
+                    if (result.HasCompleteSuccessfully)
+                    {
+                        return result.Result;
+                    }
+                }
+            }
+            finally
+            {
+                await environmentRuntime.StopAsync(ct);
             }
         }
     }
