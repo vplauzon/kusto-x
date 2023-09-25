@@ -72,16 +72,18 @@ namespace Kustox.Workbench
         private static ProcedureEnvironmentRuntime CreateProcedureEnvironmentRuntime()
         {
             var kustoCluster = Environment.GetEnvironmentVariable("kustoCluster");
-            //var kustoDbSandbox = Environment.GetEnvironmentVariable("kustoDb-sandbox");
+            var kustoDbSandbox = Environment.GetEnvironmentVariable("kustoDb-sandbox");
             var kustoDbState = Environment.GetEnvironmentVariable("kustoDb-state");
             var credentials = CreateTokenCredential();
-            var connectionProvider =
+            var connectionProviderState =
                 new ConnectionProvider(new Uri(kustoCluster!), kustoDbState!, credentials);
-            var hubStore = new KustoStorageHub(connectionProvider);
+            var connectionProviderSandbox =
+                new ConnectionProvider(new Uri(kustoCluster!), kustoDbSandbox!, credentials);
+            var hubStore = new KustoStorageHub(connectionProviderState);
             var runtime = new ProcedureEnvironmentRuntime(
                 hubStore.ProcedureRunStore,
                 hubStore.ProcedureRunRegistry,
-                connectionProvider);
+                connectionProviderSandbox);
 
             return runtime;
         }
