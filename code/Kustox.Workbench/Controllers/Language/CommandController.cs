@@ -12,23 +12,22 @@ namespace Kustox.Workbench.Controllers.Language
     public class CommandController : ControllerBase
     {
         private readonly ILogger<CommandController> _logger;
-        private readonly KustoxCompiler _compiler;
         private readonly ProcedureEnvironmentRuntime _procedureEnvironmentRuntime;
 
         public CommandController(
             ILogger<CommandController> logger,
-            KustoxCompiler compiler,
             ProcedureEnvironmentRuntime procedureEnvironmentRuntime)
         {
             _logger = logger;
-            _compiler = compiler;
             _procedureEnvironmentRuntime = procedureEnvironmentRuntime;
         }
 
         [HttpPost]
         public async Task<CommandOutput> PostAsync(CommandInput input, CancellationToken ct)
         {
-            var statement = _compiler.CompileStatement(input.Csl);
+            var statement = _procedureEnvironmentRuntime
+                .Compiler
+                .CompileStatement(input.Csl);
 
             if (statement == null)
             {

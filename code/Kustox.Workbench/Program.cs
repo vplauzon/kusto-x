@@ -33,7 +33,6 @@ namespace Kustox.Workbench
             builder.Services.AddRazorPages();
             builder.Services.AddControllers();
             builder.Services.AddScoped<UserIdentityContext>();
-            builder.Services.AddSingleton(new KustoxCompiler());
             builder.Services.AddSingleton(CreateProcedureEnvironmentRuntime());
 
             // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -81,6 +80,7 @@ namespace Kustox.Workbench
                 new ConnectionProvider(new Uri(kustoCluster!), kustoDbSandbox!, credentials);
             var hubStore = new KustoStorageHub(connectionProviderState);
             var runtime = new ProcedureEnvironmentRuntime(
+                new KustoxCompiler(),
                 hubStore.ProcedureRunStore,
                 hubStore.ProcedureRunRegistry,
                 connectionProviderSandbox);

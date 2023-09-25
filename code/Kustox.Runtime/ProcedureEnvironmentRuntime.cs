@@ -14,17 +14,21 @@ namespace Kustox.Runtime
     public class ProcedureEnvironmentRuntime : IProcedureQueue
     {
         public ProcedureEnvironmentRuntime(
+            KustoxCompiler compiler,
             IProcedureRunStore procedureRunStore,
             IProcedureRunStepRegistry procedureRunRegistry,
             ConnectionProvider connectionProvider)
         {
+            Compiler = compiler;
             ProcedureRunStore = procedureRunStore;
             ProcedureRunRegistry = procedureRunRegistry;
             RunnableRuntime = new RunnableRuntime(connectionProvider, this);
         }
 
-        public IProcedureRunStore ProcedureRunStore { get; }
+        public KustoxCompiler Compiler { get; }
         
+        public IProcedureRunStore ProcedureRunStore { get; }
+
         public IProcedureRunStepRegistry ProcedureRunRegistry { get; }
 
         public RunnableRuntime RunnableRuntime { get; }
@@ -53,6 +57,13 @@ namespace Kustox.Runtime
 
             if (doRun)
             {
+                var runtime = new ProcedureRuntime(
+                    Compiler,
+                    ProcedureRunStore,
+                    runStepStore,
+                    RunnableRuntime);
+                var result = await runtime.RunAsync(null, ct);
+
                 throw new NotSupportedException();
             }
 

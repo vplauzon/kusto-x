@@ -140,6 +140,7 @@ namespace Kustox.IntegratedTests
         protected static ProcedureEnvironmentRuntime CreateEnvironmentRuntime()
         {
             return new ProcedureEnvironmentRuntime(
+                Compiler,
                 StorageHub.ProcedureRunStore,
                 StorageHub.ProcedureRunRegistry,
                 CreateConnectionProvider(true));
@@ -177,7 +178,7 @@ namespace Kustox.IntegratedTests
                         StorageHub.ProcedureRunStore,
                         procedureRunStepStore,
                         environmentRuntime.RunnableRuntime);
-                    var result = await runtime.RunAsync(maximumNumberOfSteps);
+                    var result = await runtime.RunAsync(maximumNumberOfSteps, ct);
 
                     if (result.HasCompleteSuccessfully)
                     {

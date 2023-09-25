@@ -36,8 +36,8 @@ namespace Kustox.Runtime
 
         #region Run Infra
         public async Task<RuntimeResult> RunAsync(
-            int? maximumNumberOfSteps = null,
-            CancellationToken ct = default(CancellationToken))
+            int? maximumNumberOfSteps,
+            CancellationToken ct)
         {
             var levelContext = await RuntimeLevelContext.LoadContextAsync(
                 _procedureRunStore,
