@@ -1,4 +1,5 @@
-﻿using Kustox.Runtime.State;
+﻿using Kustox.Compiler;
+using Kustox.Runtime.State;
 using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State.RunStep;
 using System;
@@ -43,11 +44,11 @@ namespace Kustox.Runtime
 
         #region IProcedureQueue methods
         async Task<IProcedureRunStepStore> IProcedureQueue.QueueProcedureAsync(
-            string script,
+            SequenceDeclaration procedureDeclaration,
             bool doRun,
             CancellationToken ct)
         {
-            var runStepStore = await PersistProcedureRunAsync(script, ct);
+            var runStepStore = await PersistProcedureRunAsync(procedureDeclaration.Code, ct);
 
             if (doRun)
             {

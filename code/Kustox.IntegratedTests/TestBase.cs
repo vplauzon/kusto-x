@@ -51,6 +51,8 @@ namespace Kustox.IntegratedTests
         }
         #endregion
 
+        private static readonly KustoxCompiler _compiler = new KustoxCompiler();
+
         static TestBase()
         {
             var testId = DateTime.UtcNow.ToString("yyyy-MM-dd HH:mm:ss.ffff");
@@ -150,15 +152,22 @@ namespace Kustox.IntegratedTests
             await environmentRuntime.StartAsync(false, ct);
 
             var procedureQueue = (IProcedureQueue)environmentRuntime;
+            var procedureDeclaration = _compiler.CompileProcedure(script);
+
+            if(procedureDeclaration == null)
+            {
+                throw new InvalidOperationException($"Can't compile '{script}'");
+            }
+
             var procedureRunStepStore = await procedureQueue.QueueProcedureAsync(
-                script,
+                procedureDeclaration,
                 false,
                 ct);
 
             while (true)
             {
                 var runtime = new ProcedureRuntime(
-                    new KustoxCompiler(),
+                    _compiler,
                     StorageHub.ProcedureRunStore,
                     procedureRunStepStore,
                     environmentRuntime.RunnableRuntime);

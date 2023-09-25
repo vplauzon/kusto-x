@@ -1,11 +1,12 @@
-﻿using Kustox.Runtime.State.RunStep;
+﻿using Kustox.Compiler;
+using Kustox.Runtime.State.RunStep;
 
 namespace Kustox.Runtime
 {
     public interface IProcedureQueue
     {
         Task<IProcedureRunStepStore> QueueProcedureAsync(
-            string script,
+            SequenceDeclaration procedureDeclaration,
             bool doNotRun,
             CancellationToken ct);
     }

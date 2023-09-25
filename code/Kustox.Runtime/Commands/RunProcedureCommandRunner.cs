@@ -27,7 +27,7 @@ namespace Kustox.Runtime.Commands
             CancellationToken ct)
         {
             var procedureRunStepStore = await _procedureQueue.QueueProcedureAsync(
-                command.RunProcedureCommand!.RootSequence.Code,
+                command.RunProcedureCommand!.RootSequence,
                 true,
                 ct);
             var result = new TableResult(
