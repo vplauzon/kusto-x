@@ -17,11 +17,15 @@ namespace Kustox.Runtime.Commands
         private readonly CommandRunnerBase _getBlobs;
         private readonly CommandRunnerBase _runProcedure;
 
-        public CommandRunnerRouter(ConnectionProvider connectionProvider)
+        public CommandRunnerRouter(
+            ConnectionProvider connectionProvider,
+            IProcedureQueue procedureQueue)
         {
             _generic = new GenericCommandRunner(connectionProvider);
             _getBlobs = new GetBlobsCommandRunner(connectionProvider);
-            _runProcedure = new RunProcedureCommandRunner(connectionProvider);
+            _runProcedure = new RunProcedureCommandRunner(
+                connectionProvider,
+                procedureQueue);
         }
 
         public async Task<TableResult> RunCommandAsync(

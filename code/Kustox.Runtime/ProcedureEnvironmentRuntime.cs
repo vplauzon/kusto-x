@@ -10,21 +10,22 @@ using System.Threading.Tasks;
 
 namespace Kustox.Runtime
 {
-    public class ProcedureEnvironmentRuntime
+    public class ProcedureEnvironmentRuntime : IProcedureQueue
     {
         private readonly IProcedureRunStore _procedureRunStore;
         private readonly IProcedureRunStepRegistry _procedureRunRegistry;
-        private readonly RunnableRuntime _runnableRuntime;
 
         public ProcedureEnvironmentRuntime(
             IProcedureRunStore procedureRunStore,
             IProcedureRunStepRegistry procedureRunRegistry,
-            RunnableRuntime runnableRuntime)
+            ConnectionProvider connectionProvider)
         {
             _procedureRunStore = procedureRunStore;
             _procedureRunRegistry = procedureRunRegistry;
-            _runnableRuntime = runnableRuntime;
+            RunnableRuntime = new RunnableRuntime(connectionProvider, this);
         }
+
+        public RunnableRuntime RunnableRuntime { get; }
 
         public async Task StartAsync(bool doExisting, CancellationToken ct)
         {
@@ -40,20 +41,22 @@ namespace Kustox.Runtime
             await Task.CompletedTask;
         }
 
-        public async Task<IProcedureRunStepStore> QueueProcedureAsync(
+        #region IProcedureQueue methods
+        async Task<IProcedureRunStepStore> IProcedureQueue.QueueProcedureAsync(
             string script,
-            bool doNotRun,
+            bool doRun,
             CancellationToken ct)
         {
             var runStepStore = await PersistProcedureRunAsync(script, ct);
 
-            if(!doNotRun)
+            if (doRun)
             {
                 throw new NotSupportedException();
             }
 
             return runStepStore;
         }
+        #endregion
 
         private async Task<IProcedureRunStepStore> PersistProcedureRunAsync(
             string script,

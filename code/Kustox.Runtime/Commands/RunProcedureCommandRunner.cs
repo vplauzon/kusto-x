@@ -1,21 +1,43 @@
 ﻿using Kustox.Compiler;
+using Kustox.Runtime.State;
 using Kustox.Runtime.State.RunStep;
+using System.Collections.Immutable;
 
 namespace Kustox.Runtime.Commands
 {
     internal class RunProcedureCommandRunner : CommandRunnerBase
     {
-        public RunProcedureCommandRunner(ConnectionProvider connectionProvider)
+        private static readonly IImmutableList<ColumnSpecification> COLUMN_SPECS =
+            ImmutableArray<ColumnSpecification>
+            .Empty
+            .Add(new ColumnSpecification("JobId", typeof(string)));
+
+        private readonly IProcedureQueue _procedureQueue;
+
+        public RunProcedureCommandRunner(
+            ConnectionProvider connectionProvider,
+            IProcedureQueue procedureQueue)
             : base(connectionProvider)
         {
+            _procedureQueue = procedureQueue;
         }
 
-        public override Task<TableResult> RunCommandAsync(
+        public override async Task<TableResult> RunCommandAsync(
             CommandDeclaration command,
             CancellationToken ct)
         {
-            //command.RunProcedureCommand.RootSequence;
-            throw new NotImplementedException();
+            var procedureRunStepStore = await _procedureQueue.QueueProcedureAsync(
+                command.RunProcedureCommand!.RootSequence.Code,
+                true,
+                ct);
+            var result = new TableResult(
+                true,
+                COLUMN_SPECS,
+                ImmutableArray<IImmutableList<object>>
+                .Empty
+                .Add(ImmutableArray<object>.Empty.Add(procedureRunStepStore.JobId)));
+
+            return result;
         }
     }
 }

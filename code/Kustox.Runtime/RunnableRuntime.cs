@@ -20,10 +20,14 @@ namespace Kustox.Runtime
         private readonly ConnectionProvider _connectionProvider;
         private readonly CommandRunnerRouter _commandRunnerRouter;
 
-        public RunnableRuntime(ConnectionProvider connectionProvider)
+        public RunnableRuntime(
+            ConnectionProvider connectionProvider,
+            IProcedureQueue procedureQueue)
         {
             _connectionProvider = connectionProvider;
-            _commandRunnerRouter = new CommandRunnerRouter(connectionProvider);
+            _commandRunnerRouter = new CommandRunnerRouter(
+                connectionProvider,
+                procedureQueue);
         }
 
         public async Task<TableResult> RunStatementAsync(

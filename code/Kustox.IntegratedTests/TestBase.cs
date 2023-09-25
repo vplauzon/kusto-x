@@ -1,4 +1,5 @@
 ﻿using Azure.Identity;
+using Kustox.Compiler;
 using Kustox.KustoState;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
@@ -58,7 +59,6 @@ namespace Kustox.IntegratedTests
 
             SampleRootUrl = GetEnvironmentVariable("sampleRootUrl");
             StorageHub = new KustoStorageHub(CreateConnectionProvider(false));
-            RunnableRuntime = CreateRunnableRuntime();
         }
 
         #region Environment variables
@@ -119,13 +119,6 @@ namespace Kustox.IntegratedTests
         #endregion
 
         #region Kusto
-        protected static RunnableRuntime RunnableRuntime { get; }
-
-        private static RunnableRuntime CreateRunnableRuntime()
-        {
-            return new RunnableRuntime(CreateConnectionProvider(true));
-        }
-
         private static ConnectionProvider CreateConnectionProvider(bool isSandbox)
         {
             var kustoCluster = GetEnvironmentVariable("kustoCluster");
@@ -148,24 +141,27 @@ namespace Kustox.IntegratedTests
             int? maximumNumberOfSteps = 1,
             CancellationToken ct = default(CancellationToken))
         {
+            var connectionProvider = CreateConnectionProvider(true);
             var environmentRuntime = new ProcedureEnvironmentRuntime(
                 StorageHub.ProcedureRunStore,
                 StorageHub.ProcedureRunRegistry,
-                RunnableRuntime);
+                connectionProvider);
 
             await environmentRuntime.StartAsync(false, ct);
 
-            var procedureRunStepStore = await environmentRuntime.QueueProcedureAsync(
+            var procedureQueue = (IProcedureQueue)environmentRuntime;
+            var procedureRunStepStore = await procedureQueue.QueueProcedureAsync(
                 script,
-                true,
+                false,
                 ct);
 
             while (true)
             {
                 var runtime = new ProcedureRuntime(
+                    new KustoxCompiler(),
                     StorageHub.ProcedureRunStore,
                     procedureRunStepStore,
-                    RunnableRuntime);
+                    environmentRuntime.RunnableRuntime);
                 var result = await runtime.RunAsync(maximumNumberOfSteps);
 
                 if (result.HasCompleteSuccessfully)
