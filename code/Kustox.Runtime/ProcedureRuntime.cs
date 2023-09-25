@@ -34,6 +34,8 @@ namespace Kustox.Runtime
             _runnableRuntime = runnableRuntime;
         }
 
+        public string JobId => _procedureRunStepStore.JobId;
+
         #region Run Infra
         public async Task<RuntimeResult> RunAsync(
             int? maximumNumberOfSteps,

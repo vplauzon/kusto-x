@@ -36,6 +36,7 @@ namespace Kustox.IntegratedTests
                 var jobId = (string)result.Data[0][0];
                 var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(5));
 
+                //  Prob until completion
                 while (true)
                 {
                     var run = await environmentRuntime.ProcedureRunStore.GetLatestRunAsync(
@@ -47,7 +48,9 @@ namespace Kustox.IntegratedTests
                     {
                         throw new NotImplementedException();
                     }
-                    Assert.True(run.State == ProcedureRunState.Running);
+                    Assert.True(run.State == ProcedureRunState.Running
+                        || run.State == ProcedureRunState.Pending);
+                    await Task.Delay(TimeSpan.FromSeconds(1));
                 }
             }
             finally
