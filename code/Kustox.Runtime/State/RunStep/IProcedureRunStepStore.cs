@@ -10,6 +10,8 @@ namespace Kustox.Runtime.State.RunStep
 
         Task<IImmutableList<ProcedureRunStep>> GetAllLatestStepsAsync(CancellationToken ct);
 
+        Task<TableResult?> GetRunResultAsync(CancellationToken ct);
+     
         Task AppendStepAsync(IEnumerable<ProcedureRunStep> steps, CancellationToken ct);
     }
 }
