@@ -193,6 +193,14 @@ Here are a couple of commands unique to Kusto-X.
 
 Alternatively, `.run proc` is also accepted.
 
+### .show procedure runs
+
+```
+.show procedure runs
+```
+
+A query can be appended.  Alternatively, `.show proc runs` can be used.
+
 ### .get blobs
 
 ```
