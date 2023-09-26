@@ -75,8 +75,9 @@ rule runProcedureCommand = "." "run" ("procedure" | "proc") "<|"
 	rootSequence:sequenceContent => {
 		"rootSequence":rootSequence
 	};
-rule showProcedureRuns = "." "show" ("procedure" | "proc") "runs" query:pipeGenericQuery? => {
+rule showProcedureRuns = "." "show" ("procedure" | "proc") "runs" jobId:quotedString? query:pipeGenericQuery? => {
 		"code" : text,
+		"jobId" : firstOrNull(jobId),
 		"query" : firstOrNull(query)
 	};
 rule query = genericQuery;
