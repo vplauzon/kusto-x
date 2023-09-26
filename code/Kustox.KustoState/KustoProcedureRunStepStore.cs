@@ -44,6 +44,13 @@ namespace Kustox.KustoState
             return steps;
         }
 
+        Task<TableResult> IProcedureRunStepStore.QueryLatestRunsAsync(
+            string? query,
+            CancellationToken ct)
+        {
+            throw new NotImplementedException();
+        }
+
         async Task<TableResult?> IProcedureRunStepStore.GetRunResultAsync(CancellationToken ct)
         {
             var stepsData = await KustoHelper.QueryAsync<StepData>(

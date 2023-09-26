@@ -63,6 +63,7 @@ rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"
 	};
 
 #	Commands and queries:  stuff that can be run
+rule integerList = head:integer tail:("," i:integer => i)* => prepend(head, tail);
 rule(interleave=false) genericKql = ((. - "\n")+ - blockSpacer*) => text;
 rule(interleave=false) genericKqlBlock = (genericKql "\n")* genericKql => text;
 rule getBlobsCommand = "." "get" "blobs" rootUrl:quotedString => {'rootUrl':rootUrl};
@@ -80,11 +81,14 @@ rule showProcedureRuns = "." "show" ("procedure" | "proc") "runs" jobId:quotedSt
 		"jobId" : firstOrNull(jobId),
 		"query" : firstOrNull(query)
 	};
-rule showProcedureRunSteps = "." "show" ("procedure" | "proc") "run" jobId:quotedString "steps" query:pipeGenericQuery? => {
+rule showProcedureRunSteps = "." "show" ("procedure" | "proc") "run" jobId:quotedString "steps" 
+	prefix:("where" "Breadcrumb" "startswith" "[" steps:integerList "]" all:(("all" => true)? => firstOrNull(defaultOutput)))?
+	query:pipeGenericQuery? => merge({
 		"code" : text,
 		"jobId" : jobId,
-		"query" : firstOrNull(query)
-	};
+		"query" : firstOrNull(query),
+		"prefix" : firstOrNull(prefix)
+	}, firstOrNull(prefix));
 rule query = genericQuery;
 rule command = runProcedureCommand:runProcedureCommand
 	| showProcedureRuns:showProcedureRuns

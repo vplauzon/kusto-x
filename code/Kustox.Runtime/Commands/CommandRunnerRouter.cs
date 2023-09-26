@@ -16,10 +16,12 @@ namespace Kustox.Runtime.Commands
         private readonly CommandRunnerBase _getBlobs;
         private readonly CommandRunnerBase _runProcedure;
         private readonly CommandRunnerBase _showProcedureRuns;
+        private readonly CommandRunnerBase _showProcedureRunSteps;
 
         public CommandRunnerRouter(
             ConnectionProvider connectionProvider,
             IProcedureRunStore procedureRunStore,
+            IProcedureRunStepRegistry procedureRunStepRegistry,
             IProcedureQueue procedureQueue)
         {
             _generic = new GenericCommandRunner(connectionProvider);
@@ -30,6 +32,9 @@ namespace Kustox.Runtime.Commands
             _showProcedureRuns = new ShowProcedureRunsCommandRunner(
                 connectionProvider,
                 procedureRunStore);
+            _showProcedureRunSteps = new ShowProcedureRunStepsCommandRunner(
+                connectionProvider,
+                procedureRunStepRegistry);
         }
 
         public async Task<TableResult> RunCommandAsync(

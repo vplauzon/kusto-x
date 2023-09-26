@@ -2,6 +2,6 @@
 {
     public class ShowProcedureRunStepsCommandDeclaration : QueryableCommandBase
     {
-        public string? JobId { get; set; }
+        public string JobId { get; set; } = string.Empty;
     }
 }

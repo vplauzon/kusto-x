@@ -24,12 +24,14 @@ namespace Kustox.Runtime
         public RunnableRuntime(
             ConnectionProvider connectionProvider,
             IProcedureRunStore procedureRunStore,
+            IProcedureRunStepRegistry procedureRunStepRegistry,
             IProcedureQueue procedureQueue)
         {
             _connectionProvider = connectionProvider;
             _commandRunnerRouter = new CommandRunnerRouter(
                 connectionProvider,
                 procedureRunStore,
+                procedureRunStepRegistry,
                 procedureQueue);
         }
 

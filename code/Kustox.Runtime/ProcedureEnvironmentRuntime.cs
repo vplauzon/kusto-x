@@ -50,6 +50,7 @@ namespace Kustox.Runtime
             RunnableRuntime = new RunnableRuntime(
                 connectionProvider,
                 procedureRunStore,
+                procedureRunRegistry,
                 this);
         }
 
