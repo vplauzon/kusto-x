@@ -1,4 +1,4 @@
-﻿namespace Kustox.Compiler
+﻿namespace Kustox.Compiler.Commands
 {
     public class GetBlobDeclaration : DeclarationBase
     {

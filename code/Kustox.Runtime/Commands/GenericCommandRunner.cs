@@ -1,6 +1,6 @@
 ﻿using Kusto.Cloud.Platform.Data;
 using Kusto.Data.Common;
-using Kustox.Compiler;
+using Kustox.Compiler.Commands;
 using Kustox.Runtime.State.RunStep;
 using System;
 using System.Collections.Generic;

@@ -1,5 +1,6 @@
 ﻿using Kusto.Language;
 using Kusto.Language.Syntax;
+using Kustox.Compiler.Commands;
 
 namespace Kustox.Compiler
 {

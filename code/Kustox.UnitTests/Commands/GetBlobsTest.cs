@@ -1,6 +1,6 @@
 using Kustox.Compiler;
 
-namespace Kustox.UnitTests
+namespace Kustox.UnitTests.Commands
 {
     public class GetBlobsTest
     {

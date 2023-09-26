@@ -74,8 +74,12 @@ rule runProcedureCommand = "." "run" ("procedure" | "proc") "<|"
 	rootSequence:sequenceContent => {
 		"rootSequence":rootSequence
 	};
+rule showProcedureRuns = "." "show" ("procedure" | "proc") "runs" => {
+		"code":  text
+	};
 rule query = genericQuery;
 rule command = runProcedureCommand:runProcedureCommand
+	| showProcedureRuns:showProcedureRuns
 	| getBlobsCommand:getBlobsCommand
 	| queueIngestCommand:queueIngestCommand
 	| genericCommand:genericCommand;
