@@ -8,7 +8,7 @@ using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
 
-namespace Kustox.IntegratedTests
+namespace Kustox.IntegratedTests.Commands
 {
     public class RunProcTest : TestBase
     {
