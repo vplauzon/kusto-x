@@ -204,10 +204,12 @@ A query can be appended.  Alternatively, `.show proc runs` can be used.
 ### .show procedure run steps
 
 ```
-.show procedure run steps [where Breadcrumb startswith [step0.step1...]]
+.show procedure run steps [where Breadcrumb startswith [step0, step1, ...] [all]]
 ```
 
-A query can be appended.  Alternatively, `.show proc run` can be used.
+A query can be appended.  Alternatively, `.show proc run steps` can be used.
+
+If no breadcrumb's prefix is provided, all steps are returned.  When the `all` switch is provided, all breadcrumbs with the prefix are returned.  Otherwise, only the immediate children are returned.
 
 ### .get blobs
 
