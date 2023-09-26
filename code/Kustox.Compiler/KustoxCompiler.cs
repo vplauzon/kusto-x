@@ -8,7 +8,7 @@ namespace Kustox.Compiler
 
         public StatementDeclaration? CompileStatement(string text)
         {
-            var declaration = _parser.ParseStatement(text);
+            var declaration = _parser.ParseStatement(text + "\n");
 
             if (declaration != null)
             {
@@ -20,7 +20,7 @@ namespace Kustox.Compiler
 
         public SequenceDeclaration? CompileProcedure(string text)
         {
-            var declaration = _parser.ParseProcedure(text);
+            var declaration = _parser.ParseProcedure(text + "\n");
 
             if (declaration != null)
             {

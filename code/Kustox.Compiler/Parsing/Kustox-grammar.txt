@@ -66,6 +66,7 @@ rule(interleave=false) kqlLine = ((. - "\n")* - blockSpacer*) "\n"=> text;
 rule getBlobsCommand = "." "get" "blobs" rootUrl:quotedString => {'rootUrl':rootUrl};
 rule queueIngestCommand = "." "queue" "ingest"=> "QueueIngest";
 rule(interleave=false) genericQuery = (. - ".") kqlLine* => { "code": text };
+rule pipeGenericQuery = "|" q:genericQuery => q;
 rule wholeQuery = (. - ".") .* => { "code": text };
 rule(interleave=false) genericCommand = "." kqlLine+ => { "code": text };
 rule wholeGenericCommand = "." .* => {"genericCommand":{ "code": text }};
@@ -74,8 +75,9 @@ rule runProcedureCommand = "." "run" ("procedure" | "proc") "<|"
 	rootSequence:sequenceContent => {
 		"rootSequence":rootSequence
 	};
-rule showProcedureRuns = "." "show" ("procedure" | "proc") "runs" => {
-		"code":  text
+rule showProcedureRuns = "." "show" ("procedure" | "proc") "runs" query:pipeGenericQuery? => {
+		"code" : text,
+		"query" : firstOrNull(query)
 	};
 rule query = genericQuery;
 rule command = runProcedureCommand:runProcedureCommand
