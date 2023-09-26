@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace Kustox.Runtime
 {
-    internal static class DataTableHelper
+    public static class DataTableHelper
     {
         private static readonly Newtonsoft.Json.JsonSerializer _newtonsoftSerializer =
             Newtonsoft.Json.JsonSerializer.CreateDefault();

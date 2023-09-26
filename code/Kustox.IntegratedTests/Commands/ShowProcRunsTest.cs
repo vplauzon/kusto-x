@@ -16,5 +16,16 @@ namespace Kustox.IntegratedTests.Commands
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
         }
+
+        [Fact]
+        public async Task SelectNonExisting()
+        {
+            var script = ".show procedure runs 'abc'";
+            var result = await RunStatementAsync(script);
+
+            Assert.NotNull(result);
+            Assert.False(result.IsScalar);
+            Assert.Empty(result.Data);
+        }
     }
 }

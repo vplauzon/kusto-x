@@ -24,24 +24,12 @@ namespace Kustox.Runtime.Commands
             CommandDeclaration command,
             CancellationToken ct)
         {
-            var runs = await _procedureRunStore.GetLatestRunsAsync(
+            var result = await _procedureRunStore.QueryLatestRunsAsync(
                 command.ShowProcedureRuns!.JobId,
-                command.ShowProcedureRuns!.Query?.Code,
+                command.ShowProcedureRuns!.GetPipedQuery(),
                 ct);
-            var columns = ImmutableArray<ColumnSpecification>
-                .Empty
-                .Add(new ColumnSpecification("JobId", typeof(string)))
-                .Add(new ColumnSpecification("State", typeof(string)))
-                .Add(new ColumnSpecification("Timestamp", typeof(DateTime)));
-            var table = new TableResult(
-                false,
-                columns,
-                runs
-                .Select(r => ImmutableArray<object>.Empty.Add(r.JobId).Add(r.State.ToString()).Add(r.Timestamp))
-                .Cast<IImmutableList<object>>()
-                .ToImmutableArray());
 
-            return table;
+            return result;
         }
     }
 }
