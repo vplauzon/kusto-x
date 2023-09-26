@@ -80,9 +80,15 @@ rule showProcedureRuns = "." "show" ("procedure" | "proc") "runs" jobId:quotedSt
 		"jobId" : firstOrNull(jobId),
 		"query" : firstOrNull(query)
 	};
+rule showProcedureRunSteps = "." "show" ("procedure" | "proc") "run" jobId:quotedString "steps" query:pipeGenericQuery? => {
+		"code" : text,
+		"jobId" : jobId,
+		"query" : firstOrNull(query)
+	};
 rule query = genericQuery;
 rule command = runProcedureCommand:runProcedureCommand
 	| showProcedureRuns:showProcedureRuns
+	| showProcedureRunSteps:showProcedureRunSteps
 	| getBlobsCommand:getBlobsCommand
 	| queueIngestCommand:queueIngestCommand
 	| genericCommand:genericCommand;

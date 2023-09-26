@@ -1,6 +1,6 @@
 ﻿namespace Kustox.Compiler.Commands
 {
-    public class ShowProcedureRunsCommandDeclaration : QueryableCommandBase
+    public class ShowProcedureRunStepsCommandDeclaration : QueryableCommandBase
     {
         public string? JobId { get; set; }
     }

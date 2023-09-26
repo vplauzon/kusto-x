@@ -206,7 +206,7 @@ A query can be appended.  Alternatively, `.show proc runs` can be used.
 ### .show procedure run steps
 
 ```
-.show procedure run steps [where Breadcrumb startswith [step0, step1, ...] [all]]
+.show procedure run <jobId> steps [where Breadcrumb startswith [step0, step1, ...] [all]]
 ```
 
 A query can be appended.  Alternatively, `.show proc run steps` can be used.
