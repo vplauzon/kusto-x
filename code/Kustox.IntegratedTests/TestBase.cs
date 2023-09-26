@@ -191,5 +191,35 @@ namespace Kustox.IntegratedTests
                 await environmentRuntime.StopAsync(ct);
             }
         }
+
+        protected static async Task<TableResult?> RunStatementAsync(
+            string script,
+            CancellationToken ct = default(CancellationToken))
+        {
+            var environmentRuntime = CreateEnvironmentRuntime();
+
+            await environmentRuntime.StartAsync(false, ct);
+
+            try
+            {
+                var statementDeclaration = Compiler.CompileStatement(script);
+
+                if (statementDeclaration == null)
+                {
+                    throw new InvalidOperationException($"Can't compile '{script}'");
+                }
+
+                var result = await environmentRuntime.RunnableRuntime.RunStatementAsync(
+                    statementDeclaration,
+                    ImmutableDictionary<string, TableResult?>.Empty,
+                    ct);
+
+                return result;
+            }
+            finally
+            {
+                await environmentRuntime.StopAsync(ct);
+            }
+        }
     }
 }

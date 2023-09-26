@@ -12,6 +12,7 @@ using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
 using System.Text.Json;
 using Kustox.Runtime.State.RunStep;
+using Kustox.Runtime.State.Run;
 
 namespace Kustox.Runtime
 {
@@ -22,11 +23,13 @@ namespace Kustox.Runtime
 
         public RunnableRuntime(
             ConnectionProvider connectionProvider,
+            IProcedureRunStore procedureRunStore,
             IProcedureQueue procedureQueue)
         {
             _connectionProvider = connectionProvider;
             _commandRunnerRouter = new CommandRunnerRouter(
                 connectionProvider,
+                procedureRunStore,
                 procedureQueue);
         }
 

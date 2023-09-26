@@ -41,11 +41,15 @@ namespace Kustox.IntegratedTests.Commands
                 //  Prob until completion
                 while (true)
                 {
-                    var run = await environmentRuntime.ProcedureRunStore.GetLatestRunAsync(
+                    var runs = await environmentRuntime.ProcedureRunStore.GetLatestRunsAsync(
                         jobId,
+                        null,
                         cancelSource.Token);
 
-                    Assert.NotNull(run);
+                    Assert.NotEmpty(runs);
+
+                    var run = runs.First();
+
                     if (run.State == ProcedureRunState.Completed)
                     {
                         var runStepStore = await environmentRuntime.ProcedureRunRegistry.GetRunAsync(

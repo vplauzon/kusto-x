@@ -1,4 +1,5 @@
 ﻿using Kustox.Compiler.Commands;
+using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State.RunStep;
 using System;
 using System.Collections.Generic;
@@ -14,9 +15,11 @@ namespace Kustox.Runtime.Commands
         private readonly CommandRunnerBase _generic;
         private readonly CommandRunnerBase _getBlobs;
         private readonly CommandRunnerBase _runProcedure;
+        private readonly CommandRunnerBase _showProcedureRuns;
 
         public CommandRunnerRouter(
             ConnectionProvider connectionProvider,
+            IProcedureRunStore procedureRunStore,
             IProcedureQueue procedureQueue)
         {
             _generic = new GenericCommandRunner(connectionProvider);
@@ -24,6 +27,9 @@ namespace Kustox.Runtime.Commands
             _runProcedure = new RunProcedureCommandRunner(
                 connectionProvider,
                 procedureQueue);
+            _showProcedureRuns = new ShowProcedureRunsCommandRunner(
+                connectionProvider,
+                procedureRunStore);
         }
 
         public async Task<TableResult> RunCommandAsync(
@@ -41,6 +47,10 @@ namespace Kustox.Runtime.Commands
             else if (command.RunProcedureCommand != null)
             {
                 return await _runProcedure.RunCommandAsync(command, ct);
+            }
+            else if (command.ShowProcedureRuns != null)
+            {
+                return await _showProcedureRuns.RunCommandAsync(command, ct);
             }
             else
             {

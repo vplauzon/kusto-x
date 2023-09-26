@@ -13,9 +13,6 @@ namespace Kustox.Runtime.Commands
 {
     internal class GenericCommandRunner : CommandRunnerBase
     {
-        private static readonly ClientRequestProperties _emptyProperties =
-            new ClientRequestProperties();
-
         public GenericCommandRunner(ConnectionProvider connectionProvider)
             : base(connectionProvider)
         {
@@ -27,8 +24,7 @@ namespace Kustox.Runtime.Commands
         {
             var reader = await ConnectionProvider.CommandProvider.ExecuteControlCommandAsync(
                 string.Empty,
-                command.GenericCommand!.Code,
-                _emptyProperties);
+                command.GenericCommand!.Code);
             var table = reader.ToDataSet().Tables[0];
 
             return table.ToTableResult();

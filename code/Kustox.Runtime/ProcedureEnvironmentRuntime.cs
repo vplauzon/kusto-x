@@ -47,7 +47,10 @@ namespace Kustox.Runtime
             Compiler = compiler;
             ProcedureRunStore = procedureRunStore;
             ProcedureRunRegistry = procedureRunRegistry;
-            RunnableRuntime = new RunnableRuntime(connectionProvider, this);
+            RunnableRuntime = new RunnableRuntime(
+                connectionProvider,
+                procedureRunStore,
+                this);
         }
 
         public KustoxCompiler Compiler { get; }

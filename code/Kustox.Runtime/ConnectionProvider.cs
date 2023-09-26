@@ -29,6 +29,9 @@ namespace Kustox.Runtime
 
         public TokenCredential Credential { get; }
 
+        public ClientRequestProperties EmptyClientRequestProperties { get; }
+            = new ClientRequestProperties();
+
         public ICslQueryProvider QueryProvider { get; }
 
         public ICslAdminProvider CommandProvider { get; }

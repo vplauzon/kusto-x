@@ -94,19 +94,22 @@ namespace Kustox.Runtime
         {
             var jobId = procedureRunStepStore.JobId;
             //  Process in background
-            var runTask = procedureRunStore.GetLatestRunAsync(jobId, ct);
+            var runTask = procedureRunStore.GetLatestRunsAsync(jobId, null, ct);
             var allSteps = await procedureRunStepStore.GetAllLatestStepsAsync(ct);
             ProcedureRunStep root;
             IImmutableDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap;
 
             MapAllSteps(allSteps, jobId, out root, out childrenMap);
 
-            var run = await runTask;
+            var runs = await runTask;
 
-            if (run == null)
+            if (!runs.Any())
             {
                 throw new InvalidDataException($"Job {jobId} doesn't exist");
             }
+
+            var run = runs.First();
+
             await HandleRunStateAsync(procedureRunStore, jobId, run.State, ct);
 
             return CreateExistingContext(

@@ -11,7 +11,7 @@ namespace Kustox.IntegratedTests.Commands
         public async Task Vanila()
         {
             var script = ".show procedure runs";
-            var result = await RunInPiecesAsync(script);
+            var result = await RunStatementAsync(script);
 
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
