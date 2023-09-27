@@ -12,13 +12,9 @@ namespace Kustox.KustoState
             _connectionProvider = connectionProvider;
         }
 
-        async Task<IProcedureRunStepStore> IProcedureRunStepRegistry.GetRunAsync(
-            string jobId,
-            CancellationToken ct)
+        IProcedureRunStepStore IProcedureRunStepRegistry.GetRun(string jobId)
         {
             var run = new KustoProcedureRunStepStore(_connectionProvider, jobId);
-
-            await Task.CompletedTask;
 
             return run;
         }

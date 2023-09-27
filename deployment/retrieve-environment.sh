@@ -19,6 +19,5 @@ elif [ $branch == "prod" ]
 then
     echo "prd"
 else
-    echo "The branch doesn't match an environment pattern"
-    exit 1
+    echo "dev"
 fi

@@ -1,4 +1,5 @@
-﻿using Kusto.Cloud.Platform.Utils.DecayCache;
+﻿using Kusto.Cloud.Platform.Data;
+using Kusto.Cloud.Platform.Utils.DecayCache;
 using Kusto.Data.Common;
 using Kusto.Ingest;
 using Kustox.KustoState.DataObjects;
@@ -44,6 +45,31 @@ namespace Kustox.KustoState
             return steps;
         }
 
+        async Task<TableResult> IProcedureRunStepStore.QueryLatestRunsAsync(
+            string? query,
+            CancellationToken ct)
+        {
+            var scriptBuilder = new StringBuilder("RunStep");
+
+            scriptBuilder.AppendLine($"| where JobId=='{_jobId}'");
+            scriptBuilder.AppendLine("| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)");
+            scriptBuilder.AppendLine("| project-away BreadcrumbId");
+            if (query != null)
+            {
+                scriptBuilder.AppendLine(query);
+            }
+
+            var script = scriptBuilder.ToString();
+            var stepsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
+                string.Empty,
+                script,
+                _connectionProvider.EmptyClientRequestProperties,
+                ct);
+            var table = stepsData.ToDataSet().Tables[0].ToTableResult();
+
+            return table;
+        }
+
         async Task<TableResult?> IProcedureRunStepStore.GetRunResultAsync(CancellationToken ct)
         {
             var stepsData = await KustoHelper.QueryAsync<StepData>(
@@ -52,6 +78,7 @@ namespace Kustox.KustoState
 | where JobId=='{_jobId}'
 | where array_length(Breadcrumb)==1
 | extend StepIndex=tolong(Breadcrumb[0])
+| summarize arg_max(Timestamp, *) by StepIndex
 | summarize arg_max(StepIndex, *)",
                 ct);
             var steps = stepsData

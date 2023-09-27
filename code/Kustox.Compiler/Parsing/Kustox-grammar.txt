@@ -1,6 +1,8 @@
 ﻿#	Comments & interleaves
 rule(interleave=false) comment = "//" (. - ("\r" | "\n"))*;
-interleave = (" " | "\r" | "\n" | "\t") | comment;
+rule(interleave=false) blockSpacer = " " | "\t" | "\r";
+rule(interleave=false) padding = blockSpacer | "\n" | comment;
+interleave = padding;
 
 #	tokens
 rule(interleave=false) identifier = ("a".."z" | "A".."Z") ("a".."z" | "A".."Z" | "0".."9")* => text;
@@ -17,7 +19,6 @@ rule(interleave=false) doubleQuotedString = '"' quotedString:doubleQuotableStrin
 rule(interleave=false) quotedString = doubleQuotedString | singleQuotedString;
 rule(interleave=false) integer = number+ => integer(text);
 rule(interleave=false) boolean = "true" | "false" => boolean(text);
-rule(interleave=false) blockSpacer = " " | "\t" | "\r";
 
 #	Property rules
 rule propertyValue = boolean:boolean | integer:integer | string:quotedString;
@@ -53,8 +54,8 @@ rule captureTable = "@capture" id:identifier "=" capturable:capturable =>
 	}, capturable);
 rule sequenceItem = captureScalar | captureTable
    | capturable => merge(defaultOutput, {"code": text});
-rule sequenceItemList = head:sequenceItem
-	tail:sequenceItem* => prepend(head, tail);
+rule sequenceItemList = head:sequenceItem tail:sequenceItem*
+	=> prepend(head, tail);
 rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"
 	=> {
 		"blocks":  flatten(sequenceItems),
@@ -62,23 +63,39 @@ rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"
 	};
 
 #	Commands and queries:  stuff that can be run
-rule(interleave=false) kqlLine = ((. - "\n")* - blockSpacer*) "\n"=> text;
+rule integerList = head:integer tail:("," i:integer => i)* => prepend(head, tail);
+rule(interleave=false) genericKql = ((. - "\n")+ - blockSpacer*) => text;
+rule(interleave=false) genericKqlBlock = (genericKql "\n")* genericKql => text;
 rule getBlobsCommand = "." "get" "blobs" rootUrl:quotedString => {'rootUrl':rootUrl};
 rule queueIngestCommand = "." "queue" "ingest"=> "QueueIngest";
-rule(interleave=false) genericQuery = (. - ".") kqlLine* => { "code": text };
-rule wholeQuery = (. - ".") .* => { "code": text };
-rule(interleave=false) genericCommand = "." kqlLine+ => { "code": text };
-rule wholeGenericCommand = "." .* => {"genericCommand":{ "code": text }};
+rule(interleave=false) genericQuery = (. - ".") genericKqlBlock => { "code": text };
+rule pipeGenericQuery = "|" q:genericQuery => q;
+rule(interleave=false) genericCommand = "." genericKqlBlock => { "code": text };
 rule runProcedureCommand = "." "run" ("procedure" | "proc") "<|"
 	properties:optionalWithPropertyAssignationList
 	rootSequence:sequenceContent => {
 		"rootSequence":rootSequence
 	};
+rule showProcedureRuns = "." "show" ("procedure" | "proc") "runs" jobId:quotedString? query:pipeGenericQuery? => {
+		"code" : text,
+		"jobId" : firstOrNull(jobId),
+		"query" : firstOrNull(query)
+	};
+rule showProcedureRunSteps = "." "show" ("procedure" | "proc") "run" jobId:quotedString "steps" 
+	prefix:("where" "Breadcrumb" "startswith" "[" steps:integerList "]" all:(("all" => true)? => firstOrNull(defaultOutput)))?
+	query:pipeGenericQuery? => merge({
+		"code" : text,
+		"jobId" : jobId,
+		"query" : firstOrNull(query),
+		"prefix" : firstOrNull(prefix)
+	}, firstOrNull(prefix));
 rule query = genericQuery;
 rule command = runProcedureCommand:runProcedureCommand
+	| showProcedureRuns:showProcedureRuns
+	| showProcedureRunSteps:showProcedureRunSteps
 	| getBlobsCommand:getBlobsCommand
 	| queueIngestCommand:queueIngestCommand
 	| genericCommand:genericCommand;
 
 #	main rule
-rule main = query:(query | wholeQuery) | command:(command | wholeGenericCommand);
+rule main = m:(query:query | command:command) padding* => m;

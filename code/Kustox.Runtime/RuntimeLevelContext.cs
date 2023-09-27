@@ -87,14 +87,14 @@ namespace Kustox.Runtime
 
         #region Load Context
         public async static Task<RuntimeLevelContext> LoadContextAsync(
-            IProcedureRunStore procedureRunStore,
-            IProcedureRunStepStore procedureRunStepStore,
+            string jobId,
+            IStorageHub storageHub,
             int? maximumNumberOfSteps,
             CancellationToken ct)
         {
-            var jobId = procedureRunStepStore.JobId;
             //  Process in background
-            var runTask = procedureRunStore.GetLatestRunAsync(jobId, ct);
+            var procedureRunStepStore = storageHub.ProcedureRunRegistry.GetRun(jobId);
+            var runTask = storageHub.ProcedureRunStore.GetLatestRunAsync(jobId, ct);
             var allSteps = await procedureRunStepStore.GetAllLatestStepsAsync(ct);
             ProcedureRunStep root;
             IImmutableDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap;
@@ -107,13 +107,12 @@ namespace Kustox.Runtime
             {
                 throw new InvalidDataException($"Job {jobId} doesn't exist");
             }
-            await HandleRunStateAsync(procedureRunStore, jobId, run.State, ct);
+
+            await HandleRunStateAsync(storageHub.ProcedureRunStore, jobId, run.State, ct);
 
             return CreateExistingContext(
                 jobId,
-                new SharedData(
-                    procedureRunStepStore,
-                    new StepCounter(maximumNumberOfSteps)),
+                new SharedData(procedureRunStepStore, new StepCounter(maximumNumberOfSteps)),
                 root,
                 childrenMap);
         }

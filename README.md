@@ -196,10 +196,20 @@ Alternatively, `.run proc` is also accepted.
 ### .show procedure runs
 
 ```
-.show procedure runs
+.show procedure runs [jobId]
 ```
 
+Optional `jobId` should be in quotes.
+
 A query can be appended.  Alternatively, `.show proc runs` can be used.
+
+### .show procedure run steps
+
+```
+.show procedure run <jobId> steps
+```
+
+A query can be appended.  Alternatively, `.show proc run steps` can be used.
 
 ### .get blobs
 

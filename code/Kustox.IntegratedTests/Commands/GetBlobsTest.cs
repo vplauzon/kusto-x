@@ -3,7 +3,7 @@ using Kustox.Runtime;
 using Kustox.Runtime.State;
 using System.Collections.Immutable;
 
-namespace Kustox.IntegratedTests
+namespace Kustox.IntegratedTests.Commands
 {
     public class GetBlobsTest : TestBase
     {

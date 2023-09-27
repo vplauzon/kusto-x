@@ -4,6 +4,6 @@
     {
         Task<IProcedureRunStepStore> NewRunAsync(CancellationToken ct);
         
-        Task<IProcedureRunStepStore> GetRunAsync(string jobId, CancellationToken ct);
+        IProcedureRunStepStore GetRun(string jobId);
     }
 }

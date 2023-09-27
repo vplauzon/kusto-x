@@ -1,6 +1,6 @@
-﻿using Kusto.Data.Common;
-using Kustox.Compiler;
+﻿using Kustox.Compiler.Commands;
 using Kustox.Runtime.State;
+using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State.RunStep;
 using System;
 using System.Collections.Generic;
@@ -16,9 +16,12 @@ namespace Kustox.Runtime.Commands
         private readonly CommandRunnerBase _generic;
         private readonly CommandRunnerBase _getBlobs;
         private readonly CommandRunnerBase _runProcedure;
+        private readonly CommandRunnerBase _showProcedureRuns;
+        private readonly CommandRunnerBase _showProcedureRunSteps;
 
         public CommandRunnerRouter(
             ConnectionProvider connectionProvider,
+            IStorageHub storageHub,
             IProcedureQueue procedureQueue)
         {
             _generic = new GenericCommandRunner(connectionProvider);
@@ -26,6 +29,12 @@ namespace Kustox.Runtime.Commands
             _runProcedure = new RunProcedureCommandRunner(
                 connectionProvider,
                 procedureQueue);
+            _showProcedureRuns = new ShowProcedureRunsCommandRunner(
+                connectionProvider,
+                storageHub);
+            _showProcedureRunSteps = new ShowProcedureRunStepsCommandRunner(
+                connectionProvider,
+                storageHub);
         }
 
         public async Task<TableResult> RunCommandAsync(
@@ -43,6 +52,14 @@ namespace Kustox.Runtime.Commands
             else if (command.RunProcedureCommand != null)
             {
                 return await _runProcedure.RunCommandAsync(command, ct);
+            }
+            else if (command.ShowProcedureRuns != null)
+            {
+                return await _showProcedureRuns.RunCommandAsync(command, ct);
+            }
+            else if (command.ShowProcedureRunSteps != null)
+            {
+                return await _showProcedureRunSteps.RunCommandAsync(command, ct);
             }
             else
             {

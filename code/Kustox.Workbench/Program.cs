@@ -81,8 +81,7 @@ namespace Kustox.Workbench
             var hubStore = new KustoStorageHub(connectionProviderState);
             var runtime = new ProcedureEnvironmentRuntime(
                 new KustoxCompiler(),
-                hubStore.ProcedureRunStore,
-                hubStore.ProcedureRunRegistry,
+                hubStore,
                 connectionProviderSandbox);
 
             return runtime;
