@@ -66,7 +66,12 @@ function setupApiHook(commandApiUrl, textArea) {
                     Csl: currentQuery // Pass any required data to the API
                 })
             })
-                .then(response => response.json())
+                .then(response => {
+                    if (!response.ok) {
+                    }
+
+                    return response.json();
+                })
                 .then(data => {
                     // Handle the API response data
                     console.log(data);

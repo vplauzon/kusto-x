@@ -25,25 +25,37 @@ namespace Kustox.Workbench.Controllers.Language
         [HttpPost]
         public async Task<CommandOutput> PostAsync(CommandInput input, CancellationToken ct)
         {
-            var statement = _procedureEnvironmentRuntime
-                .Compiler
-                .CompileStatement(input.Csl);
+            try
+            {
+                var statement = _procedureEnvironmentRuntime
+                    .Compiler
+                    .CompileStatement(input.Csl);
 
-            if (statement == null)
-            {
-                throw new InvalidOperationException($"Can't compile '{input.Csl}'");
+                if (statement == null)
+                {
+                    throw new InvalidOperationException($"Can't compile '{input.Csl}'");
+                }
+                else
+                {
+                    var runtime = _procedureEnvironmentRuntime.RunnableRuntime;
+                    var result = await runtime.RunStatementAsync(
+                        statement,
+                        ImmutableDictionary<string, TableResult?>.Empty,
+                        ct);
+
+                    return new CommandOutput
+                    {
+                        Table = new TableOutput(result)
+                    };
+                }
             }
-            else
+            catch (Exception ex)
             {
-                var runtime = _procedureEnvironmentRuntime.RunnableRuntime;
-                var result = await runtime.RunStatementAsync(
-                    statement,
-                    ImmutableDictionary<string, TableResult?>.Empty,
-                    ct);
+                Response.StatusCode = 500;
 
                 return new CommandOutput
                 {
-                    Table = new TableOutput(result)
+                    Table = new TableOutput(TableResult.CreateEmpty("Error Message", ex.Message))
                 };
             }
         }

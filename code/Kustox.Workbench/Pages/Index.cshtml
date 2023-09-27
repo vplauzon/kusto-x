@@ -12,18 +12,10 @@
     <table id="resultTable" class="resultTable cell-border compact stripe hover">
         <thead>
             <tr>
-                <th>Name</th>
-                <th>Value</th>
+                <th />
             </tr>
         </thead>
         <tbody>
-            @foreach (var pair in Request.Headers)
-            {
-                <tr>
-                    <td>@pair.Key</td>
-                    <td>@pair.Value</td>
-                </tr>
-            }
         </tbody>
     </table>
     <script type="text/javascript">
