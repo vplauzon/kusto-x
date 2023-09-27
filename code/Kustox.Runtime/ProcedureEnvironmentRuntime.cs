@@ -40,26 +40,21 @@ namespace Kustox.Runtime
 
         public ProcedureEnvironmentRuntime(
             KustoxCompiler compiler,
-            IProcedureRunStore procedureRunStore,
-            IProcedureRunStepRegistry procedureRunRegistry,
+            IStorageHub storageHub,
             ConnectionProvider connectionProvider)
         {
             Compiler = compiler;
-            ProcedureRunStore = procedureRunStore;
-            ProcedureRunRegistry = procedureRunRegistry;
+            StorageHub = storageHub;
             RunnableRuntime = new RunnableRuntime(
                 connectionProvider,
-                procedureRunStore,
-                procedureRunRegistry,
+                storageHub,
                 this);
         }
 
         public KustoxCompiler Compiler { get; }
 
-        public IProcedureRunStore ProcedureRunStore { get; }
-
-        public IProcedureRunStepRegistry ProcedureRunRegistry { get; }
-
+        public IStorageHub StorageHub { get; }
+        
         public RunnableRuntime RunnableRuntime { get; }
 
         public async Task StartAsync(bool doExisting, CancellationToken ct)
@@ -88,8 +83,8 @@ namespace Kustox.Runtime
             {
                 var runtime = new ProcedureRuntime(
                     Compiler,
-                    ProcedureRunStore,
-                    runStepStore,
+                    runStepStore.JobId,
+                    StorageHub,
                     RunnableRuntime);
                 var cancellationTokenSource = new CancellationTokenSource();
                 var compoundCt = CancellationTokenSource.CreateLinkedTokenSource(
@@ -127,7 +122,7 @@ namespace Kustox.Runtime
             string script,
             CancellationToken ct)
         {
-            var procedureRunStepStore = await ProcedureRunRegistry.NewRunAsync(ct);
+            var procedureRunStepStore = await StorageHub.ProcedureRunRegistry.NewRunAsync(ct);
             var stepTask = procedureRunStepStore.AppendStepAsync(
                 new[]
                 {
@@ -141,7 +136,7 @@ namespace Kustox.Runtime
                 },
             ct);
 
-            await ProcedureRunStore.AppendRunAsync(
+            await StorageHub.ProcedureRunStore.AppendRunAsync(
                 new[]
                 {
                     new ProcedureRun(

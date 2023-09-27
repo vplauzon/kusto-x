@@ -18,23 +18,24 @@ namespace Kustox.Runtime
     public class ProcedureRuntime
     {
         private readonly KustoxCompiler _compiler;
-        private readonly IProcedureRunStore _procedureRunStore;
+        private readonly IStorageHub _storageHub;
         private readonly IProcedureRunStepStore _procedureRunStepStore;
         private readonly RunnableRuntime _runnableRuntime;
 
         public ProcedureRuntime(
             KustoxCompiler compiler,
-            IProcedureRunStore procedureRunStore,
-            IProcedureRunStepStore procedureRunStepStore,
+            string jobId,
+            IStorageHub storageHub,
             RunnableRuntime runnableRuntime)
         {
             _compiler = compiler;
-            _procedureRunStore = procedureRunStore;
-            _procedureRunStepStore = procedureRunStepStore;
+            JobId = jobId;
+            _storageHub = storageHub;
+            _procedureRunStepStore = _storageHub.ProcedureRunRegistry.GetRun(jobId);
             _runnableRuntime = runnableRuntime;
         }
 
-        public string JobId => _procedureRunStepStore.JobId;
+        public string JobId { get; }
 
         #region Run Infra
         public async Task<RuntimeResult> RunAsync(
@@ -42,8 +43,8 @@ namespace Kustox.Runtime
             CancellationToken ct)
         {
             var levelContext = await RuntimeLevelContext.LoadContextAsync(
-                _procedureRunStore,
-                _procedureRunStepStore,
+                JobId,
+                _storageHub,
                 maximumNumberOfSteps,
                 ct);
             var declaration = _compiler.CompileProcedure(
@@ -63,7 +64,7 @@ namespace Kustox.Runtime
                     ImmutableDictionary<string, TableResult?>.Empty,
                     ct);
 
-                await _procedureRunStore.AppendRunAsync(
+                await _storageHub.ProcedureRunStore.AppendRunAsync(
                     new[]
                     {
                         new ProcedureRun(

@@ -141,8 +141,7 @@ namespace Kustox.IntegratedTests
         {
             return new ProcedureEnvironmentRuntime(
                 Compiler,
-                StorageHub.ProcedureRunStore,
-                StorageHub.ProcedureRunRegistry,
+                StorageHub,
                 CreateConnectionProvider(true));
         }
         #endregion
@@ -175,8 +174,8 @@ namespace Kustox.IntegratedTests
                 {
                     var runtime = new ProcedureRuntime(
                         Compiler,
-                        StorageHub.ProcedureRunStore,
-                        procedureRunStepStore,
+                        procedureRunStepStore.JobId,
+                        StorageHub,
                         environmentRuntime.RunnableRuntime);
                     var result = await runtime.RunAsync(maximumNumberOfSteps, ct);
 

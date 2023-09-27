@@ -14,10 +14,10 @@ namespace Kustox.Runtime.Commands
 
         public ShowProcedureRunsCommandRunner(
             ConnectionProvider connectionProvider,
-            IProcedureRunStore procedureRunStore)
+            IStorageHub storageHub)
             : base(connectionProvider)
         {
-            _procedureRunStore = procedureRunStore;
+            _procedureRunStore = storageHub.ProcedureRunStore;
         }
 
         public override async Task<TableResult> RunCommandAsync(

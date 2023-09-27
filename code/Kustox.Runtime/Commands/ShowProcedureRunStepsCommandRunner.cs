@@ -14,10 +14,10 @@ namespace Kustox.Runtime.Commands
 
         public ShowProcedureRunStepsCommandRunner(
             ConnectionProvider connectionProvider,
-            IProcedureRunStepRegistry procedureRunStepRegistry)
+            IStorageHub storageHub)
             : base(connectionProvider)
         {
-            _procedureRunStepRegistry = procedureRunStepRegistry;
+            _procedureRunStepRegistry = storageHub.ProcedureRunRegistry;
         }
 
         public override async Task<TableResult> RunCommandAsync(
@@ -25,9 +25,7 @@ namespace Kustox.Runtime.Commands
             CancellationToken ct)
         {
             var stepsDeclaration = command.ShowProcedureRunSteps!;
-            var stepStore = await _procedureRunStepRegistry.GetRunAsync(
-                stepsDeclaration.JobId,
-                ct);
+            var stepStore = _procedureRunStepRegistry.GetRun(stepsDeclaration.JobId);
             var result = await stepStore.QueryLatestRunsAsync(
                 stepsDeclaration.GetPipedQuery(),
                 ct);

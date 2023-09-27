@@ -1,4 +1,5 @@
 ﻿using Kustox.Compiler.Commands;
+using Kustox.Runtime.State;
 using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State.RunStep;
 using System;
@@ -20,8 +21,7 @@ namespace Kustox.Runtime.Commands
 
         public CommandRunnerRouter(
             ConnectionProvider connectionProvider,
-            IProcedureRunStore procedureRunStore,
-            IProcedureRunStepRegistry procedureRunStepRegistry,
+            IStorageHub storageHub,
             IProcedureQueue procedureQueue)
         {
             _generic = new GenericCommandRunner(connectionProvider);
@@ -31,10 +31,10 @@ namespace Kustox.Runtime.Commands
                 procedureQueue);
             _showProcedureRuns = new ShowProcedureRunsCommandRunner(
                 connectionProvider,
-                procedureRunStore);
+                storageHub);
             _showProcedureRunSteps = new ShowProcedureRunStepsCommandRunner(
                 connectionProvider,
-                procedureRunStepRegistry);
+                storageHub);
         }
 
         public async Task<TableResult> RunCommandAsync(
