@@ -214,7 +214,7 @@ A query can be appended.  Alternatively, `.show proc runs steps` can be used.
 ### .show procedure runs steps result
 
 ```
-.show procedure runs <jobId> steps dynamic([step1, step2, ...]) result
+.show procedure runs <jobId> steps [step1, step2, ...] result
 ```
 
 The returned schema is variable as it depends on the result.

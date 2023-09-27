@@ -81,18 +81,25 @@ rule showProcedureRuns = "." "show" ("procedure" | "proc") "runs" jobId:quotedSt
 		"jobId" : firstOrNull(jobId),
 		"query" : firstOrNull(query)
 	};
-rule showProcedureRunsSteps = "." "show" ("procedure" | "proc") "runs" jobId:quotedString "steps" 
-	prefix:("where" "Breadcrumb" "startswith" "[" steps:integerList "]" all:(("all" => true)? => firstOrNull(defaultOutput)))?
-	query:pipeGenericQuery? => merge({
+rule showProcedureRunsSteps = "." "show" ("procedure" | "proc") "runs" jobId:quotedString "steps"
+	query:pipeGenericQuery? => {
+		"code" : text,
+		"jobId" : jobId,
+		"query" : firstOrNull(query)
+	};
+rule showProcedureRunsStepsResult = "." "show" ("procedure" | "proc") "runs" jobId:quotedString "steps"
+	"[" steps:integerList "]" "result"
+	query:pipeGenericQuery? => {
 		"code" : text,
 		"jobId" : jobId,
 		"query" : firstOrNull(query),
-		"prefix" : firstOrNull(prefix)
-	}, firstOrNull(prefix));
+		"steps" : steps
+	};
 rule query = genericQuery;
 rule command = runProcedureCommand:runProcedureCommand
 	| showProcedureRuns:showProcedureRuns
 	| showProcedureRunsSteps:showProcedureRunsSteps
+	| showProcedureRunsStepsResult:showProcedureRunsStepsResult
 	| getBlobsCommand:getBlobsCommand
 	| queueIngestCommand:queueIngestCommand
 	| genericCommand:genericCommand;
