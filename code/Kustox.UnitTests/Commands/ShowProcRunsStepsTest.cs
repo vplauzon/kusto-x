@@ -2,12 +2,12 @@ using Kustox.Compiler;
 
 namespace Kustox.UnitTests.Commands
 {
-    public class ShowProcRunStepsTest
+    public class ShowProcRunsStepsTest
     {
         [Fact]
         public void Vanila()
         {
-            var script = @".show procedure run 'abc' steps";
+            var script = @".show procedure runs 'abc' steps";
             var statement = new KustoxCompiler().CompileStatement(script);
 
             Assert.NotNull(statement);
@@ -19,7 +19,7 @@ namespace Kustox.UnitTests.Commands
         [Fact]
         public void WithQuery()
         {
-            var script = @".show procedure run 'abc' steps | project A='def'";
+            var script = @".show procedure runs 'abc' steps | project A='def'";
             var statement = new KustoxCompiler().CompileStatement(script);
 
             Assert.NotNull(statement);
