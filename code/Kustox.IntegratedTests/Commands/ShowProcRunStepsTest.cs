@@ -26,8 +26,10 @@ namespace Kustox.IntegratedTests.Commands
 
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
-            Assert.NotEmpty(result.Data);
-            Assert.Equal("123", result.Data[0][0]);
+            Assert.Empty(result.Data);
+            Assert.Single(result.Columns);
+            Assert.Equal("A", result.Columns[0].ColumnName);
+            Assert.Equal(typeof(string), result.Columns[0].ColumnType);
         }
     }
 }
