@@ -203,13 +203,23 @@ Optional `jobId` should be in quotes.
 
 A query can be appended.  Alternatively, `.show proc runs` can be used.
 
-### .show procedure run steps
+### .show procedure runs steps
 
 ```
-.show procedure run <jobId> steps
+.show procedure runs <jobId> steps
 ```
 
-A query can be appended.  Alternatively, `.show proc run steps` can be used.
+A query can be appended.  Alternatively, `.show proc runs steps` can be used.
+
+### .show procedure runs steps result
+
+```
+.show procedure runs <jobId> steps dynamic([step1, step2, ...]) result
+```
+
+The returned schema is variable as it depends on the result.
+
+A query can be appended.  Alternatively, `.show proc runs steps result` can be used.
 
 ### .get blobs
 

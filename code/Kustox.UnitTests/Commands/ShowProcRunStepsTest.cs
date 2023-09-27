@@ -12,8 +12,8 @@ namespace Kustox.UnitTests.Commands
 
             Assert.NotNull(statement);
             Assert.NotNull(statement.Command);
-            Assert.NotNull(statement.Command.ShowProcedureRunSteps);
-            Assert.Equal("abc", statement.Command.ShowProcedureRunSteps.JobId);
+            Assert.NotNull(statement.Command.ShowProcedureRunsSteps);
+            Assert.Equal("abc", statement.Command.ShowProcedureRunsSteps.JobId);
         }
 
         [Fact]
@@ -24,10 +24,10 @@ namespace Kustox.UnitTests.Commands
 
             Assert.NotNull(statement);
             Assert.NotNull(statement.Command);
-            Assert.NotNull(statement.Command.ShowProcedureRunSteps);
-            Assert.Equal("abc", statement.Command.ShowProcedureRunSteps.JobId);
-            Assert.NotNull(statement.Command.ShowProcedureRunSteps.Query);
-            Assert.Contains("project A='def'", statement.Command.ShowProcedureRunSteps.Query.Code);
+            Assert.NotNull(statement.Command.ShowProcedureRunsSteps);
+            Assert.Equal("abc", statement.Command.ShowProcedureRunsSteps.JobId);
+            Assert.NotNull(statement.Command.ShowProcedureRunsSteps.Query);
+            Assert.Contains("project A='def'", statement.Command.ShowProcedureRunsSteps.Query.Code);
         }
     }
 }

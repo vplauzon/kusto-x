@@ -24,7 +24,7 @@ namespace Kustox.Runtime.Commands
             CommandDeclaration command,
             CancellationToken ct)
         {
-            var stepsDeclaration = command.ShowProcedureRunSteps!;
+            var stepsDeclaration = command.ShowProcedureRunsSteps!;
             var stepStore = _procedureRunStepRegistry.GetRun(stepsDeclaration.JobId);
             var result = await stepStore.QueryLatestRunsAsync(
                 stepsDeclaration.GetPipedQuery(),

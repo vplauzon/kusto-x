@@ -6,12 +6,12 @@ using System.Text.Json;
 
 namespace Kustox.IntegratedTests.Commands
 {
-    public class ShowProcRunStepsTest : TestBase
+    public class ShowProcRunsStepsTest : TestBase
     {
         [Fact]
         public async Task Vanila()
         {
-            var script = ".show proc run 'abc' steps";
+            var script = ".show proc runs 'abc' steps";
             var result = await RunStatementAsync(script);
 
             Assert.NotNull(result);
@@ -21,7 +21,7 @@ namespace Kustox.IntegratedTests.Commands
         [Fact]
         public async Task WithQuery()
         {
-            var script = ".show procedure run 'abc' steps | project A='123'";
+            var script = ".show procedure runs 'abc' steps | project A='123'";
             var result = await RunStatementAsync(script);
 
             Assert.NotNull(result);

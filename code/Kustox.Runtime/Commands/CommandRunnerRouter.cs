@@ -57,7 +57,7 @@ namespace Kustox.Runtime.Commands
             {
                 return await _showProcedureRuns.RunCommandAsync(command, ct);
             }
-            else if (command.ShowProcedureRunSteps != null)
+            else if (command.ShowProcedureRunsSteps != null)
             {
                 return await _showProcedureRunSteps.RunCommandAsync(command, ct);
             }
