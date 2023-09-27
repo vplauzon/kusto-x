@@ -14,6 +14,8 @@ namespace Kustox.KustoState
     internal class KustoProcedureRunStepStore : IProcedureRunStepStore
     {
         private const string TABLE_NAME = "RunStep";
+        private const string PROJECT_CLAUSE =
+            "| project JobId, Breadcrumb, State, Script, CaptureName, IsResultScalar, ResultColumnNames, ResultData, Timestamp";
 
         private readonly ConnectionProvider _connectionProvider;
         private readonly string _jobId;
@@ -29,14 +31,13 @@ namespace Kustox.KustoState
         async Task<IImmutableList<ProcedureRunStep>> IProcedureRunStepStore.GetAllLatestStepsAsync(
             CancellationToken ct)
         {
+            var script = $@"
+RunStep
+| where JobId=='{_jobId}'
+| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)";
             var stepsData = await KustoHelper.QueryAsync<StepData>(
                 _connectionProvider.QueryProvider,
-                $@"RunStep
-| where JobId=='{_jobId}'
-| extend Breadcrumb=tostring(Breadcrumb)
-| extend Breadcrumb=tostring(Breadcrumb)
-| summarize arg_max(Timestamp,*) by JobId, Breadcrumb
-| extend Breadcrumb=todynamic(Breadcrumb)",
+                script,
                 ct);
             var steps = stepsData
                 .Select(s => s.ToImmutable())
@@ -53,7 +54,7 @@ namespace Kustox.KustoState
 
             scriptBuilder.AppendLine($"| where JobId=='{_jobId}'");
             scriptBuilder.AppendLine("| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)");
-            scriptBuilder.AppendLine("| project-away BreadcrumbId");
+            scriptBuilder.AppendLine(PROJECT_CLAUSE);
             if (query != null)
             {
                 scriptBuilder.AppendLine(query);

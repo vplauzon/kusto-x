@@ -13,6 +13,8 @@ namespace Kustox.KustoState
     internal class KustoProcedureRunStore : IProcedureRunStore
     {
         private const string TABLE_NAME = "Run";
+        private const string PROJECT_CLAUSE =
+            "| project JobId, State, Timestamp";
 
         private readonly ConnectionProvider _connectionProvider;
 
@@ -25,9 +27,14 @@ namespace Kustox.KustoState
             string jobId,
             CancellationToken ct)
         {
+            var script = $@"
+Run
+| where JobId=='{jobId}'
+| summarize arg_max(Timestamp,*) by JobId
+";
             var runsData = await KustoHelper.QueryAsync<RunData>(
                 _connectionProvider.QueryProvider,
-                $"Run | where JobId=='{jobId}' | summarize arg_max(Timestamp,*) by JobId",
+                script,
                 ct);
             var runs = runsData
                 .Select(r => r.ToImmutable());
@@ -44,6 +51,7 @@ namespace Kustox.KustoState
             var scriptBuilder = new StringBuilder("Run");
 
             scriptBuilder.AppendLine("| summarize arg_max(Timestamp,*) by JobId");
+            scriptBuilder.AppendLine(PROJECT_CLAUSE);
             if (!string.IsNullOrEmpty(jobId))
             {
                 scriptBuilder.AppendLine($"| where JobId=='{jobId}'");
