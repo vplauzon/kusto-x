@@ -54,6 +54,7 @@ RunStep
 
             scriptBuilder.AppendLine($"| where JobId=='{_jobId}'");
             scriptBuilder.AppendLine("| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)");
+            scriptBuilder.AppendLine("| order by Timestamp asc");
             scriptBuilder.AppendLine(PROJECT_CLAUSE);
             if (query != null)
             {

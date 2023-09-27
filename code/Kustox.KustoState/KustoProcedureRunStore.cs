@@ -52,6 +52,7 @@ Run
 
             scriptBuilder.AppendLine("| summarize arg_max(Timestamp,*) by JobId");
             scriptBuilder.AppendLine(PROJECT_CLAUSE);
+            scriptBuilder.AppendLine("| order by Timestamp asc");
             if (!string.IsNullOrEmpty(jobId))
             {
                 scriptBuilder.AppendLine($"| where JobId=='{jobId}'");
