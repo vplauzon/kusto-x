@@ -6,33 +6,22 @@ using System.Text.Json;
 
 namespace Kustox.IntegratedTests.Commands
 {
-    public class ShowProcRunsTest : TestBase
+    public class ShowProcRunStepsTest : TestBase
     {
         [Fact]
         public async Task Vanila()
         {
-            var script = ".show procedure runs";
+            var script = ".show proc run 'abc' steps";
             var result = await RunStatementAsync(script);
 
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
-        }
-
-        [Fact]
-        public async Task SelectNonExisting()
-        {
-            var script = ".show proc runs 'abc'";
-            var result = await RunStatementAsync(script);
-
-            Assert.NotNull(result);
-            Assert.False(result.IsScalar);
-            Assert.Empty(result.Data);
         }
 
         [Fact]
         public async Task WithQuery()
         {
-            var script = ".show procedure runs | project A='123'";
+            var script = ".show procedure run 'abc' steps | project A='123'";
             var result = await RunStatementAsync(script);
 
             Assert.NotNull(result);
