@@ -12,22 +12,34 @@ namespace Kustox.UnitTests.Commands.ShowProcRuns
 
             Assert.NotNull(statement);
             Assert.NotNull(statement.Command);
-            Assert.NotNull(statement.Command.ShowProcedureRunsSteps);
-            Assert.Equal("abc", statement.Command.ShowProcedureRunsSteps.JobId);
+            Assert.NotNull(statement.Command.ShowProcedureRuns);
+            Assert.NotNull(statement.Command.ShowProcedureRuns.JobId);
+            Assert.Equal("abc", statement.Command.ShowProcedureRuns.JobId);
+            Assert.Null(statement.Command.ShowProcedureRuns.Steps);
+            Assert.True(statement.Command.ShowProcedureRuns.IsSteps);
+            Assert.False(statement.Command.ShowProcedureRuns.IsResult);
+            Assert.False(statement.Command.ShowProcedureRuns.IsHistory);
+            Assert.False(statement.Command.ShowProcedureRuns.IsChildren);
         }
 
         [Fact]
         public void WithQuery()
         {
-            var script = @".show procedure runs 'abc' steps | project A='def'";
+            var script = @".show procedure runs 'defg' steps | project A='def'";
             var statement = new KustoxCompiler().CompileStatement(script);
 
             Assert.NotNull(statement);
             Assert.NotNull(statement.Command);
-            Assert.NotNull(statement.Command.ShowProcedureRunsSteps);
-            Assert.Equal("abc", statement.Command.ShowProcedureRunsSteps.JobId);
-            Assert.NotNull(statement.Command.ShowProcedureRunsSteps.Query);
-            Assert.Contains("project A='def'", statement.Command.ShowProcedureRunsSteps.Query.Code);
+            Assert.NotNull(statement.Command.ShowProcedureRuns);
+            Assert.NotNull(statement.Command.ShowProcedureRuns.Query);
+            Assert.Contains("project", statement.Command.ShowProcedureRuns.Query.Code);
+            Assert.NotNull(statement.Command.ShowProcedureRuns.JobId);
+            Assert.Equal("defg", statement.Command.ShowProcedureRuns.JobId);
+            Assert.Null(statement.Command.ShowProcedureRuns.Steps);
+            Assert.True(statement.Command.ShowProcedureRuns.IsSteps);
+            Assert.False(statement.Command.ShowProcedureRuns.IsResult);
+            Assert.False(statement.Command.ShowProcedureRuns.IsHistory);
+            Assert.False(statement.Command.ShowProcedureRuns.IsChildren);
         }
     }
 }

@@ -11,12 +11,10 @@
 
   <ItemGroup>
     <Compile Remove="Commands\ShowProcRuns\ShowProcRunsStepsResultTest.cs" />
-    <Compile Remove="Commands\ShowProcRuns\ShowProcRunsStepsTest.cs" />
   </ItemGroup>
 
   <ItemGroup>
     <None Include="Commands\ShowProcRuns\ShowProcRunsStepsResultTest.cs" />
-    <None Include="Commands\ShowProcRuns\ShowProcRunsStepsTest.cs" />
   </ItemGroup>
 
   <ItemGroup>
