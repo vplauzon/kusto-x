@@ -25,20 +25,28 @@ namespace Kustox.Runtime.Commands
             var resultDeclaration = command.ShowProcedureRunsStepsResult!;
             var stepStore = _procedureRunStepRegistry.GetRun(resultDeclaration.JobId);
             var result = await stepStore.GetStepResultAsync(resultDeclaration.Steps, ct);
-            var kqlResult = result?.ToKustoExpression();
-            var tabularResult = result!=null
-                ? (result.IsScalar ? $"print Scalar = {kqlResult}" : kqlResult)
-                : "print ['No Result']=''";
-            var query = $@"
+
+            if (resultDeclaration.Query == null)
+            {
+                return result;
+            }
+            else
+            {
+                var kqlResult = result?.ToKustoExpression();
+                var tabularResult = result != null
+                    ? (result.IsScalar ? $"print Scalar = {kqlResult}" : kqlResult)
+                    : "print ['No Result']=''";
+                var query = $@"
 {tabularResult}
 {resultDeclaration.GetPipedQuery()}";
-            var reader = await ConnectionProvider.QueryProvider.ExecuteQueryAsync(
-                string.Empty,
-                query,
-                ConnectionProvider.EmptyClientRequestProperties);
-            var table = reader.ToDataSet().Tables[0];
+                var reader = await ConnectionProvider.QueryProvider.ExecuteQueryAsync(
+                    string.Empty,
+                    query,
+                    ConnectionProvider.EmptyClientRequestProperties);
+                var table = reader.ToDataSet().Tables[0];
 
-            return table.ToTableResult();
+                return table.ToTableResult();
+            }
         }
     }
 }

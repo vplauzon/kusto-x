@@ -111,7 +111,7 @@ RunStep
             return lastStep.Result;
         }
 
-        async Task<TableResult?> IProcedureRunStepStore.GetStepResultAsync(
+        async Task<TableResult> IProcedureRunStepStore.GetStepResultAsync(
             IImmutableList<int> stepBreadcrumb,
             CancellationToken ct)
         {

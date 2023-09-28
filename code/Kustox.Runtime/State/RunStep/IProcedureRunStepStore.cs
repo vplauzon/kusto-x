@@ -16,7 +16,7 @@ namespace Kustox.Runtime.State.RunStep
         
         Task<TableResult?> GetRunResultAsync(CancellationToken ct);
         
-        Task<TableResult?> GetStepResultAsync(
+        Task<TableResult> GetStepResultAsync(
             IImmutableList<int> stepBreadcrumb,
             CancellationToken ct);
 
