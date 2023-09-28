@@ -18,6 +18,8 @@ namespace Kustox.IntegratedTests
     public abstract class TestBase
     {
         #region Inner types
+        protected record ProcedureOutput(string JobId, TableResult? Result);
+
         private class ProjectSetting
         {
             public IDictionary<string, string>? EnvironmentVariables { get; set; }
@@ -146,7 +148,7 @@ namespace Kustox.IntegratedTests
         }
         #endregion
 
-        protected static async Task<TableResult?> RunInPiecesAsync(
+        protected static async Task<ProcedureOutput> RunInPiecesAsync(
             string script,
             int? maximumNumberOfSteps = 1,
             CancellationToken ct = default(CancellationToken))
@@ -181,7 +183,7 @@ namespace Kustox.IntegratedTests
 
                     if (result.HasCompleteSuccessfully)
                     {
-                        return result.Result;
+                        return new ProcedureOutput(procedureRunStepStore.JobId, result.Result);
                     }
                 }
             }

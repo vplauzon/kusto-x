@@ -32,7 +32,8 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant2 = print toint(myConstant.profile.memory)
 }}";
-            var result = await RunInPiecesAsync(script);
+            var output = await RunInPiecesAsync(script);
+            var result = output.Result;
 
             Assert.NotNull(result);
             Assert.Equal(42, result.Data[0][0]);
@@ -94,7 +95,8 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant2 = print myConstant
 }}";
-            var result = await RunInPiecesAsync(script);
+            var output = await RunInPiecesAsync(script);
+            var result = output.Result;
 
             Assert.NotNull(result);
             Assert.Equal(value, result.Data[0][0]);
