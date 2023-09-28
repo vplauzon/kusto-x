@@ -83,10 +83,10 @@ namespace Kustox.IntegratedTests
 
     @capture-scalar myConstant2 = myTable | project {projection}
 }}";
-            var result = await RunInPiecesAsync(script, maximumNumberOfSteps);
+            var output = await RunInPiecesAsync(script, maximumNumberOfSteps);
 
-            Assert.NotNull(result);
-            Assert.Equal(value, result.AlignDataWithNativeTypes().Data[0][0]);
+            Assert.NotNull(output.Result);
+            Assert.Equal(value, output.Result.AlignDataWithNativeTypes().Data[0][0]);
         }
     }
 }
