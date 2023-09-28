@@ -2,12 +2,12 @@ using Kustox.Compiler;
 
 namespace Kustox.UnitTests.Commands.ShowProcRuns
 {
-    public class ShowProcRunsWithJobIdTest
+    public class ShowProcRunsResultTest
     {
         [Fact]
         public void Vanila()
         {
-            var script = @".show procedure runs 'abc'";
+            var script = @".show procedure runs 'abc' result";
             var statement = new KustoxCompiler().CompileStatement(script);
 
             Assert.NotNull(statement);
@@ -17,7 +17,7 @@ namespace Kustox.UnitTests.Commands.ShowProcRuns
             Assert.Equal("abc", statement.Command.ShowProcedureRuns.JobId);
             Assert.Null(statement.Command.ShowProcedureRuns.Steps);
             Assert.False(statement.Command.ShowProcedureRuns.IsSteps);
-            Assert.False(statement.Command.ShowProcedureRuns.IsResult);
+            Assert.True(statement.Command.ShowProcedureRuns.IsResult);
             Assert.False(statement.Command.ShowProcedureRuns.IsHistory);
             Assert.False(statement.Command.ShowProcedureRuns.IsChildren);
         }
@@ -25,7 +25,7 @@ namespace Kustox.UnitTests.Commands.ShowProcRuns
         [Fact]
         public void WithQuery()
         {
-            var script = @".show proc runs ""myjobid"" | take 10";
+            var script = @".show proc runs ""myjobid"" result | take 10";
             var statement = new KustoxCompiler().CompileStatement(script);
 
             Assert.NotNull(statement);
@@ -37,7 +37,7 @@ namespace Kustox.UnitTests.Commands.ShowProcRuns
             Assert.Equal("myjobid", statement.Command.ShowProcedureRuns.JobId);
             Assert.Null(statement.Command.ShowProcedureRuns.Steps);
             Assert.False(statement.Command.ShowProcedureRuns.IsSteps);
-            Assert.False(statement.Command.ShowProcedureRuns.IsResult);
+            Assert.True(statement.Command.ShowProcedureRuns.IsResult);
             Assert.False(statement.Command.ShowProcedureRuns.IsHistory);
             Assert.False(statement.Command.ShowProcedureRuns.IsChildren);
         }
