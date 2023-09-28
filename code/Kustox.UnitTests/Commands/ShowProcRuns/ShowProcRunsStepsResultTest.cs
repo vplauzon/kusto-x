@@ -1,6 +1,6 @@
 using Kustox.Compiler;
 
-namespace Kustox.UnitTests.Commands
+namespace Kustox.UnitTests.Commands.ShowProcRuns
 {
     public class ShowProcRunsStepsResultTest
     {

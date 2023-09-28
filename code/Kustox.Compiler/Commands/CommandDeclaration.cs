@@ -18,10 +18,6 @@ namespace Kustox.Compiler.Commands
 
         public ShowProcedureRunsCommandDeclaration? ShowProcedureRuns { get; set; }
 
-        public ShowProcedureRunsStepsCommandDeclaration? ShowProcedureRunsSteps { get; set; }
-        
-        public ShowProcedureRunsStepsResultCommandDeclaration? ShowProcedureRunsStepsResult { get; set; }
-
         public GetBlobDeclaration? GetBlobsCommand { get; set; }
 
         internal override void Validate()
@@ -30,8 +26,6 @@ namespace Kustox.Compiler.Commands
 
             var commandCount = (RunProcedureCommand == null ? 0 : 1)
                 + (ShowProcedureRuns == null ? 0 : 1)
-                + (ShowProcedureRunsSteps == null ? 0 : 1)
-                + (ShowProcedureRunsStepsResult == null ? 0 : 1)
                 + (GetBlobsCommand == null ? 0 : 1)
                 + (GenericCommand == null ? 0 : 1);
 
@@ -43,8 +37,6 @@ namespace Kustox.Compiler.Commands
             }
             RunProcedureCommand?.Validate();
             ShowProcedureRuns?.Validate();
-            ShowProcedureRunsSteps?.Validate();
-            ShowProcedureRunsStepsResult?.Validate();
             GetBlobsCommand?.Validate();
             GenericCommand?.Validate();
         }

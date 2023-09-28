@@ -4,14 +4,14 @@ using Kustox.Runtime.State;
 using System.Collections.Immutable;
 using System.Text.Json;
 
-namespace Kustox.IntegratedTests.Commands
+namespace Kustox.IntegratedTests.Commands.ShowProcRuns
 {
-    public class ShowProcRunsStepsResultTest : TestBase
+    public class ShowProcRunsTest : TestBase
     {
         [Fact]
         public async Task Vanila()
         {
-            var script = ".show proc runs 'abc' steps [1,2,3] result";
+            var script = ".show procedure runs";
             var result = await RunStatementAsync(script);
 
             Assert.NotNull(result);
@@ -19,17 +19,25 @@ namespace Kustox.IntegratedTests.Commands
         }
 
         [Fact]
-        public async Task WithQuery()
+        public async Task SelectNonExisting()
         {
-            var script = ".show procedure runs 'abc' steps [1,2,3] result | project A='123'";
+            var script = ".show proc runs 'abc'";
             var result = await RunStatementAsync(script);
 
             Assert.NotNull(result);
             Assert.False(result.IsScalar);
-            Assert.Single(result.Data);
-            Assert.Single(result.Columns);
-            Assert.Equal("A", result.Columns[0].ColumnName);
-            Assert.Equal(typeof(string), result.Columns[0].ColumnType);
+            Assert.Empty(result.Data);
+        }
+
+        [Fact]
+        public async Task WithQuery()
+        {
+            var script = ".show procedure runs | project A='123'";
+            var result = await RunStatementAsync(script);
+
+            Assert.NotNull(result);
+            Assert.False(result.IsScalar);
+            Assert.NotEmpty(result.Data);
             Assert.Equal("123", result.Data[0][0]);
         }
     }

@@ -24,12 +24,48 @@ namespace Kustox.Runtime.Commands
             CommandDeclaration command,
             CancellationToken ct)
         {
-            var result = await _procedureRunStore.QueryLatestRunsAsync(
-                command.ShowProcedureRuns!.JobId,
-                command.ShowProcedureRuns!.GetPipedQuery(),
-                ct);
+            var runProc = command.ShowProcedureRuns!;
 
-            return result;
+            if (!runProc.IsSteps)
+            {
+                if (runProc.IsResult)
+                {
+                    throw new NotImplementedException();
+                }
+                else if (runProc.IsHistory)
+                {
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    var result = await _procedureRunStore.QueryLatestRunsAsync(
+                        runProc.JobId,
+                        runProc.GetPipedQuery(),
+                        ct);
+
+                    return result;
+                }
+            }
+            else if (runProc.Steps == null)
+            {
+                throw new NotImplementedException();
+            }
+            else if (runProc.IsResult)
+            {
+                throw new NotImplementedException();
+            }
+            else if (runProc.IsHistory)
+            {
+                throw new NotImplementedException();
+            }
+            else if (runProc.IsChildren)
+            {
+                throw new NotImplementedException();
+            }
+            else
+            {
+                throw new NotSupportedException("Should never reach here");
+            }
         }
     }
 }

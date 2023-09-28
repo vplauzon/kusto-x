@@ -76,33 +76,42 @@ rule runProcedureCommand = "." "run" ("procedure" | "proc") "<|"
 	rootSequence:sequenceContent => {
 		"rootSequence":rootSequence
 	};
-rule showProcedureRuns = "." "show" ("procedure" | "proc") "runs" jobId:quotedString? query:pipeGenericQuery? => {
+
+rule query = genericQuery;
+rule command = runProcedureCommand:runProcedureCommand
+	| showProcedureRuns:showProcedureRunsFamily
+	| getBlobsCommand:getBlobsCommand
+	| queueIngestCommand:queueIngestCommand
+	| genericCommand:genericCommand;
+
+#	Show procedure runs family
+rule showProcedureRunsPrefix = "." "show" ("procedure" | "proc") "runs"; 
+rule showProcedureRuns = showProcedureRunsPrefix jobId:quotedString?
+	query:pipeGenericQuery? => {
 		"code" : text,
 		"jobId" : firstOrNull(jobId),
 		"query" : firstOrNull(query)
 	};
-rule showProcedureRunsSteps = "." "show" ("procedure" | "proc") "runs" jobId:quotedString "steps"
-	query:pipeGenericQuery? => {
+rule showProcedureRunsOptions = showProcedureRunsPrefix jobId:quotedString
+	option:(("result" => { "isResult":true}) | ("history" => {"isHistory":true}) )
+	query:pipeGenericQuery? => merge({
 		"code" : text,
 		"jobId" : jobId,
 		"query" : firstOrNull(query)
-	};
-rule showProcedureRunsStepsResult = "." "show" ("procedure" | "proc") "runs" jobId:quotedString "steps"
-	"[" steps:integerList "]" "result"
-	query:pipeGenericQuery? => {
+	}, option);
+rule showProcedureRunsSteps = showProcedureRunsPrefix  jobId:quotedString "steps"
+	steps:("[" steps:integerList "]"
+	options:(("children" => {"isChildren":true})
+	| ("result" => {"isResult":true})
+	| ("history" => {"isHistory":true}) )? =>
+	merge({"steps":steps}, firstOrNull(options)))?
+	query:pipeGenericQuery? => merge({
 		"code" : text,
 		"jobId" : jobId,
-		"query" : firstOrNull(query),
-		"steps" : steps
-	};
-rule query = genericQuery;
-rule command = runProcedureCommand:runProcedureCommand
-	| showProcedureRuns:showProcedureRuns
-	| showProcedureRunsSteps:showProcedureRunsSteps
-	| showProcedureRunsStepsResult:showProcedureRunsStepsResult
-	| getBlobsCommand:getBlobsCommand
-	| queueIngestCommand:queueIngestCommand
-	| genericCommand:genericCommand;
+		"isSteps" : true,
+		"query" : firstOrNull(query)
+	}, firstOrNull(steps));
+rule showProcedureRunsFamily = showProcedureRuns | showProcedureRunsOptions | showProcedureRunsSteps;
 
 #	main rule
 rule main = m:(query:query | command:command) padding* => m;

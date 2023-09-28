@@ -4,7 +4,7 @@ using Kustox.Runtime.State;
 using System.Collections.Immutable;
 using System.Text.Json;
 
-namespace Kustox.IntegratedTests.Commands
+namespace Kustox.IntegratedTests.Commands.ShowProcRuns
 {
     public class ShowProcRunsStepsTest : TestBase
     {
