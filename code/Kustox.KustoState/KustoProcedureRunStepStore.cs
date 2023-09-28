@@ -34,7 +34,8 @@ namespace Kustox.KustoState
             var script = $@"
 RunStep
 | where JobId=='{_jobId}'
-| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)";
+| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)
+| where isnotempty(JobId)";
             var stepsData = await KustoHelper.QueryAsync<StepData>(
                 _connectionProvider.QueryProvider,
                 script,
@@ -54,6 +55,7 @@ RunStep
 
             scriptBuilder.AppendLine($"| where JobId=='{_jobId}'");
             scriptBuilder.AppendLine("| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)");
+            scriptBuilder.AppendLine("| where isnotempty(JobId)");
             scriptBuilder.AppendLine("| order by Timestamp asc");
             scriptBuilder.AppendLine(PROJECT_CLAUSE);
             if (query != null)
@@ -81,7 +83,8 @@ RunStep
 | where array_length(Breadcrumb)==1
 | extend StepIndex=tolong(Breadcrumb[0])
 | summarize arg_max(Timestamp, *) by StepIndex
-| summarize arg_max(StepIndex, *)",
+| summarize arg_max(StepIndex, *)
+| where isnotempty(JobId)",
                 ct);
             var steps = stepsData
                 .Select(s => s.ToImmutable())
@@ -106,6 +109,35 @@ RunStep
             }
 
             return lastStep.Result;
+        }
+
+        async Task<TableResult?> IProcedureRunStepStore.GetStepResultAsync(
+            IImmutableList<int> stepBreadcrumb,
+            CancellationToken ct)
+        {
+            var stepsData = await KustoHelper.QueryAsync<StepData>(
+                _connectionProvider.QueryProvider,
+                $@"RunStep
+| where JobId=='{_jobId}'
+| where array_length(Breadcrumb)=={stepBreadcrumb.Count}
+| extend BreadcrumbId=tostring(Breadcrumb)
+| where BreadcrumbId=='[{string.Join(",", stepBreadcrumb.Select(i => i.ToString()))}]'
+| summarize arg_max(Timestamp, *)
+| where isnotempty(JobId)",
+                ct);
+            var steps = stepsData
+                .Select(s => s.ToImmutable())
+                .ToImmutableArray();
+            var step = steps.LastOrDefault();
+
+            if (step?.State != StepState.Completed)
+            {
+                return null;
+            }
+            else
+            {
+                return step.Result;
+            }
         }
 
         async Task IProcedureRunStepStore.AppendStepAsync(

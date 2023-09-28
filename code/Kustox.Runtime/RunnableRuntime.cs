@@ -12,7 +12,6 @@ using System.Threading.Tasks;
 using Kusto.Cloud.Platform.Data;
 using System.Text.Json;
 using Kustox.Runtime.State.RunStep;
-using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State;
 
 namespace Kustox.Runtime
@@ -86,43 +85,17 @@ namespace Kustox.Runtime
         private string BuildQueryPrefix(
             IImmutableList<KeyValuePair<string, TableResult>> capturedValues)
         {
-            var letList = new List<string>();
+            var builder = new StringBuilder();
 
             foreach (var value in capturedValues)
             {
                 var name = value.Key;
                 var result = value.Value;
 
-                if (result.IsScalar)
-                {
-                    var scalarValue = result.Data.First().First();
-                    var scalarKustoType = result.Columns.First().GetKustoType();
-                    var dynamicValue = $"dynamic({JsonSerializer.Serialize(scalarValue)})";
-                    var letValue = $"let {name} = to{scalarKustoType}({dynamicValue});";
-
-                    letList.Add(letValue);
-                }
-                else
-                {
-                    var tmp = "__" + Guid.NewGuid().ToString("N");
-                    var projections = result.Columns
-                        .Zip(Enumerable.Range(0, result.Columns.Count()))
-                        .Select(b => new
-                        {
-                            Name = b.First.ColumnName,
-                            KustoType = b.First.GetKustoType(),
-                            Index = b.Second
-                        })
-                        .Select(b => $"{b.Name}=to{b.KustoType}({tmp}[{b.Index}])");
-
-                    letList.Add(@$"let {name} = print {tmp} = dynamic({result.GetJsonData()})
-| mv-expand {tmp}
-| project {string.Join(", ", projections)};");
-                }
+                builder.AppendLine($"let {name} = {result.ToKustoExpression()}");
             }
-            var prefixText = string.Join(Environment.NewLine, letList) + Environment.NewLine;
 
-            return prefixText;
+            return builder.ToString();
         }
         #endregion
     }
