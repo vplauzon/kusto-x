@@ -17,13 +17,13 @@ namespace Kustox.IntegratedTests
     @foreach(i in myRange){
     }
 }";
-            var result = await RunInPiecesAsync(script);
+            var output = await RunInPiecesAsync(script);
 
-            Assert.NotNull(result);
-            Assert.False(result.IsScalar);
-            Assert.Single(result.Columns);
-            Assert.Single(result.Data);
-            Assert.Single(result.Data.First());
+            Assert.NotNull(output.Result);
+            Assert.False(output.Result.IsScalar);
+            Assert.Single(output.Result.Columns);
+            Assert.Single(output.Result.Data);
+            Assert.Single(output.Result.Data.First());
         }
 
         [Fact]
@@ -36,17 +36,17 @@ namespace Kustox.IntegratedTests
         print toint(i)
     }
 }";
-            var result = await RunInPiecesAsync(script);
+            var output = await RunInPiecesAsync(script);
 
-            Assert.NotNull(result);
-            Assert.False(result.IsScalar);
-            Assert.Single(result.Columns);
-            Assert.Equal(typeof(int), result.Columns[0].ColumnType);
+            Assert.NotNull(output.Result);
+            Assert.False(output.Result.IsScalar);
+            Assert.Single(output.Result.Columns);
+            Assert.Equal(typeof(int), output.Result.Columns[0].ColumnType);
 
             //  Weirdest serialization going on:  all elements are JsonElement except
             //  the last one which is actually an integer!
             Assert.True(Enumerable.SequenceEqual(
-                result
+                output.Result
                 .GetColumnData(0)
                 .Select(e => e is JsonElement ? ((JsonElement)e).GetInt32() : (int)e),
                 //  Although we cast to int in Kusto, the JSON representation deserialize in long
@@ -67,7 +67,8 @@ namespace Kustox.IntegratedTests
 
             foreach (var n in numberOfSteps)
             {
-                var result = await RunInPiecesAsync(script);
+                var output = await RunInPiecesAsync(script);
+                var result = output.Result;
 
                 Assert.NotNull(result);
                 Assert.False(result.IsScalar);

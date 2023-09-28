@@ -14,12 +14,12 @@ namespace Kustox.IntegratedTests.Commands
             var script = @$"{{
     .get blobs '{url}'
 }}";
-            var result = await RunInPiecesAsync(script);
+            var output = await RunInPiecesAsync(script);
 
-            Assert.NotNull(result);
-            Assert.False(result.IsScalar);
-            Assert.Equal(3, result.Columns.Count());
-            Assert.Equal(3, result.Data.Count());
+            Assert.NotNull(output.Result);
+            Assert.False(output.Result.IsScalar);
+            Assert.Equal(3, output.Result.Columns.Count());
+            Assert.Equal(3, output.Result.Data.Count());
         }
 
         [Fact]
@@ -32,14 +32,14 @@ namespace Kustox.IntegratedTests.Commands
     blobs
     | project Name
 }}";
-            var result = await RunInPiecesAsync(script);
+            var output = await RunInPiecesAsync(script);
 
-            Assert.NotNull(result);
-            Assert.False(result.IsScalar);
-            Assert.Single(result.Columns);
-            Assert.Equal(3, result.Data.Count());
+            Assert.NotNull(output.Result);
+            Assert.False(output.Result.IsScalar);
+            Assert.Single(output.Result.Columns);
+            Assert.Equal(3, output.Result.Data.Count());
 
-            var names = result.Data
+            var names = output.Result.Data
                 .Select(d => d.First().ToString()!)
                 .Select(n => n.Split('/').Last())
                 .Order()
