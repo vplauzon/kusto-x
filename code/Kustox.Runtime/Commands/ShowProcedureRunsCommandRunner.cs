@@ -86,7 +86,12 @@ namespace Kustox.Runtime.Commands
                 }
                 else if (runProc.IsChildren)
                 {
-                    throw new NotImplementedException();
+                    var result = await stepStore.QueryStepChildrenAsync(
+                        runProc.GetPipedQuery(),
+                        runProc.Breadcrumb,
+                        ct);
+
+                    return result;
                 }
                 else
                 {

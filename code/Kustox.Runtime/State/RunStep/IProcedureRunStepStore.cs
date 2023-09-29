@@ -12,7 +12,7 @@ namespace Kustox.Runtime.State.RunStep
 
         Task<TableResult> QueryStepsAsync(
             string? query,
-            IImmutableList<int>? stepBreadcrumb,
+            IImmutableList<int>? breadcrumb,
             CancellationToken ct);
         
         Task<TableResult> QueryRunResultAsync(
@@ -21,14 +21,19 @@ namespace Kustox.Runtime.State.RunStep
         
         Task<TableResult> QueryStepResultAsync(
             string? query,
-            IImmutableList<int> stepBreadcrumb,
+            IImmutableList<int> breadcrumb,
             CancellationToken ct);
 
         Task<TableResult> QueryStepHistoryAsync(
             string? query,
-            IImmutableList<int> stepBreadcrumb,
+            IImmutableList<int> breadcrumb,
             CancellationToken ct);
 
+        Task<TableResult> QueryStepChildrenAsync(
+            string? query,
+            IImmutableList<int> breadcrumb,
+            CancellationToken ct);
+     
         Task AppendStepAsync(IEnumerable<ProcedureRunStep> steps, CancellationToken ct);
     }
 }

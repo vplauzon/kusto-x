@@ -49,18 +49,45 @@ RunStep
 
         async Task<TableResult> IProcedureRunStepStore.QueryStepsAsync(
             string? query,
-            IImmutableList<int>? stepBreadcrumb,
+            IImmutableList<int>? breadcrumb,
             CancellationToken ct)
         {
-            return await QueryStepsInternalAsync(query, stepBreadcrumb, false, ct);
+            return await QueryStepsInternalAsync(query, breadcrumb, false, ct);
         }
 
         async Task<TableResult> IProcedureRunStepStore.QueryStepHistoryAsync(
             string? query,
-            IImmutableList<int> stepBreadcrumb,
+            IImmutableList<int> breadcrumb,
             CancellationToken ct)
         {
-            return await QueryStepsInternalAsync(query, stepBreadcrumb, true, ct);
+            return await QueryStepsInternalAsync(query, breadcrumb, true, ct);
+        }
+
+        async Task<TableResult> IProcedureRunStepStore.QueryStepChildrenAsync(
+            string? query,
+            IImmutableList<int> breadcrumb,
+            CancellationToken ct)
+        {
+            var script = $@"
+RunStep
+| where JobId=='{_jobId}'
+| extend BreadcrumbId=tostring(Breadcrumb)
+| where array_length(Breadcrumb) in ({breadcrumb.Count}, {breadcrumb.Count + 1})
+| where BreadcrumbId == '[{string.Join(',', breadcrumb)}]'
+    or BreadcrumbId startswith '[{string.Join(',', breadcrumb)},'
+| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId
+| where isnotempty(JobId)
+| order by Timestamp asc
+{PROJECT_CLAUSE}
+{query}";
+            var stepsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
+                string.Empty,
+                script,
+                _connectionProvider.EmptyClientRequestProperties,
+                ct);
+            var table = stepsData.ToDataSet().Tables[0].ToTableResult();
+
+            return table;
         }
 
         async Task<TableResult> IProcedureRunStepStore.QueryRunResultAsync(
@@ -88,7 +115,7 @@ RunStep
                 .ToImmutableArray();
             var step = steps.LastOrDefault();
 
-            if(step == null)
+            if (step == null)
             {
                 return TableResult.CreateEmpty("NoData", string.Empty);
             }
@@ -188,16 +215,17 @@ RunStep
 
         private async Task<TableResult> QueryStepsInternalAsync(
             string? query,
-            IImmutableList<int>? stepBreadcrumb,
+            IImmutableList<int>? breadcrumb,
             bool withHistory,
             CancellationToken ct)
         {
             var historyFilter = withHistory
                 ? string.Empty
                 : "| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId";
-            var breadcrumbFilter = stepBreadcrumb == null
+            var breadcrumbFilter = breadcrumb == null
                 ? string.Empty
-                : $"| where BreadcrumbId==dynamic([{string.Join(',', stepBreadcrumb)}])";
+                : $"| where array_length(Breadcrumb) == {breadcrumb.Count}"
+                + $" and BreadcrumbId=='[{string.Join(',', breadcrumb)}]'";
             var script = $@"
 RunStep
 | where JobId=='{_jobId}'
