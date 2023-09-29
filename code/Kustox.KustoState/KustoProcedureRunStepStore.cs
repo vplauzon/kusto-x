@@ -28,7 +28,7 @@ namespace Kustox.KustoState
 
         string IProcedureRunStepStore.JobId => _jobId;
 
-        async Task<IImmutableList<ProcedureRunStep>> IProcedureRunStepStore.GetAllLatestStepsAsync(
+        async Task<IImmutableList<ProcedureRunStep>> IProcedureRunStepStore.GetAllStepsAsync(
             CancellationToken ct)
         {
             var script = $@"
@@ -47,7 +47,7 @@ RunStep
             return steps;
         }
 
-        async Task<TableResult> IProcedureRunStepStore.QueryLatestRunsAsync(
+        async Task<TableResult> IProcedureRunStepStore.QueryRunsAsync(
             string? query,
             CancellationToken ct)
         {

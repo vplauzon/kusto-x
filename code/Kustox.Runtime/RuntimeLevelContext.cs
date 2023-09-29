@@ -95,7 +95,7 @@ namespace Kustox.Runtime
             //  Process in background
             var procedureRunStepStore = storageHub.ProcedureRunRegistry.GetRun(jobId);
             var runTask = storageHub.ProcedureRunStore.GetRunAsync(jobId, ct);
-            var allSteps = await procedureRunStepStore.GetAllLatestStepsAsync(ct);
+            var allSteps = await procedureRunStepStore.GetAllStepsAsync(ct);
             ProcedureRunStep root;
             IImmutableDictionary<IImmutableList<int>, IImmutableList<ProcedureRunStep>> childrenMap;
 

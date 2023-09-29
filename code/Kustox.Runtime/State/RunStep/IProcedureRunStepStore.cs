@@ -8,9 +8,9 @@ namespace Kustox.Runtime.State.RunStep
     {
         string JobId { get; }
 
-        Task<IImmutableList<ProcedureRunStep>> GetAllLatestStepsAsync(CancellationToken ct);
+        Task<IImmutableList<ProcedureRunStep>> GetAllStepsAsync(CancellationToken ct);
 
-        Task<TableResult> QueryLatestRunsAsync(
+        Task<TableResult> QueryRunsAsync(
             string? query,
             CancellationToken ct);
         
