@@ -51,19 +51,14 @@ RunStep
             string? query,
             CancellationToken ct)
         {
-            var scriptBuilder = new StringBuilder("RunStep");
-
-            scriptBuilder.AppendLine($"| where JobId=='{_jobId}'");
-            scriptBuilder.AppendLine("| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)");
-            scriptBuilder.AppendLine("| where isnotempty(JobId)");
-            scriptBuilder.AppendLine("| order by Timestamp asc");
-            scriptBuilder.AppendLine(PROJECT_CLAUSE);
-            if (query != null)
-            {
-                scriptBuilder.AppendLine(query);
-            }
-
-            var script = scriptBuilder.ToString();
+            var script = $@"
+RunStep
+| where JobId=='{_jobId}'
+| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)
+| where isnotempty(JobId)
+| order by Timestamp asc
+{PROJECT_CLAUSE}
+{query}";
             var stepsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
                 string.Empty,
                 script,

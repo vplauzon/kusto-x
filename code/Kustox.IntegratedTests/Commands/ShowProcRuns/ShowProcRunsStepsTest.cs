@@ -1,6 +1,7 @@
 using Kustox.Compiler;
 using Kustox.Runtime;
 using Kustox.Runtime.State;
+using Kustox.Runtime.State.RunStep;
 using System.Collections.Immutable;
 using System.Text.Json;
 
@@ -11,25 +12,47 @@ namespace Kustox.IntegratedTests.Commands.ShowProcRuns
         [Fact]
         public async Task Vanila()
         {
-            var script = ".show proc runs 'abc' steps";
-            var result = await RunStatementAsync(script);
+            var procScript = @"{
+    print 1
 
-            Assert.NotNull(result);
+    print 2
+
+    print 3
+}";
+            var output = await RunInPiecesAsync(procScript, null);
+            var jobId = output.JobId;
+            var showScript = $".show proc runs '{jobId}' steps";
+            var result = await RunStatementAsync(showScript);
+
             Assert.False(result.IsScalar);
+            Assert.Equal(4, result.Data.Count);
+            Assert.Equal(4, result
+                .GetColumnData("State")
+                .Where(s => (string)s == StepState.Completed.ToString())
+                .Count());
         }
 
         [Fact]
         public async Task WithQuery()
         {
-            var script = ".show procedure runs 'abc' steps | project A='123'";
-            var result = await RunStatementAsync(script);
+            var procScript = @"{
+    print 1
 
-            Assert.NotNull(result);
+    print 2
+
+    print 3
+}";
+            var output = await RunInPiecesAsync(procScript, null);
+            var jobId = output.JobId;
+            var showScript = $".show proc runs '{jobId}' steps | project State";
+            var result = await RunStatementAsync(showScript);
+
             Assert.False(result.IsScalar);
-            Assert.Empty(result.Data);
-            Assert.Single(result.Columns);
-            Assert.Equal("A", result.Columns[0].ColumnName);
-            Assert.Equal(typeof(string), result.Columns[0].ColumnType);
+            Assert.Equal(4, result.Data.Count);
+            Assert.Equal(4, result
+                .GetColumnData(0)
+                .Where(s => (string)s == StepState.Completed.ToString())
+                .Count());
         }
     }
 }

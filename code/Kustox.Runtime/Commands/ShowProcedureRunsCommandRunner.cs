@@ -58,7 +58,10 @@ namespace Kustox.Runtime.Commands
             }
             else if (runProc.Steps == null)
             {
-                throw new NotImplementedException();
+                var stepStore = _storageHub.ProcedureRunRegistry.GetRun(runProc.JobId!);
+                var result = await stepStore.QueryStepsAsync(runProc.GetPipedQuery(), ct);
+
+                return result;
             }
             else if (runProc.IsResult)
             {
