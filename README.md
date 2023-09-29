@@ -208,14 +208,14 @@ Command|Description
 `.show procedure runs <jobId> result`|Show the result of the last step of the job
 `.show procedure runs <jobId> history`|List the different states a run went through
 `.show procedure runs <jobId> steps`|List all the steps of a given job
-`.show procedure runs <jobId> steps <sequence>`|List only the specified step
-`.show procedure runs <jobId> steps <sequence> children`|List the specified step and its immediate children
-`.show procedure runs <jobId> steps <sequence> result`|Show the result of a specified step
-`.show procedure runs <jobId> steps <sequence> history`|List all different states a step went through
+`.show procedure runs <jobId> steps <breadcrumb>`|List only the specified step
+`.show procedure runs <jobId> steps <breadcrumb> children`|List the specified step and its immediate children
+`.show procedure runs <jobId> steps <breadcrumb> result`|Show the result of a specified step
+`.show procedure runs <jobId> steps <breadcrumb> history`|List all different states a step went through
 
 Parameter `jobId` should be in quotes.
 
-Parameter `step sequence` is a coma-separated list of integer, e.g. `[0, 1, 12]`.
+Parameter `breadcrumb` is a coma-separated list of integer, e.g. `[0, 1, 12]`.
 
 ### .get blobs
 

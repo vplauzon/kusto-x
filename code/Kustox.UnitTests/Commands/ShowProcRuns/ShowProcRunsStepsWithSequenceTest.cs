@@ -15,8 +15,8 @@ namespace Kustox.UnitTests.Commands.ShowProcRuns
             Assert.NotNull(statement.Command.ShowProcedureRuns);
             Assert.NotNull(statement.Command.ShowProcedureRuns.JobId);
             Assert.Equal("abc", statement.Command.ShowProcedureRuns.JobId);
-            Assert.NotNull(statement.Command.ShowProcedureRuns.Steps);
-            Assert.True(statement.Command.ShowProcedureRuns.Steps
+            Assert.NotNull(statement.Command.ShowProcedureRuns.Breadcrumb);
+            Assert.True(statement.Command.ShowProcedureRuns.Breadcrumb
                 .SequenceEqual(new[] {1,2,3}));
             Assert.True(statement.Command.ShowProcedureRuns.IsSteps);
             Assert.False(statement.Command.ShowProcedureRuns.IsResult);
@@ -37,8 +37,8 @@ namespace Kustox.UnitTests.Commands.ShowProcRuns
             Assert.Contains("project", statement.Command.ShowProcedureRuns.Query.Code);
             Assert.NotNull(statement.Command.ShowProcedureRuns.JobId);
             Assert.Equal("zerun", statement.Command.ShowProcedureRuns.JobId);
-            Assert.NotNull(statement.Command.ShowProcedureRuns.Steps);
-            Assert.True(statement.Command.ShowProcedureRuns.Steps
+            Assert.NotNull(statement.Command.ShowProcedureRuns.Breadcrumb);
+            Assert.True(statement.Command.ShowProcedureRuns.Breadcrumb
                 .SequenceEqual(new[] { 1, 2, 3 }));
             Assert.True(statement.Command.ShowProcedureRuns.IsSteps);
             Assert.False(statement.Command.ShowProcedureRuns.IsResult);

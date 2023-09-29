@@ -100,17 +100,17 @@ rule showProcedureRunsOptions = showProcedureRunsPrefix jobId:quotedString
 		"query" : firstOrNull(query)
 	}, option);
 rule showProcedureRunsSteps = showProcedureRunsPrefix  jobId:quotedString "steps"
-	steps:("[" steps:integerList "]"
+	breadcrumb:("[" breadcrumb:integerList "]"
 	options:(("children" => {"isChildren":true})
 	| ("result" => {"isResult":true})
 	| ("history" => {"isHistory":true}) )? =>
-	merge({"steps":steps}, firstOrNull(options)))?
+	merge({"breadcrumb":breadcrumb}, firstOrNull(options)))?
 	query:pipeGenericQuery? => merge({
 		"code" : text,
 		"jobId" : jobId,
 		"isSteps" : true,
 		"query" : firstOrNull(query)
-	}, firstOrNull(steps));
+	}, firstOrNull(breadcrumb));
 rule showProcedureRunsFamily = showProcedureRuns | showProcedureRunsOptions | showProcedureRunsSteps;
 
 #	main rule

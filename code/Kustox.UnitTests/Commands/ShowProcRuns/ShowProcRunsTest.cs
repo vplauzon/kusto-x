@@ -14,7 +14,7 @@ namespace Kustox.UnitTests.Commands.ShowProcRuns
             Assert.NotNull(statement.Command);
             Assert.NotNull(statement.Command.ShowProcedureRuns);
             Assert.Null(statement.Command.ShowProcedureRuns.JobId);
-            Assert.Null(statement.Command.ShowProcedureRuns.Steps);
+            Assert.Null(statement.Command.ShowProcedureRuns.Breadcrumb);
             Assert.False(statement.Command.ShowProcedureRuns.IsSteps);
             Assert.False(statement.Command.ShowProcedureRuns.IsResult);
             Assert.False(statement.Command.ShowProcedureRuns.IsHistory);
@@ -31,7 +31,7 @@ namespace Kustox.UnitTests.Commands.ShowProcRuns
             Assert.NotNull(statement.Command);
             Assert.NotNull(statement.Command.ShowProcedureRuns);
             Assert.Null(statement.Command.ShowProcedureRuns.JobId);
-            Assert.Null(statement.Command.ShowProcedureRuns.Steps);
+            Assert.Null(statement.Command.ShowProcedureRuns.Breadcrumb);
             Assert.False(statement.Command.ShowProcedureRuns.IsSteps);
             Assert.False(statement.Command.ShowProcedureRuns.IsResult);
             Assert.False(statement.Command.ShowProcedureRuns.IsHistory);

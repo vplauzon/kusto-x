@@ -6,7 +6,7 @@ namespace Kustox.Compiler.Commands
     {
         public string? JobId { get; set; }
 
-        public IImmutableList<int>? Steps { get; set; }
+        public IImmutableList<int>? Breadcrumb { get; set; }
 
         public bool IsSteps { get; set; } = false;
 
@@ -41,7 +41,7 @@ namespace Kustox.Compiler.Commands
             {
                 throw new InvalidDataException("Children available only in steps");
             }
-            if ((IsChildren || IsHistory || IsResult) && IsSteps && Steps == null)
+            if ((IsChildren || IsHistory || IsResult) && IsSteps && Breadcrumb == null)
             {
                 throw new InvalidDataException("Step sequence must be provided");
             }

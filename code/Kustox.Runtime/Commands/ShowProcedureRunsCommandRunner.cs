@@ -56,10 +56,10 @@ namespace Kustox.Runtime.Commands
                     return result;
                 }
             }
-            else if (runProc.Steps == null)
+            else if (runProc.Breadcrumb == null)
             {
                 var stepStore = _storageHub.ProcedureRunRegistry.GetRun(runProc.JobId!);
-                var result = await stepStore.QueryStepsAsync(runProc.GetPipedQuery(), ct);
+                var result = await stepStore.QueryStepsAsync(runProc.GetPipedQuery(), null, ct);
 
                 return result;
             }
@@ -77,7 +77,13 @@ namespace Kustox.Runtime.Commands
             }
             else
             {
-                throw new NotSupportedException("Should never reach here");
+                var stepStore = _storageHub.ProcedureRunRegistry.GetRun(runProc.JobId!);
+                var result = await stepStore.QueryStepsAsync(
+                    runProc.GetPipedQuery(),
+                    runProc.Breadcrumb,
+                    ct);
+
+                return result;
             }
         }
     }

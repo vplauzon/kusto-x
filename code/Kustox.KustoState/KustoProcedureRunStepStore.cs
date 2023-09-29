@@ -49,12 +49,18 @@ RunStep
 
         async Task<TableResult> IProcedureRunStepStore.QueryStepsAsync(
             string? query,
+            IImmutableList<int>? stepBreadcrumb,
             CancellationToken ct)
         {
+            var breadcrumbFilter = stepBreadcrumb == null
+                ? string.Empty
+                : $"| where BreadcrumbId==dynamic([{string.Join(',', stepBreadcrumb)}])";
             var script = $@"
 RunStep
 | where JobId=='{_jobId}'
-| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)
+| extend BreadcrumbId=tostring(Breadcrumb)
+{breadcrumbFilter}
+| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId
 | where isnotempty(JobId)
 | order by Timestamp asc
 {PROJECT_CLAUSE}
