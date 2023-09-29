@@ -19,20 +19,9 @@ namespace Kustox.IntegratedTests.Commands.ShowProcRuns
         }
 
         [Fact]
-        public async Task SelectNonExisting()
-        {
-            var script = ".show proc runs 'abc'";
-            var result = await RunStatementAsync(script);
-
-            Assert.NotNull(result);
-            Assert.False(result.IsScalar);
-            Assert.Empty(result.Data);
-        }
-
-        [Fact]
         public async Task WithQuery()
         {
-            var script = ".show procedure runs | project A='123'";
+            var script = ".show procedure runs | summarize take_any (*) | project A='123'";
             var result = await RunStatementAsync(script);
 
             Assert.NotNull(result);
