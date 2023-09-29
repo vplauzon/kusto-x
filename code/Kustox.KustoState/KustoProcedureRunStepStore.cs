@@ -52,27 +52,15 @@ RunStep
             IImmutableList<int>? stepBreadcrumb,
             CancellationToken ct)
         {
-            var breadcrumbFilter = stepBreadcrumb == null
-                ? string.Empty
-                : $"| where BreadcrumbId==dynamic([{string.Join(',', stepBreadcrumb)}])";
-            var script = $@"
-RunStep
-| where JobId=='{_jobId}'
-| extend BreadcrumbId=tostring(Breadcrumb)
-{breadcrumbFilter}
-| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId
-| where isnotempty(JobId)
-| order by Timestamp asc
-{PROJECT_CLAUSE}
-{query}";
-            var stepsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
-                string.Empty,
-                script,
-                _connectionProvider.EmptyClientRequestProperties,
-                ct);
-            var table = stepsData.ToDataSet().Tables[0].ToTableResult();
+            return await QueryStepsInternalAsync(query, stepBreadcrumb, false, ct);
+        }
 
-            return table;
+        async Task<TableResult> IProcedureRunStepStore.QueryStepHistoryAsync(
+            string? query,
+            IImmutableList<int> stepBreadcrumb,
+            CancellationToken ct)
+        {
+            return await QueryStepsInternalAsync(query, stepBreadcrumb, true, ct);
         }
 
         async Task<TableResult> IProcedureRunStepStore.QueryRunResultAsync(
@@ -196,6 +184,38 @@ RunStep
                 TABLE_NAME,
                 data,
                 ct);
+        }
+
+        private async Task<TableResult> QueryStepsInternalAsync(
+            string? query,
+            IImmutableList<int>? stepBreadcrumb,
+            bool withHistory,
+            CancellationToken ct)
+        {
+            var historyFilter = withHistory
+                ? string.Empty
+                : "| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId";
+            var breadcrumbFilter = stepBreadcrumb == null
+                ? string.Empty
+                : $"| where BreadcrumbId==dynamic([{string.Join(',', stepBreadcrumb)}])";
+            var script = $@"
+RunStep
+| where JobId=='{_jobId}'
+| extend BreadcrumbId=tostring(Breadcrumb)
+{breadcrumbFilter}
+{historyFilter}
+| where isnotempty(JobId)
+| order by Timestamp asc
+{PROJECT_CLAUSE}
+{query}";
+            var stepsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
+                string.Empty,
+                script,
+                _connectionProvider.EmptyClientRequestProperties,
+                ct);
+            var table = stepsData.ToDataSet().Tables[0].ToTableResult();
+
+            return table;
         }
     }
 }

@@ -24,6 +24,11 @@ namespace Kustox.Runtime.State.RunStep
             IImmutableList<int> stepBreadcrumb,
             CancellationToken ct);
 
+        Task<TableResult> QueryStepHistoryAsync(
+            string? query,
+            IImmutableList<int> stepBreadcrumb,
+            CancellationToken ct);
+
         Task AppendStepAsync(IEnumerable<ProcedureRunStep> steps, CancellationToken ct);
     }
 }
