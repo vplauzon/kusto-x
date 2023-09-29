@@ -52,7 +52,7 @@ namespace Kustox.IntegratedTests.Commands
                         var runStepStore = environmentRuntime.StorageHub
                             .ProcedureRunRegistry
                             .GetRun(jobId);
-                        var runResult = await runStepStore.GetRunResultAsync(ct);
+                        var runResult = await runStepStore.QueryRunResultAsync(null, ct);
 
                         Assert.NotNull(runResult);
                         Assert.False(runResult.IsScalar);

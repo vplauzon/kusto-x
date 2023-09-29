@@ -10,13 +10,16 @@ namespace Kustox.Runtime.State.RunStep
 
         Task<IImmutableList<ProcedureRunStep>> GetAllStepsAsync(CancellationToken ct);
 
-        Task<TableResult> QueryRunsAsync(
+        Task<TableResult> QueryStepsAsync(
             string? query,
             CancellationToken ct);
         
-        Task<TableResult?> GetRunResultAsync(CancellationToken ct);
+        Task<TableResult?> QueryRunResultAsync(
+            string? query,
+            CancellationToken ct);
         
-        Task<TableResult> GetStepResultAsync(
+        Task<TableResult> QueryStepResultAsync(
+            string? query,
             IImmutableList<int> stepBreadcrumb,
             CancellationToken ct);
 

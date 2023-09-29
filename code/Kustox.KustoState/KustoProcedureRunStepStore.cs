@@ -47,7 +47,7 @@ RunStep
             return steps;
         }
 
-        async Task<TableResult> IProcedureRunStepStore.QueryRunsAsync(
+        async Task<TableResult> IProcedureRunStepStore.QueryStepsAsync(
             string? query,
             CancellationToken ct)
         {
@@ -74,7 +74,9 @@ RunStep
             return table;
         }
 
-        async Task<TableResult?> IProcedureRunStepStore.GetRunResultAsync(CancellationToken ct)
+        async Task<TableResult?> IProcedureRunStepStore.QueryRunResultAsync(
+            string? query,
+            CancellationToken ct)
         {
             var stepsData = await KustoHelper.QueryAsync<StepData>(
                 _connectionProvider.QueryProvider,
@@ -111,7 +113,8 @@ RunStep
             return lastStep.Result;
         }
 
-        async Task<TableResult> IProcedureRunStepStore.GetStepResultAsync(
+        async Task<TableResult> IProcedureRunStepStore.QueryStepResultAsync(
+            string? query,
             IImmutableList<int> stepBreadcrumb,
             CancellationToken ct)
         {
