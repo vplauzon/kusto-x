@@ -58,7 +58,7 @@ namespace Kustox.IntegratedTests.Commands
                         Assert.False(runResult.IsScalar);
                         Assert.Single(runResult.Data);
                         Assert.Single(runResult.Data[0]);
-                        Assert.Equal(42, ((JsonElement)runResult.Data[0][0]).GetInt64());
+                        Assert.Equal((long)42, runResult.Data[0][0]);
                         break;
                     }
                     Assert.True(run.State == ProcedureRunState.Running
