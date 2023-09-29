@@ -15,7 +15,7 @@ namespace Kustox.KustoState
     {
         private const string TABLE_NAME = "RunStep";
         private const string PROJECT_CLAUSE =
-            "| project JobId, Breadcrumb, State, Script, CaptureName, IsResultScalar, ResultColumnNames, ResultData, Timestamp";
+            "| project JobId, Breadcrumb, State, Script, CaptureName, IsResultScalar, ResultColumnNames, ResultColumnTypes, ResultData, Timestamp";
 
         private readonly ConnectionProvider _connectionProvider;
         private readonly string _jobId;
@@ -74,43 +74,57 @@ RunStep
             return table;
         }
 
-        async Task<TableResult?> IProcedureRunStepStore.QueryRunResultAsync(
+        async Task<TableResult> IProcedureRunStepStore.QueryRunResultAsync(
             string? query,
             CancellationToken ct)
         {
+            var stepQuery = $@"Run
+| where JobId=='{_jobId}'
+| where State=='Completed'
+| project JobId
+| join kind=inner RunStep on JobId
+| where array_length(Breadcrumb)==1
+| extend StepIndex=tolong(Breadcrumb[0])
+| summarize arg_max(Timestamp, *) by StepIndex
+| summarize arg_max(StepIndex, *)
+| where State=='Completed'
+| where isnotempty(JobId)
+{PROJECT_CLAUSE}";
             var stepsData = await KustoHelper.QueryAsync<StepData>(
                 _connectionProvider.QueryProvider,
-                $@"RunStep
+                stepQuery,
+                ct);
+            var steps = stepsData
+                .Select(s => s.ToImmutable())
+                .ToImmutableArray();
+            var step = steps.LastOrDefault();
+
+            if(step == null)
+            {
+                return TableResult.CreateEmpty("NoData", string.Empty);
+            }
+            else
+            {
+                var resultQuery = $@"RunStep
 | where JobId=='{_jobId}'
 | where array_length(Breadcrumb)==1
 | extend StepIndex=tolong(Breadcrumb[0])
 | summarize arg_max(Timestamp, *) by StepIndex
 | summarize arg_max(StepIndex, *)
-| where isnotempty(JobId)",
-                ct);
-            var steps = stepsData
-                .Select(s => s.ToImmutable())
-                .ToImmutableArray();
+| where State=='Completed'
+| where isnotempty(JobId)
+| mv-expand ResultData
+| project {step.Result!.ToDynamicProjection("ResultData")}
+{query}";
+                var resultData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
+                    string.Empty,
+                    resultQuery,
+                    _connectionProvider.EmptyClientRequestProperties,
+                    ct);
+                var table = resultData.ToDataSet().Tables[0].ToTableResult();
 
-            if (steps.Length != 1)
-            {
-                throw new InvalidDataException($"Can't find last step for job {_jobId}");
+                return table;
             }
-
-            var lastStep = steps.Last();
-
-            if (lastStep.State != StepState.Completed)
-            {
-                throw new InvalidDataException($"Requested last step result for job {_jobId} "
-                    + $"where status is {lastStep.State}");
-            }
-            if (lastStep.Result == null)
-            {
-                throw new NullReferenceException($"Requested last step result for job {_jobId} "
-                    + "where no result are present");
-            }
-
-            return lastStep.Result;
         }
 
         async Task<TableResult> IProcedureRunStepStore.QueryStepResultAsync(

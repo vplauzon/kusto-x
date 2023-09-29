@@ -14,7 +14,7 @@ namespace Kustox.Runtime.State.RunStep
             string? query,
             CancellationToken ct);
         
-        Task<TableResult?> QueryRunResultAsync(
+        Task<TableResult> QueryRunResultAsync(
             string? query,
             CancellationToken ct);
         

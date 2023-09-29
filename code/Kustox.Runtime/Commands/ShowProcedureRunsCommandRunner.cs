@@ -10,14 +10,14 @@ namespace Kustox.Runtime.Commands
 {
     internal class ShowProcedureRunsCommandRunner : CommandRunnerBase
     {
-        private readonly IProcedureRunStore _procedureRunStore;
+        private readonly IStorageHub _storageHub;
 
         public ShowProcedureRunsCommandRunner(
             ConnectionProvider connectionProvider,
             IStorageHub storageHub)
             : base(connectionProvider)
         {
-            _procedureRunStore = storageHub.ProcedureRunStore;
+            _storageHub = storageHub;
         }
 
         public override async Task<TableResult> RunCommandAsync(
@@ -30,7 +30,12 @@ namespace Kustox.Runtime.Commands
             {
                 if (runProc.IsResult)
                 {
-                    throw new NotImplementedException();
+                    var stepStore = _storageHub.ProcedureRunRegistry.GetRun(runProc.JobId!);
+                    var result = await stepStore.QueryRunResultAsync(
+                        runProc.GetPipedQuery(),
+                        ct);
+
+                    return result;
                 }
                 else if (runProc.IsHistory)
                 {
@@ -38,7 +43,7 @@ namespace Kustox.Runtime.Commands
                 }
                 else
                 {
-                    var result = await _procedureRunStore.QueryRunsAsync(
+                    var result = await _storageHub.ProcedureRunStore.QueryRunsAsync(
                         runProc.JobId,
                         runProc.GetPipedQuery(),
                         ct);

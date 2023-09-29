@@ -116,22 +116,29 @@ namespace Kustox.Runtime.State.RunStep
             else
             {
                 var tmp = "__" + Guid.NewGuid().ToString("N");
-                var projections = Columns
-                    .Zip(Enumerable.Range(0, Columns.Count()))
-                    .Select(b => new
-                    {
-                        Name = b.First.ColumnName,
-                        KustoType = b.First.GetKustoType(),
-                        Index = b.Second
-                    })
-                    .Select(b => $"{b.Name}=to{b.KustoType}({tmp}[{b.Index}])");
                 var tableValue = @$"
 print {tmp} = dynamic({GetJsonData()})
 | mv-expand {tmp}
-| project {string.Join(", ", projections)};";
+| project {ToDynamicProjection(tmp)};";
 
                 return tableValue;
             }
+        }
+
+        public string ToDynamicProjection(string dynamicColumnName)
+        {
+            var projections = Columns
+                .Zip(Enumerable.Range(0, Columns.Count()))
+                .Select(b => new
+                {
+                    Name = b.First.ColumnName,
+                    KustoType = b.First.GetKustoType(),
+                    Index = b.Second
+                })
+                .Select(b => $"{b.Name}=to{b.KustoType}({dynamicColumnName}[{b.Index}])");
+            var kql = string.Join(", ", projections);
+
+            return kql;
         }
 
         public string GetJsonData()
