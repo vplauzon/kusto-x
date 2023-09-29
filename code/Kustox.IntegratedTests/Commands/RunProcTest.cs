@@ -43,7 +43,7 @@ namespace Kustox.IntegratedTests.Commands
                 {
                     var run = await environmentRuntime.StorageHub
                         .ProcedureRunStore
-                        .GetLatestRunAsync(jobId, cancelSource.Token);
+                        .GetRunAsync(jobId, cancelSource.Token);
 
                     Assert.NotNull(run);
 

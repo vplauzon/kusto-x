@@ -23,7 +23,7 @@ namespace Kustox.KustoState
             _connectionProvider = connectionProvider;
         }
 
-        async Task<ProcedureRun?> IProcedureRunStore.GetLatestRunAsync(
+        async Task<ProcedureRun?> IProcedureRunStore.GetRunAsync(
             string jobId,
             CancellationToken ct)
         {
@@ -43,7 +43,7 @@ Run
             return run;
         }
 
-        async Task<TableResult> IProcedureRunStore.QueryLatestRunsAsync(
+        async Task<TableResult> IProcedureRunStore.QueryRunsAsync(
             string? jobId,
             string? query,
             CancellationToken ct)
@@ -57,6 +57,32 @@ Run
             {
                 scriptBuilder.AppendLine($"| where JobId=='{jobId}'");
             }
+            if (query != null)
+            {
+                scriptBuilder.AppendLine(query);
+            }
+
+            var script = scriptBuilder.ToString();
+            var runsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
+                string.Empty,
+                script,
+                _connectionProvider.EmptyClientRequestProperties,
+                ct);
+            var table = runsData.ToDataSet().Tables[0].ToTableResult();
+
+            return table;
+        }
+
+        async Task<TableResult> IProcedureRunStore.QueryRunHistoryAsync(
+            string jobId,
+            string? query,
+            CancellationToken ct)
+        {
+            var scriptBuilder = new StringBuilder("Run");
+
+            scriptBuilder.AppendLine($"| where JobId=='{jobId}'");
+            scriptBuilder.AppendLine(PROJECT_CLAUSE);
+            scriptBuilder.AppendLine("| order by Timestamp asc");
             if (query != null)
             {
                 scriptBuilder.AppendLine(query);

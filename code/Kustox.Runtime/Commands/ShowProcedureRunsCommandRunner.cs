@@ -38,7 +38,7 @@ namespace Kustox.Runtime.Commands
                 }
                 else
                 {
-                    var result = await _procedureRunStore.QueryLatestRunsAsync(
+                    var result = await _procedureRunStore.QueryRunsAsync(
                         runProc.JobId,
                         runProc.GetPipedQuery(),
                         ct);

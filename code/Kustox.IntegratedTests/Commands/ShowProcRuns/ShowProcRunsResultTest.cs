@@ -7,48 +7,39 @@ using System.Text.Json;
 
 namespace Kustox.IntegratedTests.Commands.ShowProcRuns
 {
-    public class ShowProcRunsWithJobIdTest : TestBase
+    public class ShowProcRunsResultTest : TestBase
     {
         [Fact]
-        public async Task SelectNonExisting()
-        {
-            var script = ".show proc runs 'abc'";
-            var result = await RunStatementAsync(script);
-
-            Assert.False(result.IsScalar);
-            Assert.Empty(result.Data);
-        }
-
-        [Fact]
-        public async Task CheckState()
+        public async Task ShowVersion()
         {
             var procScript = @"{
-    print 42
+    .show version
 }";
             var output = await RunInPiecesAsync(procScript, null);
             var jobId = output.JobId;
-            var showScript = $".show proc runs '{jobId}'";
+            var showScript = $".show proc runs '{jobId}' result";
             var result = await RunStatementAsync(showScript);
 
             Assert.False(result.IsScalar);
             Assert.Single(result.Data);
-            Assert.Equal(StepState.Completed.ToString(), result.GetColumnData("State").First());
+            Assert.Equal("Engine", result.GetColumnData("ServiceType").First());
         }
 
         [Fact]
-        public async Task CheckStateWithQuery()
+        public async Task ShowVersionColumn()
         {
             var procScript = @"{
-    print 42
+    .show version
 }";
             var output = await RunInPiecesAsync(procScript, null);
             var jobId = output.JobId;
-            var showScript = $".show proc runs '{jobId}' | project State";
+            var showScript = $".show proc runs '{jobId}' result | project ServiceType";
             var result = await RunStatementAsync(showScript);
 
             Assert.False(result.IsScalar);
             Assert.Single(result.Data);
-            Assert.Equal(StepState.Completed.ToString(), result.GetColumnData(0).First());
+            Assert.Single(result.Columns);
+            Assert.Equal("Engine", result.GetColumnData(0).First());
         }
     }
 }
