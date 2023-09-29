@@ -39,7 +39,12 @@ namespace Kustox.Runtime.Commands
                 }
                 else if (runProc.IsHistory)
                 {
-                    throw new NotImplementedException();
+                    var result = await _storageHub.ProcedureRunStore.QueryRunHistoryAsync(
+                        runProc.JobId!,
+                        runProc.GetPipedQuery(),
+                        ct);
+
+                    return result;
                 }
                 else
                 {
