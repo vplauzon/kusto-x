@@ -209,8 +209,8 @@ Command|Description
 `.show procedure runs <jobId> history`|List the different states a run went through
 `.show procedure runs <jobId> steps`|List all the steps of a given job
 `.show procedure runs <jobId> steps <breadcrumb>`|List only the specified step
-`.show procedure runs <jobId> steps <breadcrumb> children`|List the specified step and its immediate children
 `.show procedure runs <jobId> steps <breadcrumb> result`|Show the result of a specified step
+`.show procedure runs <jobId> steps <breadcrumb> children`|List the specified step and its immediate children
 `.show procedure runs <jobId> steps <breadcrumb> history`|List all different states a step went through
 
 Parameter `jobId` should be in quotes.

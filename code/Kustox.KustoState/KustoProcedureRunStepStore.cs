@@ -114,6 +114,7 @@ RunStep
 | summarize arg_max(StepIndex, *)
 | where State=='Completed'
 | where isnotempty(JobId)
+| project ResultData
 | mv-expand ResultData
 | project {step.Result!.ToDynamicProjection("ResultData")}
 {query}";
@@ -133,28 +134,52 @@ RunStep
             IImmutableList<int> stepBreadcrumb,
             CancellationToken ct)
         {
-            var stepsData = await KustoHelper.QueryAsync<StepData>(
-                _connectionProvider.QueryProvider,
-                $@"RunStep
+            var stepQuery = $@"
+RunStep
 | where JobId=='{_jobId}'
+| where State=='Completed'
 | where array_length(Breadcrumb)=={stepBreadcrumb.Count}
 | extend BreadcrumbId=tostring(Breadcrumb)
 | where BreadcrumbId=='[{string.Join(",", stepBreadcrumb.Select(i => i.ToString()))}]'
 | summarize arg_max(Timestamp, *)
-| where isnotempty(JobId)",
+| where isnotempty(JobId)
+{PROJECT_CLAUSE}";
+            var stepsData = await KustoHelper.QueryAsync<StepData>(
+                _connectionProvider.QueryProvider,
+                stepQuery,
                 ct);
             var steps = stepsData
                 .Select(s => s.ToImmutable())
                 .ToImmutableArray();
             var step = steps.LastOrDefault();
 
-            if (step?.State != StepState.Completed)
+            if (step == null)
             {
-                return null;
+                return TableResult.CreateEmpty("NoData", string.Empty);
             }
             else
             {
-                return step.Result;
+                var resultQuery = $@"
+RunStep
+| where JobId=='{_jobId}'
+| where State=='Completed'
+| where array_length(Breadcrumb)=={stepBreadcrumb.Count}
+| extend BreadcrumbId=tostring(Breadcrumb)
+| where BreadcrumbId=='[{string.Join(",", stepBreadcrumb.Select(i => i.ToString()))}]'
+| summarize arg_max(Timestamp, *)
+| where isnotempty(JobId)
+| project ResultData
+| mv-expand ResultData
+| project {step.Result!.ToDynamicProjection("ResultData")}
+{query}";
+                var resultData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
+                    string.Empty,
+                    resultQuery,
+                    _connectionProvider.EmptyClientRequestProperties,
+                    ct);
+                var table = resultData.ToDataSet().Tables[0].ToTableResult();
+
+                return table;
             }
         }
 

@@ -56,34 +56,42 @@ namespace Kustox.Runtime.Commands
                     return result;
                 }
             }
-            else if (runProc.Breadcrumb == null)
-            {
-                var stepStore = _storageHub.ProcedureRunRegistry.GetRun(runProc.JobId!);
-                var result = await stepStore.QueryStepsAsync(runProc.GetPipedQuery(), null, ct);
-
-                return result;
-            }
-            else if (runProc.IsResult)
-            {
-                throw new NotImplementedException();
-            }
-            else if (runProc.IsHistory)
-            {
-                throw new NotImplementedException();
-            }
-            else if (runProc.IsChildren)
-            {
-                throw new NotImplementedException();
-            }
             else
             {
                 var stepStore = _storageHub.ProcedureRunRegistry.GetRun(runProc.JobId!);
-                var result = await stepStore.QueryStepsAsync(
-                    runProc.GetPipedQuery(),
-                    runProc.Breadcrumb,
-                    ct);
 
-                return result;
+                if (runProc.Breadcrumb == null)
+                {
+                    var result = await stepStore.QueryStepsAsync(runProc.GetPipedQuery(), null, ct);
+
+                    return result;
+                }
+                else if (runProc.IsResult)
+                {
+                    var result = await stepStore.QueryStepResultAsync(
+                        runProc.GetPipedQuery(),
+                        runProc.Breadcrumb,
+                        ct);
+
+                    return result;
+                }
+                else if (runProc.IsHistory)
+                {
+                    throw new NotImplementedException();
+                }
+                else if (runProc.IsChildren)
+                {
+                    throw new NotImplementedException();
+                }
+                else
+                {
+                    var result = await stepStore.QueryStepsAsync(
+                        runProc.GetPipedQuery(),
+                        runProc.Breadcrumb,
+                        ct);
+
+                    return result;
+                }
             }
         }
     }
