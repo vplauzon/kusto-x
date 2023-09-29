@@ -147,6 +147,19 @@ print {tmp} = dynamic({GetJsonData()})
             }
         }
 
+        public IEnumerable<object> GetColumnData(string columnName)
+        {
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                if (Columns[i].ColumnName == columnName)
+                {
+                    return GetColumnData(i);
+                }
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(columnName), "No such column name");
+        }
+
         public TableResult AlignDataWithNativeTypes()
         {
             var alignedData = Data
