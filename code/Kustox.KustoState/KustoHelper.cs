@@ -38,32 +38,6 @@ namespace Kustox.KustoState
             }
         }
 
-        public static async Task StreamIngestAsync(
-            IKustoIngestClient ingestClient,
-            string dbName,
-            string tableName,
-            IEnumerable<object> data,
-            CancellationToken ct)
-        {
-            using (var stream = new MemoryStream())
-            {
-                foreach (var d in data)
-                {
-                    JsonSerializer.Serialize(stream, d, JSON_SERIALIZER_OPTIONS);
-                    //  Append "return"
-                    stream.WriteByte((byte)'\n');
-                }
-
-                stream.Position = 0;
-                await ingestClient.IngestFromStreamAsync(
-                    stream,
-                    new KustoIngestionProperties(dbName, tableName)
-                    {
-                        Format = DataSourceFormat.json
-                    });
-            }
-        }
-
         public static async Task<IImmutableList<T>> QueryAsync<T>(
             ICslQueryProvider queryProvider,
             string queryText,
