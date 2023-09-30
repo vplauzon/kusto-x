@@ -26,6 +26,18 @@ namespace Kustox.KustoState
             JSON_SERIALIZER_OPTIONS.Converters.Add(new JsonStringEnumConverter());
         }
 
+        public static byte[] Serialize(object data)
+        {
+            using (var stream = new MemoryStream())
+            {
+                JsonSerializer.Serialize(stream, data, JSON_SERIALIZER_OPTIONS);
+                //  Append "return"
+                stream.WriteByte((byte)'\n');
+
+                return stream.ToArray();
+            }
+        }
+
         public static async Task StreamIngestAsync(
             IKustoIngestClient ingestClient,
             string dbName,

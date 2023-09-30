@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace Kustox.KustoState
 {
-    internal class StreamingBuffer<T>
+    internal class StreamingBuffer
     {
         #region Inner Types
         private record QueueItem(
@@ -27,7 +27,7 @@ namespace Kustox.KustoState
         }
 
         public Task AppendRecords(
-            IEnumerable<T> records,
+            IEnumerable<object> records,
             CancellationToken ct)
         {
             QueueRecords(records);
@@ -35,9 +35,14 @@ namespace Kustox.KustoState
             throw new NotImplementedException();
         }
 
-        private void QueueRecords(IEnumerable<T> records)
+        private void QueueRecords(IEnumerable<object> records)
         {
-            throw new NotImplementedException();
+            foreach (var record in records)
+            {
+                var buffer = KustoHelper.Serialize(record);
+
+                _queue.Enqueue(new QueueItem(buffer, new TaskCompletionSource()));
+            }
         }
     }
 }
