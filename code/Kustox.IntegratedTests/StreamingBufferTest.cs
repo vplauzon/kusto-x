@@ -9,9 +9,32 @@ using System.Threading.Tasks;
 
 namespace Kustox.IntegratedTests
 {
-    internal class StreamingBufferTest : TestBase
+    public class StreamingBufferTest : TestBase
     {
-        public async Task MultipleAppend()
+        [Fact]
+        public async Task SingleAppend()
+        {
+            var store = StorageHub.ProcedureRunStore;
+            var ct = new CancellationToken();
+            var run = new ProcedureRun($"test-run", ProcedureRunState.Completed, DateTime.Now);
+
+            await store.AppendRunAsync(new[] { run }, ct);
+        }
+
+        [Fact]
+        public async Task TwoSequentialAppends()
+        {
+            var store = StorageHub.ProcedureRunStore;
+            var ct = new CancellationToken();
+            var run1 = new ProcedureRun($"test-run-1", ProcedureRunState.Completed, DateTime.Now);
+            var run2 = new ProcedureRun($"test-run-2", ProcedureRunState.Completed, DateTime.Now);
+
+            await store.AppendRunAsync(new[] { run1 }, ct);
+            await store.AppendRunAsync(new[] { run2 }, ct);
+        }
+
+        [Fact]
+        public async Task MultipleParallelAppends()
         {
             var store = StorageHub.ProcedureRunStore;
             var ct = new CancellationToken();

@@ -76,7 +76,14 @@ namespace Kustox.KustoState
                         presentStreamingWorkerTask,
                         currentStreamingWorkerTask))
                     {   //  This thread won the worker election
-                        await StreamInBatchAsync(recordsAllStreamed, ct);
+                        try
+                        {
+                            await StreamInBatchAsync(recordsAllStreamed, ct);
+                        }
+                        finally
+                        {
+                            newStreamingWorkerSource.SetResult();
+                        }
                     }
                 }
                 await Task.WhenAny(
@@ -89,6 +96,7 @@ namespace Kustox.KustoState
         {
             var itemsToStream = new List<QueueItem>();
             var payloadSize = 0;
+            var isReadyToStream = false;
 
             try
             {
@@ -120,22 +128,31 @@ namespace Kustox.KustoState
                         }
                         else
                         {   //  Payload is as big as can be
-                            if (!itemsToStream.Any())
-                            {
-                                throw new InvalidOperationException(
-                                    "The original records can't be found?");
-                            }
-                            if (await StreamBatchAsync(itemsToStream, ct))
-                            {
-                                payloadSize = 0;
-                                itemsToStream.Clear();
-                            }
-                            else
-                            {
-                                await Task.WhenAny(
-                                    Task.Delay(_options.ThrottleRetryInterval, ct),
-                                    recordsAllStreamed);
-                            }
+                            isReadyToStream = true;
+                        }
+                    }
+                    else
+                    {
+                        isReadyToStream = true;
+                    }
+                    if(isReadyToStream)
+                    {
+                        if (!itemsToStream.Any())
+                        {
+                            throw new InvalidOperationException(
+                                "The original records can't be found?");
+                        }
+                        if (await StreamBatchAsync(itemsToStream, ct))
+                        {
+                            payloadSize = 0;
+                            itemsToStream.Clear();
+                            isReadyToStream = false;
+                        }
+                        else
+                        {
+                            await Task.WhenAny(
+                                Task.Delay(_options.ThrottleRetryInterval, ct),
+                                recordsAllStreamed);
                         }
                     }
                 }
@@ -168,6 +185,10 @@ namespace Kustox.KustoState
                         {
                             Format = DataSourceFormat.json
                         });
+                    foreach(var item in itemsToStream)
+                    {
+                        item.completionSource.SetResult();
+                    }
 
                     return true;
                 }
@@ -176,14 +197,6 @@ namespace Kustox.KustoState
                     return false;
                 }
             }
-        }
-
-        private Task StreamBatchAsync(
-            List<QueueItem> itemsToStream,
-            Task recordsAllStreamed,
-            CancellationToken ct)
-        {
-            throw new NotImplementedException();
         }
 
         private IEnumerable<Task> QueueRecords(IEnumerable<object> records)
