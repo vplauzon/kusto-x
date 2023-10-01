@@ -26,29 +26,15 @@ namespace Kustox.KustoState
             JSON_SERIALIZER_OPTIONS.Converters.Add(new JsonStringEnumConverter());
         }
 
-        public static async Task StreamIngestAsync(
-            IKustoIngestClient ingestClient,
-            string dbName,
-            string tableName,
-            IEnumerable<object> data,
-            CancellationToken ct)
+        public static byte[] Serialize(object data)
         {
             using (var stream = new MemoryStream())
             {
-                foreach (var d in data)
-                {
-                    JsonSerializer.Serialize(stream, d, JSON_SERIALIZER_OPTIONS);
-                    //  Append "return"
-                    stream.WriteByte((byte)'\n');
-                }
+                JsonSerializer.Serialize(stream, data, JSON_SERIALIZER_OPTIONS);
+                //  Append "return"
+                stream.WriteByte((byte)'\n');
 
-                stream.Position = 0;
-                await ingestClient.IngestFromStreamAsync(
-                    stream,
-                    new KustoIngestionProperties(dbName, tableName)
-                    {
-                        Format = DataSourceFormat.json
-                    });
+                return stream.ToArray();
             }
         }
 

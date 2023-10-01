@@ -19,11 +19,16 @@ namespace Kustox.KustoState
 
         private readonly ConnectionProvider _connectionProvider;
         private readonly string _jobId;
+        private readonly StreamingBuffer _streamingBuffer;
 
         public KustoProcedureRunStepStore(ConnectionProvider connectionProvider, string jobId)
         {
             _connectionProvider = connectionProvider;
             _jobId = jobId;
+            _streamingBuffer = new StreamingBuffer(
+                _connectionProvider.StreamingIngestClient,
+                _connectionProvider.QueryProvider.DefaultDatabaseName,
+                TABLE_NAME);
         }
 
         string IProcedureRunStepStore.JobId => _jobId;
@@ -205,12 +210,7 @@ RunStep
             var data = steps
                 .Select(s => new StepData(_jobId, s));
 
-            await KustoHelper.StreamIngestAsync(
-                _connectionProvider.StreamingIngestClient,
-                _connectionProvider.QueryProvider.DefaultDatabaseName,
-                TABLE_NAME,
-                data,
-                ct);
+            await _streamingBuffer.AppendRecords(data, ct);
         }
 
         private async Task<TableResult> QueryStepsInternalAsync(
