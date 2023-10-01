@@ -43,7 +43,7 @@ namespace Kustox.IntegratedTests.Commands
                 {
                     var run = await environmentRuntime.StorageHub
                         .ProcedureRunStore
-                        .GetLatestRunAsync(jobId, cancelSource.Token);
+                        .GetRunAsync(jobId, cancelSource.Token);
 
                     Assert.NotNull(run);
 
@@ -52,13 +52,13 @@ namespace Kustox.IntegratedTests.Commands
                         var runStepStore = environmentRuntime.StorageHub
                             .ProcedureRunRegistry
                             .GetRun(jobId);
-                        var runResult = await runStepStore.GetRunResultAsync(ct);
+                        var runResult = await runStepStore.QueryRunResultAsync(null, ct);
 
                         Assert.NotNull(runResult);
                         Assert.False(runResult.IsScalar);
                         Assert.Single(runResult.Data);
                         Assert.Single(runResult.Data[0]);
-                        Assert.Equal(42, ((JsonElement)runResult.Data[0][0]).GetInt64());
+                        Assert.Equal((long)42, runResult.Data[0][0]);
                         break;
                     }
                     Assert.True(run.State == ProcedureRunState.Running

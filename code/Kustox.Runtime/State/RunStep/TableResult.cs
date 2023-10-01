@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Kusto.Language.Syntax;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Collections.Immutable;
@@ -80,7 +81,7 @@ namespace Kustox.Runtime.State.RunStep
                 ? Data
                 : Data
                 .Take(1)
-                .Select(r=>r.Take(1).ToImmutableArray())
+                .Select(r => r.Take(1).ToImmutableArray())
                 .Cast<IImmutableList<object>>()
                 .ToImmutableArray());
         }
@@ -101,6 +102,45 @@ namespace Kustox.Runtime.State.RunStep
             return table;
         }
 
+        public string ToKustoExpression()
+        {
+            if (IsScalar)
+            {
+                var scalarValue = Data.First().First();
+                var scalarKustoType = Columns.First().GetKustoType();
+                var dynamicValue = $"dynamic({JsonSerializer.Serialize(scalarValue)})";
+                var finalValue = $"to{scalarKustoType}({dynamicValue});";
+
+                return finalValue;
+            }
+            else
+            {
+                var tmp = "__" + Guid.NewGuid().ToString("N");
+                var tableValue = @$"
+print {tmp} = dynamic({GetJsonData()})
+| mv-expand {tmp}
+| project {ToDynamicProjection(tmp)};";
+
+                return tableValue;
+            }
+        }
+
+        public string ToDynamicProjection(string dynamicColumnName)
+        {
+            var projections = Columns
+                .Zip(Enumerable.Range(0, Columns.Count()))
+                .Select(b => new
+                {
+                    Name = b.First.ColumnName,
+                    KustoType = b.First.GetKustoType(),
+                    Index = b.Second
+                })
+                .Select(b => $"{b.Name}=to{b.KustoType}({dynamicColumnName}[{b.Index}])");
+            var kql = string.Join(", ", projections);
+
+            return kql;
+        }
+
         public string GetJsonData()
         {
             return JsonSerializer.Serialize(Data);
@@ -112,6 +152,19 @@ namespace Kustox.Runtime.State.RunStep
             {
                 yield return array[columnIndex];
             }
+        }
+
+        public IEnumerable<object> GetColumnData(string columnName)
+        {
+            for (int i = 0; i < Columns.Count; i++)
+            {
+                if (Columns[i].ColumnName == columnName)
+                {
+                    return GetColumnData(i);
+                }
+            }
+
+            throw new ArgumentOutOfRangeException(nameof(columnName), "No such column name");
         }
 
         public TableResult AlignDataWithNativeTypes()

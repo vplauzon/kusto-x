@@ -17,13 +17,18 @@ namespace Kustox.KustoState
             "| project JobId, State, Timestamp";
 
         private readonly ConnectionProvider _connectionProvider;
+        private readonly StreamingBuffer _streamingBuffer;
 
         public KustoProcedureRunStore(ConnectionProvider connectionProvider)
         {
             _connectionProvider = connectionProvider;
+            _streamingBuffer = new StreamingBuffer(
+                _connectionProvider.StreamingIngestClient,
+                _connectionProvider.QueryProvider.DefaultDatabaseName,
+                TABLE_NAME);
         }
 
-        async Task<ProcedureRun?> IProcedureRunStore.GetLatestRunAsync(
+        async Task<ProcedureRun?> IProcedureRunStore.GetRunAsync(
             string jobId,
             CancellationToken ct)
         {
@@ -43,7 +48,7 @@ Run
             return run;
         }
 
-        async Task<TableResult> IProcedureRunStore.QueryLatestRunsAsync(
+        async Task<TableResult> IProcedureRunStore.QueryRunsAsync(
             string? jobId,
             string? query,
             CancellationToken ct)
@@ -73,6 +78,32 @@ Run
             return table;
         }
 
+        async Task<TableResult> IProcedureRunStore.QueryRunHistoryAsync(
+            string jobId,
+            string? query,
+            CancellationToken ct)
+        {
+            var scriptBuilder = new StringBuilder("Run");
+
+            scriptBuilder.AppendLine($"| where JobId=='{jobId}'");
+            scriptBuilder.AppendLine(PROJECT_CLAUSE);
+            scriptBuilder.AppendLine("| order by Timestamp asc");
+            if (query != null)
+            {
+                scriptBuilder.AppendLine(query);
+            }
+
+            var script = scriptBuilder.ToString();
+            var runsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
+                string.Empty,
+                script,
+                _connectionProvider.EmptyClientRequestProperties,
+                ct);
+            var table = runsData.ToDataSet().Tables[0].ToTableResult();
+
+            return table;
+        }
+
         async Task IProcedureRunStore.AppendRunAsync(
             IEnumerable<ProcedureRun> runs,
             CancellationToken ct)
@@ -80,12 +111,7 @@ Run
             var data = runs
                 .Select(r => new RunData(r));
 
-            await KustoHelper.StreamIngestAsync(
-                _connectionProvider.StreamingIngestClient,
-                _connectionProvider.QueryProvider.DefaultDatabaseName,
-                TABLE_NAME,
-                data,
-                ct);
+            await _streamingBuffer.AppendRecords(data, ct);
         }
     }
 }

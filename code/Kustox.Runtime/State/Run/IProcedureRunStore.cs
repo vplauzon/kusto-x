@@ -5,10 +5,15 @@ namespace Kustox.Runtime.State.Run
 {
     public interface IProcedureRunStore
     {
-        Task<ProcedureRun?> GetLatestRunAsync(string jobId, CancellationToken ct);
+        Task<ProcedureRun?> GetRunAsync(string jobId, CancellationToken ct);
         
-        Task<TableResult> QueryLatestRunsAsync(
+        Task<TableResult> QueryRunsAsync(
             string? jobId,
+            string? query,
+            CancellationToken ct);
+
+        Task<TableResult> QueryRunHistoryAsync(
+            string jobId,
             string? query,
             CancellationToken ct);
 

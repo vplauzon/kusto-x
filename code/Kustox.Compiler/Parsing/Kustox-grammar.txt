@@ -76,26 +76,42 @@ rule runProcedureCommand = "." "run" ("procedure" | "proc") "<|"
 	rootSequence:sequenceContent => {
 		"rootSequence":rootSequence
 	};
-rule showProcedureRuns = "." "show" ("procedure" | "proc") "runs" jobId:quotedString? query:pipeGenericQuery? => {
+
+rule query = genericQuery;
+rule command = runProcedureCommand:runProcedureCommand
+	| showProcedureRuns:showProcedureRunsFamily
+	| getBlobsCommand:getBlobsCommand
+	| queueIngestCommand:queueIngestCommand
+	| genericCommand:genericCommand;
+
+#	Show procedure runs family
+rule showProcedureRunsPrefix = "." "show" ("procedure" | "proc") "runs"; 
+rule showProcedureRuns = showProcedureRunsPrefix jobId:quotedString?
+	query:pipeGenericQuery? => {
 		"code" : text,
 		"jobId" : firstOrNull(jobId),
 		"query" : firstOrNull(query)
 	};
-rule showProcedureRunSteps = "." "show" ("procedure" | "proc") "run" jobId:quotedString "steps" 
-	prefix:("where" "Breadcrumb" "startswith" "[" steps:integerList "]" all:(("all" => true)? => firstOrNull(defaultOutput)))?
+rule showProcedureRunsOptions = showProcedureRunsPrefix jobId:quotedString
+	option:(("result" => { "isResult":true}) | ("history" => {"isHistory":true}) )
 	query:pipeGenericQuery? => merge({
 		"code" : text,
 		"jobId" : jobId,
-		"query" : firstOrNull(query),
-		"prefix" : firstOrNull(prefix)
-	}, firstOrNull(prefix));
-rule query = genericQuery;
-rule command = runProcedureCommand:runProcedureCommand
-	| showProcedureRuns:showProcedureRuns
-	| showProcedureRunSteps:showProcedureRunSteps
-	| getBlobsCommand:getBlobsCommand
-	| queueIngestCommand:queueIngestCommand
-	| genericCommand:genericCommand;
+		"query" : firstOrNull(query)
+	}, option);
+rule showProcedureRunsSteps = showProcedureRunsPrefix  jobId:quotedString "steps"
+	breadcrumb:("[" breadcrumb:integerList "]"
+	options:(("children" => {"isChildren":true})
+	| ("result" => {"isResult":true})
+	| ("history" => {"isHistory":true}) )? =>
+	merge({"breadcrumb":breadcrumb}, firstOrNull(options)))?
+	query:pipeGenericQuery? => merge({
+		"code" : text,
+		"jobId" : jobId,
+		"isSteps" : true,
+		"query" : firstOrNull(query)
+	}, firstOrNull(breadcrumb));
+rule showProcedureRunsFamily = showProcedureRuns | showProcedureRunsOptions | showProcedureRunsSteps;
 
 #	main rule
 rule main = m:(query:query | command:command) padding* => m;

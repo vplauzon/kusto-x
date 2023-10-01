@@ -193,7 +193,7 @@ namespace Kustox.IntegratedTests
             }
         }
 
-        protected static async Task<TableResult?> RunStatementAsync(
+        protected static async Task<TableResult> RunStatementAsync(
             string script,
             CancellationToken ct = default(CancellationToken))
         {

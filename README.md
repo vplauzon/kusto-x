@@ -195,21 +195,27 @@ Alternatively, `.run proc` is also accepted.
 
 ### .show procedure runs
 
-```
-.show procedure runs [jobId]
-```
+Here is a familly of commands allowing to probe into the runs of procedure, the steps of the runs and the results of the runs or individual steps.
 
-Optional `jobId` should be in quotes.
+Each command can be followed by a query to filter / transform the result.
 
-A query can be appended.  Alternatively, `.show proc runs` can be used.
+For each command `procedure` can be replaced by `proc`.
 
-### .show procedure run steps
+Command|Description
+-|-
+`.show procedure runs`|List all the runs still in retention
+`.show procedure runs <jobId>`|List only the run corresponding to the job
+`.show procedure runs <jobId> result`|Show the result of the last step of the job
+`.show procedure runs <jobId> history`|List the different states a run went through
+`.show procedure runs <jobId> steps`|List all the steps of a given job
+`.show procedure runs <jobId> steps <breadcrumb>`|List only the specified step
+`.show procedure runs <jobId> steps <breadcrumb> result`|Show the result of a specified step
+`.show procedure runs <jobId> steps <breadcrumb> history`|List all different states a step went through
+`.show procedure runs <jobId> steps <breadcrumb> children`|List the specified step and its immediate children
 
-```
-.show procedure run <jobId> steps
-```
+Parameter `jobId` should be in quotes.
 
-A query can be appended.  Alternatively, `.show proc run steps` can be used.
+Parameter `breadcrumb` is a coma-separated list of integer, e.g. `[0, 1, 12]`.
 
 ### .get blobs
 

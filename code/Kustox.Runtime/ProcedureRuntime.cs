@@ -179,14 +179,11 @@ namespace Kustox.Runtime
             }
             if (forEach.Sequence.Blocks.Any())
             {
-                var subLevelContext = levelContext.GoDownOneLevel(
-                    stepIndex,
-                    forEach.Code);
                 var results = new List<TableResult>(enumeratorValues.Count);
                 var subStepIndex = 0;
                 var tasks = ImmutableArray<Task<TableResult?>>.Empty;
 
-                await subLevelContext.PersistRunningStepAsync(ct);
+                await levelContext.PersistRunningStepAsync(ct);
                 try
                 {
                     while (enumeratorValues.Any() || tasks.Any())
@@ -212,13 +209,13 @@ namespace Kustox.Runtime
                         {
                             var iterationValue = enumeratorValues.Pop();
 
-                            if (subLevelContext.LatestProcedureRunStep?.State
+                            if (levelContext.LatestProcedureRunStep?.State
                                 != StepState.Completed)
                             {
                                 onGoingTasks = onGoingTasks.Add(RunForEachIterationAsync(
                                     forEach,
                                     subStepIndex,
-                                    subLevelContext,
+                                    levelContext,
                                     captures.Add(forEach.Cursor, iterationValue),
                                     ct));
                             }

@@ -15,26 +15,32 @@ namespace Kustox.KustoState
     {
         private const string TABLE_NAME = "RunStep";
         private const string PROJECT_CLAUSE =
-            "| project JobId, Breadcrumb, State, Script, CaptureName, IsResultScalar, ResultColumnNames, ResultData, Timestamp";
+            "| project JobId, Breadcrumb, State, Script, CaptureName, IsResultScalar, ResultColumnNames, ResultColumnTypes, ResultData, Timestamp";
 
         private readonly ConnectionProvider _connectionProvider;
         private readonly string _jobId;
+        private readonly StreamingBuffer _streamingBuffer;
 
         public KustoProcedureRunStepStore(ConnectionProvider connectionProvider, string jobId)
         {
             _connectionProvider = connectionProvider;
             _jobId = jobId;
+            _streamingBuffer = new StreamingBuffer(
+                _connectionProvider.StreamingIngestClient,
+                _connectionProvider.QueryProvider.DefaultDatabaseName,
+                TABLE_NAME);
         }
 
         string IProcedureRunStepStore.JobId => _jobId;
 
-        async Task<IImmutableList<ProcedureRunStep>> IProcedureRunStepStore.GetAllLatestStepsAsync(
+        async Task<IImmutableList<ProcedureRunStep>> IProcedureRunStepStore.GetAllStepsAsync(
             CancellationToken ct)
         {
             var script = $@"
 RunStep
 | where JobId=='{_jobId}'
-| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)";
+| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)
+| where isnotempty(JobId)";
             var stepsData = await KustoHelper.QueryAsync<StepData>(
                 _connectionProvider.QueryProvider,
                 script,
@@ -46,22 +52,39 @@ RunStep
             return steps;
         }
 
-        async Task<TableResult> IProcedureRunStepStore.QueryLatestRunsAsync(
+        async Task<TableResult> IProcedureRunStepStore.QueryStepsAsync(
             string? query,
+            IImmutableList<int>? breadcrumb,
             CancellationToken ct)
         {
-            var scriptBuilder = new StringBuilder("RunStep");
+            return await QueryStepsInternalAsync(query, breadcrumb, false, ct);
+        }
 
-            scriptBuilder.AppendLine($"| where JobId=='{_jobId}'");
-            scriptBuilder.AppendLine("| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId=tostring(Breadcrumb)");
-            scriptBuilder.AppendLine("| order by Timestamp asc");
-            scriptBuilder.AppendLine(PROJECT_CLAUSE);
-            if (query != null)
-            {
-                scriptBuilder.AppendLine(query);
-            }
+        async Task<TableResult> IProcedureRunStepStore.QueryStepHistoryAsync(
+            string? query,
+            IImmutableList<int> breadcrumb,
+            CancellationToken ct)
+        {
+            return await QueryStepsInternalAsync(query, breadcrumb, true, ct);
+        }
 
-            var script = scriptBuilder.ToString();
+        async Task<TableResult> IProcedureRunStepStore.QueryStepChildrenAsync(
+            string? query,
+            IImmutableList<int> breadcrumb,
+            CancellationToken ct)
+        {
+            var script = $@"
+RunStep
+| where JobId=='{_jobId}'
+| extend BreadcrumbId=tostring(Breadcrumb)
+| where array_length(Breadcrumb) in ({breadcrumb.Count}, {breadcrumb.Count + 1})
+| where BreadcrumbId == '[{string.Join(',', breadcrumb)}]'
+    or BreadcrumbId startswith '[{string.Join(',', breadcrumb)},'
+| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId
+| where isnotempty(JobId)
+| order by Timestamp asc
+{PROJECT_CLAUSE}
+{query}";
             var stepsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
                 string.Empty,
                 script,
@@ -72,40 +95,112 @@ RunStep
             return table;
         }
 
-        async Task<TableResult?> IProcedureRunStepStore.GetRunResultAsync(CancellationToken ct)
+        async Task<TableResult> IProcedureRunStepStore.QueryRunResultAsync(
+            string? query,
+            CancellationToken ct)
         {
-            var stepsData = await KustoHelper.QueryAsync<StepData>(
-                _connectionProvider.QueryProvider,
-                $@"RunStep
+            var stepQuery = $@"Run
 | where JobId=='{_jobId}'
+| where State=='Completed'
+| project JobId
+| join kind=inner RunStep on JobId
 | where array_length(Breadcrumb)==1
 | extend StepIndex=tolong(Breadcrumb[0])
 | summarize arg_max(Timestamp, *) by StepIndex
-| summarize arg_max(StepIndex, *)",
+| summarize arg_max(StepIndex, *)
+| where State=='Completed'
+| where isnotempty(JobId)
+{PROJECT_CLAUSE}";
+            var stepsData = await KustoHelper.QueryAsync<StepData>(
+                _connectionProvider.QueryProvider,
+                stepQuery,
                 ct);
             var steps = stepsData
                 .Select(s => s.ToImmutable())
                 .ToImmutableArray();
+            var step = steps.LastOrDefault();
 
-            if (steps.Length != 1)
+            if (step == null)
             {
-                throw new InvalidDataException($"Can't find last step for job {_jobId}");
+                return TableResult.CreateEmpty("NoData", string.Empty);
             }
-
-            var lastStep = steps.Last();
-
-            if (lastStep.State != StepState.Completed)
+            else
             {
-                throw new InvalidDataException($"Requested last step result for job {_jobId} "
-                    + $"where status is {lastStep.State}");
-            }
-            if (lastStep.Result == null)
-            {
-                throw new NullReferenceException($"Requested last step result for job {_jobId} "
-                    + "where no result are present");
-            }
+                var resultQuery = $@"RunStep
+| where JobId=='{_jobId}'
+| where array_length(Breadcrumb)==1
+| extend StepIndex=tolong(Breadcrumb[0])
+| summarize arg_max(Timestamp, *) by StepIndex
+| summarize arg_max(StepIndex, *)
+| where State=='Completed'
+| where isnotempty(JobId)
+| project ResultData
+| mv-expand ResultData
+| project {step.Result!.ToDynamicProjection("ResultData")}
+{query}";
+                var resultData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
+                    string.Empty,
+                    resultQuery,
+                    _connectionProvider.EmptyClientRequestProperties,
+                    ct);
+                var table = resultData.ToDataSet().Tables[0].ToTableResult();
 
-            return lastStep.Result;
+                return table;
+            }
+        }
+
+        async Task<TableResult> IProcedureRunStepStore.QueryStepResultAsync(
+            string? query,
+            IImmutableList<int> stepBreadcrumb,
+            CancellationToken ct)
+        {
+            var stepQuery = $@"
+RunStep
+| where JobId=='{_jobId}'
+| where State=='Completed'
+| where array_length(Breadcrumb)=={stepBreadcrumb.Count}
+| extend BreadcrumbId=tostring(Breadcrumb)
+| where BreadcrumbId=='[{string.Join(",", stepBreadcrumb.Select(i => i.ToString()))}]'
+| summarize arg_max(Timestamp, *)
+| where isnotempty(JobId)
+{PROJECT_CLAUSE}";
+            var stepsData = await KustoHelper.QueryAsync<StepData>(
+                _connectionProvider.QueryProvider,
+                stepQuery,
+                ct);
+            var steps = stepsData
+                .Select(s => s.ToImmutable())
+                .ToImmutableArray();
+            var step = steps.LastOrDefault();
+
+            if (step == null)
+            {
+                return TableResult.CreateEmpty("NoData", string.Empty);
+            }
+            else
+            {
+                var resultQuery = $@"
+RunStep
+| where JobId=='{_jobId}'
+| where State=='Completed'
+| where array_length(Breadcrumb)=={stepBreadcrumb.Count}
+| extend BreadcrumbId=tostring(Breadcrumb)
+| where BreadcrumbId=='[{string.Join(",", stepBreadcrumb.Select(i => i.ToString()))}]'
+| summarize arg_max(Timestamp, *)
+| where isnotempty(JobId)
+| project ResultData
+| mv-expand ResultData
+| project {step.Result!.ToDynamicProjection("ResultData")}
+{query}";
+                var resultData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
+                    string.Empty,
+                    resultQuery,
+                    _connectionProvider.EmptyClientRequestProperties,
+                    ct);
+                var table = resultData.ToDataSet().Tables[0].ToTableResult();
+
+                return table;
+            }
         }
 
         async Task IProcedureRunStepStore.AppendStepAsync(
@@ -115,12 +210,40 @@ RunStep
             var data = steps
                 .Select(s => new StepData(_jobId, s));
 
-            await KustoHelper.StreamIngestAsync(
-                _connectionProvider.StreamingIngestClient,
-                _connectionProvider.QueryProvider.DefaultDatabaseName,
-                TABLE_NAME,
-                data,
+            await _streamingBuffer.AppendRecords(data, ct);
+        }
+
+        private async Task<TableResult> QueryStepsInternalAsync(
+            string? query,
+            IImmutableList<int>? breadcrumb,
+            bool withHistory,
+            CancellationToken ct)
+        {
+            var historyFilter = withHistory
+                ? string.Empty
+                : "| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId";
+            var breadcrumbFilter = breadcrumb == null
+                ? string.Empty
+                : $"| where array_length(Breadcrumb) == {breadcrumb.Count}"
+                + $" and BreadcrumbId=='[{string.Join(',', breadcrumb)}]'";
+            var script = $@"
+RunStep
+| where JobId=='{_jobId}'
+| extend BreadcrumbId=tostring(Breadcrumb)
+{breadcrumbFilter}
+{historyFilter}
+| where isnotempty(JobId)
+| order by Timestamp asc
+{PROJECT_CLAUSE}
+{query}";
+            var stepsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
+                string.Empty,
+                script,
+                _connectionProvider.EmptyClientRequestProperties,
                 ct);
+            var table = stepsData.ToDataSet().Tables[0].ToTableResult();
+
+            return table;
         }
     }
 }
