@@ -66,7 +66,7 @@ rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"
 rule integerList = head:integer tail:("," i:integer => i)* => prepend(head, tail);
 rule(interleave=false) genericKql = ((. - "\n")+ - blockSpacer*) => text;
 rule(interleave=false) genericKqlBlock = (genericKql "\n")* genericKql => text;
-rule getBlobsCommand = "." "get" "blobs" rootUrl:quotedString => {'rootUrl':rootUrl};
+rule listBlobsCommand = "." "list" "blobs" rootUrl:quotedString => {'rootUrl':rootUrl};
 rule queueIngestCommand = "." "queue" "ingest"=> "QueueIngest";
 rule(interleave=false) genericQuery = (. - ".") genericKqlBlock => { "code": text };
 rule pipeGenericQuery = "|" q:genericQuery => q;
@@ -80,7 +80,7 @@ rule runProcedureCommand = "." "run" ("procedure" | "proc") "<|"
 rule query = genericQuery;
 rule command = runProcedureCommand:runProcedureCommand
 	| showProcedureRuns:showProcedureRunsFamily
-	| getBlobsCommand:getBlobsCommand
+	| listBlobsCommand:listBlobsCommand
 	| queueIngestCommand:queueIngestCommand
 	| genericCommand:genericCommand;
 

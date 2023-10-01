@@ -1,6 +1,6 @@
 ﻿namespace Kustox.Compiler.Commands
 {
-    public class GetBlobDeclaration : QueryableCommandBase
+    public class ListBlobDeclaration : QueryableCommandBase
     {
         public string RootUrl { get; set; } = string.Empty;
 
