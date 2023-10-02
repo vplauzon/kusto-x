@@ -15,7 +15,7 @@ namespace Kustox.KustoState
     {
         private const string TABLE_NAME = "RunStep";
         private const string PROJECT_CLAUSE =
-            "| project JobId, Breadcrumb, State, Script, CaptureName, IsResultScalar, ResultColumnNames, ResultColumnTypes, ResultData, Timestamp";
+            "| project JobId, Breadcrumb, State, Script, CaptureName, Timestamp";
 
         private readonly ConnectionProvider _connectionProvider;
         private readonly string _jobId;
