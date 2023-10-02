@@ -231,6 +231,18 @@ Suffix|A string value defining a suffix for each blob.  This allows filtering of
 Limit|Maximum number of blobs to return|100
 Pattern|A string defining a pattern to detect in a blob path in order to grab output fields (e.g. creation time)|"*/year={year}/month={month}/day={day}/*"
 
+### .append
+
+This is the [same command existing today](https://learn.microsoft.com/en-us/azure/data-explorer/kusto/management/data-ingestion/ingest-from-query).  The only difference is that it accepts a captured value for ingestion:
+
+```
+.run procedure <| {
+    @capture names = datatable(name:string) ["Alice", "Bob"]
+
+    .append MyTable <| names
+}
+```
+
 ### .queue ingest
 
 ### .queue export

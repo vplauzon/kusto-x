@@ -11,7 +11,7 @@ resource kusto 'Microsoft.Kusto/clusters@2023-05-02' = {
   sku: {
     capacity: 2
     name: 'Standard_E8s_v4+2TB_PS'
-    tier: 'Basic'
+    tier: 'Standard'
   }
   properties: {
     enableAutoStop: true
