@@ -1,4 +1,4 @@
-.create-merge table Run(JobId:string, State:string, StartedOn:datetime, Timestamp:datetime)
+.create-merge table Run(JobId:string, State:string, Timestamp:datetime)
 
 .alter table Run policy streamingingestion enable
 
@@ -12,7 +12,6 @@
     ResultColumnNames:dynamic,
     ResultColumnTypes:dynamic,
     ResultData:dynamic,
-    StartedOn:datetime,
     Timestamp:datetime)
 
 .alter table RunStep policy streamingingestion enable
