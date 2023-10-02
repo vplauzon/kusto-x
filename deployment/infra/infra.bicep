@@ -59,12 +59,3 @@ module registryModule 'registry.bicep' = {
 //     appSecret: appSecret
 //   }
 // }
-
-// module frontDoorModule 'front-door.bicep' = {
-//   name: '${environment}-frontDoorDeploy'
-//   params: {
-//     environment: environment
-//     workbenchUrl: appModule.outputs.workbenchUrl
-//     suffix: suffix
-//   }
-// }

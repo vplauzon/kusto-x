@@ -9,8 +9,8 @@ resource kusto 'Microsoft.Kusto/clusters@2023-05-02' = {
   name: 'kustox${suffix}'
   location: location
   sku: {
-    capacity: 1
-    name: 'Dev(No SLA)_Standard_E2a_v4'
+    capacity: 2
+    name: 'Standard_E16ads_v5'
     tier: 'Basic'
   }
   properties: {
