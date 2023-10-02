@@ -163,7 +163,7 @@ RunStep
 | where BreadcrumbId=='[{string.Join(",", stepBreadcrumb.Select(i => i.ToString()))}]'
 | summarize arg_max(Timestamp, *)
 | where isnotempty(JobId)
-{PROJECT_CLAUSE}";
+| project-away BreadcrumbId";
             var stepsData = await KustoHelper.QueryAsync<StepData>(
                 _connectionProvider.QueryProvider,
                 stepQuery,
