@@ -35,7 +35,7 @@ namespace Kustox.Runtime
             return result;
         }
 
-        private static object AlignTypeToJsonFriendly(object obj)
+        private static object? AlignTypeToJsonFriendly(object obj)
         {
             if (obj is sbyte)
             {
@@ -68,6 +68,10 @@ namespace Kustox.Runtime
                 var textObj = JsonSerializer.Deserialize<JsonArray>(text);
 
                 return textObj!;
+            }
+            else if (obj is DBNull)
+            {
+                return null;
             }
             else
             {

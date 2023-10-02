@@ -14,7 +14,7 @@ namespace Kustox.KustoState
     {
         private const string TABLE_NAME = "Run";
         private const string PROJECT_CLAUSE =
-            "| project JobId, State, Timestamp";
+            "| project JobId, State, StartedOn, Timestamp, Duration";
 
         private readonly ConnectionProvider _connectionProvider;
         private readonly StreamingBuffer _streamingBuffer;
@@ -53,15 +53,15 @@ Run
             string? query,
             CancellationToken ct)
         {
-            var tableScript = jobId == null
-                ? "Run"
-                : $@"
-Run
-| where JobId=='{jobId}'";
+            var jobClause = jobId != null ? $"| where JobId=='{jobId}'" : null;
             var script = $@"
-{tableScript}
+Run
 | summarize arg_max(Timestamp,*) by JobId
-| order by Timestamp asc
+| join kind=inner (Run
+    | summarize arg_min(Timestamp,*) by JobId
+    | project-rename StartedOn=Timestamp) on JobId
+| extend Duration=iif(State=='Completed', Timestamp-StartedOn, timespan(null))
+{jobClause}
 {PROJECT_CLAUSE}
 {query}";
             var runsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
@@ -79,15 +79,10 @@ Run
             string? query,
             CancellationToken ct)
         {
-            var tableScript = jobId == null
-                ? "Run"
-                : $@"
-Run
-| where JobId=='{jobId}'";
             var script = $@"
-{tableScript}
+Run
+| where JobId == '{jobId}'
 | order by Timestamp asc
-{PROJECT_CLAUSE}
 {query}";
             var runsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
                 string.Empty,
