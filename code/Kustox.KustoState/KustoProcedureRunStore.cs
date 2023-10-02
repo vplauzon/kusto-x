@@ -53,21 +53,17 @@ Run
             string? query,
             CancellationToken ct)
         {
-            var scriptBuilder = new StringBuilder("Run");
-
-            scriptBuilder.AppendLine("| summarize arg_max(Timestamp,*) by JobId");
-            scriptBuilder.AppendLine(PROJECT_CLAUSE);
-            scriptBuilder.AppendLine("| order by Timestamp asc");
-            if (!string.IsNullOrEmpty(jobId))
-            {
-                scriptBuilder.AppendLine($"| where JobId=='{jobId}'");
-            }
-            if (query != null)
-            {
-                scriptBuilder.AppendLine(query);
-            }
-
-            var script = scriptBuilder.ToString();
+            var tableScript = jobId == null
+                ? "Run"
+                : $@"
+Run
+| where JobId=='{jobId}'";
+            var script = $@"
+{tableScript}
+| summarize arg_max(Timestamp,*) by JobId
+| order by Timestamp asc
+{PROJECT_CLAUSE}
+{query}";
             var runsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
                 string.Empty,
                 script,
@@ -83,17 +79,16 @@ Run
             string? query,
             CancellationToken ct)
         {
-            var scriptBuilder = new StringBuilder("Run");
-
-            scriptBuilder.AppendLine($"| where JobId=='{jobId}'");
-            scriptBuilder.AppendLine(PROJECT_CLAUSE);
-            scriptBuilder.AppendLine("| order by Timestamp asc");
-            if (query != null)
-            {
-                scriptBuilder.AppendLine(query);
-            }
-
-            var script = scriptBuilder.ToString();
+            var tableScript = jobId == null
+                ? "Run"
+                : $@"
+Run
+| where JobId=='{jobId}'";
+            var script = $@"
+{tableScript}
+| order by Timestamp asc
+{PROJECT_CLAUSE}
+{query}";
             var runsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
                 string.Empty,
                 script,
