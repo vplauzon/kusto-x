@@ -106,9 +106,9 @@ RunStep
             var script = $@"
 {RUN_STEPS_WITH_DURATION}
 | where JobId=='{_jobId}'
-| where (array_length(Breadcrumb) in == {breadcrumb.Count}
+| where (array_length(Breadcrumb) == {breadcrumb.Count}
     and BreadcrumbId == '[{string.Join(',', breadcrumb)}]')
-    or (array_length(Breadcrumb) in == {breadcrumb.Count+1}
+    or (array_length(Breadcrumb) == {breadcrumb.Count+1}
     and BreadcrumbId startswith '[{string.Join(',', breadcrumb)},')
 | order by Timestamp asc
 {PROJECT_CLAUSE}
