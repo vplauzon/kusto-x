@@ -14,7 +14,7 @@ namespace Kustox.Runtime.Commands
     internal class CommandRunnerRouter
     {
         private readonly CommandRunnerBase _generic;
-        private readonly CommandRunnerBase _getBlobs;
+        private readonly CommandRunnerBase _listBlobs;
         private readonly CommandRunnerBase _runProcedure;
         private readonly CommandRunnerBase _showProcedureRuns;
 
@@ -24,7 +24,7 @@ namespace Kustox.Runtime.Commands
             IProcedureQueue procedureQueue)
         {
             _generic = new GenericCommandRunner(connectionProvider);
-            _getBlobs = new GetBlobsCommandRunner(connectionProvider);
+            _listBlobs = new ListBlobsCommandRunner(connectionProvider);
             _runProcedure = new RunProcedureCommandRunner(
                 connectionProvider,
                 procedureQueue);
@@ -41,9 +41,9 @@ namespace Kustox.Runtime.Commands
             {
                 return await _generic.RunCommandAsync(command, ct);
             }
-            else if (command.GetBlobsCommand != null)
+            else if (command.ListBlobsCommand != null)
             {
-                return await _getBlobs.RunCommandAsync(command, ct);
+                return await _listBlobs.RunCommandAsync(command, ct);
             }
             else if (command.RunProcedureCommand != null)
             {

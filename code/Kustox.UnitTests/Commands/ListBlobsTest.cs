@@ -9,7 +9,7 @@ namespace Kustox.UnitTests.Commands
         {
             var url = "https://myaccount.blob.core.windows.net/mycontainer/myfolder/";
             var script = @$".run procedure <| {{
-    .get blobs '{url}'
+    .list blobs '{url}'
 }}";
             var statement = new KustoxCompiler().CompileStatement(script);
 
@@ -22,7 +22,7 @@ namespace Kustox.UnitTests.Commands
                 statement.Command.RunProcedureCommand.RootSequence.Blocks.First().Command;
 
             Assert.NotNull(command);
-            Assert.NotNull(command.GetBlobsCommand);
+            Assert.NotNull(command.ListBlobsCommand);
         }
     }
 }

@@ -9,9 +9,9 @@ using System.Collections.Immutable;
 
 namespace Kustox.Runtime.Commands
 {
-    internal class GetBlobsCommandRunner : CommandRunnerBase
+    internal class ListBlobsCommandRunner : CommandRunnerBase
     {
-        public GetBlobsCommandRunner(ConnectionProvider connectionProvider)
+        public ListBlobsCommandRunner(ConnectionProvider connectionProvider)
             : base(connectionProvider)
         {
         }
@@ -20,7 +20,7 @@ namespace Kustox.Runtime.Commands
             CommandDeclaration command,
             CancellationToken ct)
         {
-            var rootUrl = new Uri(command.GetBlobsCommand!.RootUrl);
+            var rootUrl = new Uri(command.ListBlobsCommand!.RootUrl);
             var blobClient = new BlobClient(rootUrl, ConnectionProvider.Credential);
             var containerClient = blobClient.GetParentBlobContainerClient();
             var pageable = containerClient.GetBlobsAsync(

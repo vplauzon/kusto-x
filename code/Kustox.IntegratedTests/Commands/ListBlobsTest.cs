@@ -5,14 +5,14 @@ using System.Collections.Immutable;
 
 namespace Kustox.IntegratedTests.Commands
 {
-    public class GetBlobsTest : TestBase
+    public class ListBlobsTest : TestBase
     {
         [Fact]
         public async Task ThreeFiles()
         {
             var url = $"{SampleRootUrl}/3-files/";
             var script = @$"{{
-    .get blobs '{url}'
+    .list blobs '{url}'
 }}";
             var output = await RunInPiecesAsync(script);
 
@@ -27,7 +27,7 @@ namespace Kustox.IntegratedTests.Commands
         {
             var url = $"{SampleRootUrl}/3-files/";
             var script = @$"{{
-    @capture blobs = .get blobs '{url}'
+    @capture blobs = .list blobs '{url}'
     
     blobs
     | project Name

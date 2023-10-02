@@ -217,11 +217,19 @@ Parameter `jobId` should be in quotes.
 
 Parameter `breadcrumb` is a coma-separated list of integer, e.g. `[0, 1, 12]`.
 
-### .get blobs
+### .list blobs
 
 ```
-.get blobs 'https://myaccount.blob.core.windows.net/mycontainer/myfolder/'
+.list blobs <storage connection string with blob prefix> with (ListPropertyName= ListPropertyValue[, …])
 ```
+
+Accepted properties:
+
+Property|Description|Example
+-|-|-
+Suffix|A string value defining a suffix for each blob.  This allows filtering of the blobs.|".csv"
+Limit|Maximum number of blobs to return|100
+Pattern|A string defining a pattern to detect in a blob path in order to grab output fields (e.g. creation time)|"*/year={year}/month={month}/day={day}/*"
 
 ### .queue ingest
 
