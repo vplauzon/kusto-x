@@ -109,8 +109,7 @@ RunStep
 | summarize arg_max(Timestamp, *) by StepIndex
 | summarize arg_max(StepIndex, *)
 | where State=='Completed'
-| where isnotempty(JobId)
-{PROJECT_CLAUSE}";
+| where isnotempty(JobId)";
             var stepsData = await KustoHelper.QueryAsync<StepData>(
                 _connectionProvider.QueryProvider,
                 stepQuery,
