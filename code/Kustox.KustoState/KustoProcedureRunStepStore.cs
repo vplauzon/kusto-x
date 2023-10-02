@@ -91,7 +91,7 @@ RunStep
 | extend BreadcrumbId=tostring(Breadcrumb)
 {GetBreadcrumbFilter(breadcrumb)}
 | order by Timestamp asc
-{PROJECT_CLAUSE}
+| project-away BreadcrumbId
 {query}";
             var table = await QueryAsync(script, ct);
 
