@@ -15,7 +15,7 @@ namespace Kustox.KustoState
     {
         private const string TABLE_NAME = "RunStep";
         private const string PROJECT_CLAUSE =
-            "| project JobId, Breadcrumb, State, Script, CaptureName, IsResultScalar, ResultColumnNames, ResultColumnTypes, ResultData, Timestamp";
+            "| project JobId, Breadcrumb, State, Script, CaptureName, Timestamp";
 
         private readonly ConnectionProvider _connectionProvider;
         private readonly string _jobId;
@@ -109,8 +109,7 @@ RunStep
 | summarize arg_max(Timestamp, *) by StepIndex
 | summarize arg_max(StepIndex, *)
 | where State=='Completed'
-| where isnotempty(JobId)
-{PROJECT_CLAUSE}";
+| where isnotempty(JobId)";
             var stepsData = await KustoHelper.QueryAsync<StepData>(
                 _connectionProvider.QueryProvider,
                 stepQuery,
@@ -163,7 +162,7 @@ RunStep
 | where BreadcrumbId=='[{string.Join(",", stepBreadcrumb.Select(i => i.ToString()))}]'
 | summarize arg_max(Timestamp, *)
 | where isnotempty(JobId)
-{PROJECT_CLAUSE}";
+| project-away BreadcrumbId";
             var stepsData = await KustoHelper.QueryAsync<StepData>(
                 _connectionProvider.QueryProvider,
                 stepQuery,
