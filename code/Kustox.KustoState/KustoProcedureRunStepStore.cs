@@ -14,8 +14,19 @@ namespace Kustox.KustoState
     internal class KustoProcedureRunStepStore : IProcedureRunStepStore
     {
         private const string TABLE_NAME = "RunStep";
+        private const string RUN_STEPS_WITH_DURATION = @"RunStep
+| extend BreadcrumbId=tostring(Breadcrumb)
+| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId
+| join kind=inner (RunStep
+    | extend BreadcrumbId=tostring(Breadcrumb)
+    | summarize arg_min(Timestamp,*) by JobId, BreadcrumbId
+    | project-rename StartedOn=Timestamp) on JobId, BreadcrumbId
+| where isnotempty(JobId)
+| extend Duration=iif(State=='Completed', Timestamp-StartedOn, timespan(null))
+| order by Timestamp asc
+";
         private const string PROJECT_CLAUSE =
-            "| project JobId, Breadcrumb, State, Script, CaptureName, Timestamp";
+            "| project JobId, Breadcrumb, State, Script, CaptureName, StartedOn, Timestamp, Duration";
 
         private readonly ConnectionProvider _connectionProvider;
         private readonly string _jobId;
@@ -57,18 +68,19 @@ RunStep
             IImmutableList<int>? breadcrumb,
             CancellationToken ct)
         {
-            return await QueryStepsInternalAsync(query, breadcrumb, false, ct);
+            var breadcrumbFilter = GetBreadcrumbFilter(breadcrumb);
+            var script = $@"
+{RUN_STEPS_WITH_DURATION}
+{breadcrumbFilter}
+| where JobId=='{_jobId}'
+{PROJECT_CLAUSE}
+{query}";
+            var table = await QueryAsync(script, ct);
+
+            return table;
         }
 
         async Task<TableResult> IProcedureRunStepStore.QueryStepHistoryAsync(
-            string? query,
-            IImmutableList<int> breadcrumb,
-            CancellationToken ct)
-        {
-            return await QueryStepsInternalAsync(query, breadcrumb, true, ct);
-        }
-
-        async Task<TableResult> IProcedureRunStepStore.QueryStepChildrenAsync(
             string? query,
             IImmutableList<int> breadcrumb,
             CancellationToken ct)
@@ -77,20 +89,31 @@ RunStep
 RunStep
 | where JobId=='{_jobId}'
 | extend BreadcrumbId=tostring(Breadcrumb)
-| where array_length(Breadcrumb) in ({breadcrumb.Count}, {breadcrumb.Count + 1})
-| where BreadcrumbId == '[{string.Join(',', breadcrumb)}]'
-    or BreadcrumbId startswith '[{string.Join(',', breadcrumb)},'
-| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId
-| where isnotempty(JobId)
+{GetBreadcrumbFilter(breadcrumb)}
+| order by Timestamp asc
+| project-away BreadcrumbId
+{query}";
+            var table = await QueryAsync(script, ct);
+
+            return table;
+        }
+
+        async Task<TableResult> IProcedureRunStepStore.QueryStepChildrenAsync(
+            string? query,
+            IImmutableList<int> breadcrumb,
+            CancellationToken ct)
+        {
+            var script = $@"
+{RUN_STEPS_WITH_DURATION}
+| where JobId=='{_jobId}'
+| where (array_length(Breadcrumb) == {breadcrumb.Count}
+    and BreadcrumbId == '[{string.Join(',', breadcrumb)}]')
+    or (array_length(Breadcrumb) == {breadcrumb.Count+1}
+    and BreadcrumbId startswith '[{string.Join(',', breadcrumb)},')
 | order by Timestamp asc
 {PROJECT_CLAUSE}
 {query}";
-            var stepsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
-                string.Empty,
-                script,
-                _connectionProvider.EmptyClientRequestProperties,
-                ct);
-            var table = stepsData.ToDataSet().Tables[0].ToTableResult();
+            var table = await QueryAsync(script, ct);
 
             return table;
         }
@@ -108,7 +131,6 @@ RunStep
 | extend StepIndex=tolong(Breadcrumb[0])
 | summarize arg_max(Timestamp, *) by StepIndex
 | summarize arg_max(StepIndex, *)
-| where State=='Completed'
 | where isnotempty(JobId)";
             var stepsData = await KustoHelper.QueryAsync<StepData>(
                 _connectionProvider.QueryProvider,
@@ -212,29 +234,8 @@ RunStep
             await _streamingBuffer.AppendRecords(data, ct);
         }
 
-        private async Task<TableResult> QueryStepsInternalAsync(
-            string? query,
-            IImmutableList<int>? breadcrumb,
-            bool withHistory,
-            CancellationToken ct)
+        private async Task<TableResult> QueryAsync(string script, CancellationToken ct)
         {
-            var historyFilter = withHistory
-                ? string.Empty
-                : "| summarize arg_max(Timestamp,*) by JobId, BreadcrumbId";
-            var breadcrumbFilter = breadcrumb == null
-                ? string.Empty
-                : $"| where array_length(Breadcrumb) == {breadcrumb.Count}"
-                + $" and BreadcrumbId=='[{string.Join(',', breadcrumb)}]'";
-            var script = $@"
-RunStep
-| where JobId=='{_jobId}'
-| extend BreadcrumbId=tostring(Breadcrumb)
-{breadcrumbFilter}
-{historyFilter}
-| where isnotempty(JobId)
-| order by Timestamp asc
-{PROJECT_CLAUSE}
-{query}";
             var stepsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
                 string.Empty,
                 script,
@@ -243,6 +244,14 @@ RunStep
             var table = stepsData.ToDataSet().Tables[0].ToTableResult();
 
             return table;
+        }
+
+        private static string GetBreadcrumbFilter(IImmutableList<int>? breadcrumb)
+        {
+            return breadcrumb == null
+                ? string.Empty
+                : $"| where array_length(Breadcrumb) == {breadcrumb.Count}"
+                + $" and BreadcrumbId=='[{string.Join(',', breadcrumb)}]'";
         }
     }
 }

@@ -14,7 +14,7 @@ namespace Kustox.KustoState
     {
         private const string TABLE_NAME = "Run";
         private const string PROJECT_CLAUSE =
-            "| project JobId, State, Timestamp";
+            "| project JobId, State, StartedOn, Timestamp, Duration";
 
         private readonly ConnectionProvider _connectionProvider;
         private readonly StreamingBuffer _streamingBuffer;
@@ -53,21 +53,17 @@ Run
             string? query,
             CancellationToken ct)
         {
-            var scriptBuilder = new StringBuilder("Run");
-
-            scriptBuilder.AppendLine("| summarize arg_max(Timestamp,*) by JobId");
-            scriptBuilder.AppendLine(PROJECT_CLAUSE);
-            scriptBuilder.AppendLine("| order by Timestamp asc");
-            if (!string.IsNullOrEmpty(jobId))
-            {
-                scriptBuilder.AppendLine($"| where JobId=='{jobId}'");
-            }
-            if (query != null)
-            {
-                scriptBuilder.AppendLine(query);
-            }
-
-            var script = scriptBuilder.ToString();
+            var jobClause = jobId != null ? $"| where JobId=='{jobId}'" : null;
+            var script = $@"
+Run
+| summarize arg_max(Timestamp,*) by JobId
+| join kind=inner (Run
+    | summarize arg_min(Timestamp,*) by JobId
+    | project-rename StartedOn=Timestamp) on JobId
+| extend Duration=iif(State=='Completed', Timestamp-StartedOn, timespan(null))
+{jobClause}
+{PROJECT_CLAUSE}
+{query}";
             var runsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
                 string.Empty,
                 script,
@@ -83,17 +79,11 @@ Run
             string? query,
             CancellationToken ct)
         {
-            var scriptBuilder = new StringBuilder("Run");
-
-            scriptBuilder.AppendLine($"| where JobId=='{jobId}'");
-            scriptBuilder.AppendLine(PROJECT_CLAUSE);
-            scriptBuilder.AppendLine("| order by Timestamp asc");
-            if (query != null)
-            {
-                scriptBuilder.AppendLine(query);
-            }
-
-            var script = scriptBuilder.ToString();
+            var script = $@"
+Run
+| where JobId == '{jobId}'
+| order by Timestamp asc
+{query}";
             var runsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
                 string.Empty,
                 script,
