@@ -122,4 +122,4 @@ rule showProcedureRunsSteps = showProcedureRunsPrefix  jobId:quotedString "steps
 rule showProcedureRunsFamily = showProcedureRuns | showProcedureRunsOptions | showProcedureRunsSteps;
 
 #	main rule
-rule main = padding* content:(query:genericQuery | command:command) padding* => content;
+rule main = content:(query:genericQuery | command:command) padding* => content;
