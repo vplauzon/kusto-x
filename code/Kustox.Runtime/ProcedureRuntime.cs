@@ -229,7 +229,13 @@ namespace Kustox.Runtime
                         tasks = onGoingTasks;
                     }
 
-                    return TableResult.Union(results);
+                    return results.Any()
+                        ? TableResult.Union(results)
+                        : new TableResult(
+                            ImmutableArray<ColumnSpecification>.Empty.Add(new ColumnSpecification(
+                                "c",
+                                typeof(object))),
+                            ImmutableArray<IImmutableList<object?>>.Empty);
                 }
                 catch
                 {
