@@ -17,6 +17,7 @@ namespace Kustox.Runtime.Commands
         private readonly CommandRunnerBase _listBlobs;
         private readonly CommandRunnerBase _runProcedure;
         private readonly CommandRunnerBase _showProcedureRuns;
+        private readonly CommandRunnerBase _append;
 
         public CommandRunnerRouter(
             ConnectionProvider connectionProvider,
@@ -31,27 +32,33 @@ namespace Kustox.Runtime.Commands
             _showProcedureRuns = new ShowProcedureRunsCommandRunner(
                 connectionProvider,
                 storageHub);
+            _append = new AppendCommandRunner(connectionProvider);
         }
 
         public async Task<TableResult> RunCommandAsync(
             CommandDeclaration command,
+            IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
             if (command.GenericCommand != null)
             {
-                return await _generic.RunCommandAsync(command, ct);
+                return await _generic.RunCommandAsync(command, captures, ct);
             }
             else if (command.ListBlobsCommand != null)
             {
-                return await _listBlobs.RunCommandAsync(command, ct);
+                return await _listBlobs.RunCommandAsync(command, captures, ct);
             }
             else if (command.RunProcedureCommand != null)
             {
-                return await _runProcedure.RunCommandAsync(command, ct);
+                return await _runProcedure.RunCommandAsync(command, captures, ct);
             }
             else if (command.ShowProcedureRuns != null)
             {
-                return await _showProcedureRuns.RunCommandAsync(command, ct);
+                return await _showProcedureRuns.RunCommandAsync(command, captures, ct);
+            }
+            else if (command.AppendCommand != null)
+            {
+                return await _append.RunCommandAsync(command, captures, ct);
             }
             else
             {

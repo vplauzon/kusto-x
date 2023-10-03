@@ -14,6 +14,8 @@ namespace Kustox.Compiler.Commands
     {
         public GenericCommandDeclaration? GenericCommand { get; set; }
 
+        public AppendCommandDeclaration? AppendCommand { get; set; }
+
         public RunProcedureCommandDeclaration? RunProcedureCommand { get; set; }
 
         public ShowProcedureRunsCommandDeclaration? ShowProcedureRuns { get; set; }
@@ -24,7 +26,8 @@ namespace Kustox.Compiler.Commands
         {
             base.Validate();
 
-            var commandCount = (RunProcedureCommand == null ? 0 : 1)
+            var commandCount = (AppendCommand == null ? 0 : 1)
+                + (RunProcedureCommand == null ? 0 : 1)
                 + (ShowProcedureRuns == null ? 0 : 1)
                 + (ListBlobsCommand == null ? 0 : 1)
                 + (GenericCommand == null ? 0 : 1);
@@ -35,6 +38,7 @@ namespace Kustox.Compiler.Commands
                     "Must have one and only one command in"
                     + $" {typeof(CommandDeclaration).Name}");
             }
+            AppendCommand?.Validate();
             RunProcedureCommand?.Validate();
             ShowProcedureRuns?.Validate();
             ListBlobsCommand?.Validate();
