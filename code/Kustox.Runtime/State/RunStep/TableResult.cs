@@ -17,16 +17,16 @@ namespace Kustox.Runtime.State.RunStep
         public TableResult(
             bool isScalar,
             IImmutableList<ColumnSpecification> columns,
-            IImmutableList<IImmutableList<object>> data)
+            IImmutableList<IImmutableList<object?>> data)
         {
             IsScalar = isScalar;
             if (isScalar)
             {
-                if (columns.Count != 1)
+                if (columns.Count != 0)
                 {
                     throw new ArgumentOutOfRangeException(
                         nameof(columns),
-                        $"For scalar, must be a single column but there are {columns.Count()}");
+                        $"For scalar, must be no column but there are {columns.Count()}");
                 }
                 if (data.Count != 1)
                 {
@@ -70,20 +70,21 @@ namespace Kustox.Runtime.State.RunStep
 
         public IImmutableList<ColumnSpecification> Columns { get; }
 
-        public IImmutableList<IImmutableList<object>> Data { get; }
+        public IImmutableList<IImmutableList<object?>> Data { get; }
 
         public TableResult ToScalar()
         {
             return new TableResult(
                 true,
-                Columns.Count == 1 ? Columns : Columns.Take(1).ToImmutableArray(),
-                Data.Count == 1 && Data.First().Count == 1
+                ImmutableArray<ColumnSpecification>.Empty,
+                Data.Count > 0 && Data.First().Count > 0
                 ? Data
-                : Data
                 .Take(1)
                 .Select(r => r.Take(1).ToImmutableArray())
-                .Cast<IImmutableList<object>>()
-                .ToImmutableArray());
+                .Cast<IImmutableList<object?>>()
+                .ToImmutableArray()
+                : ImmutableArray<IImmutableList<object?>>.Empty.Add(
+                    ImmutableArray<object?>.Empty.Add(null)));
         }
 
         public DataTable? ToDataTable()
@@ -146,7 +147,7 @@ print {tmp} = dynamic({GetJsonData()})
             return JsonSerializer.Serialize(Data);
         }
 
-        public IEnumerable<object> GetColumnData(int columnIndex)
+        public IEnumerable<object?> GetColumnData(int columnIndex)
         {
             foreach (var array in Data)
             {
@@ -154,7 +155,7 @@ print {tmp} = dynamic({GetJsonData()})
             }
         }
 
-        public IEnumerable<object> GetColumnData(string columnName)
+        public IEnumerable<object?> GetColumnData(string columnName)
         {
             for (int i = 0; i < Columns.Count; i++)
             {
@@ -204,7 +205,7 @@ print {tmp} = dynamic({GetJsonData()})
                 }
             }
 
-            var datas = new Stack<IEnumerable<IImmutableList<object>>>(
+            var datas = new Stack<IEnumerable<IImmutableList<object?>>>(
                 results.Select(r => r.Data).Reverse());
 
             while (datas.Count() > 1)
@@ -221,7 +222,7 @@ print {tmp} = dynamic({GetJsonData()})
             return new TableResult(false, template, allUnion);
         }
 
-        private static object AlignWithNativeTypes(object item)
+        private static object? AlignWithNativeTypes(object? item)
         {
             if (item is IEnumerable enumerable)
             {
