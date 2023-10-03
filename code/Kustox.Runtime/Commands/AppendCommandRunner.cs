@@ -17,9 +17,12 @@ namespace Kustox.Runtime.Commands
             IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
+            var query = command.AppendCommand!.Query!.Code;
+            var prefix = QueryHelper.BuildQueryPrefix(query, captures);
             var commandText = @$"
 .append {command.AppendCommand!.TableName} <|
-";
+{prefix}
+{query}";
             var reader = await ConnectionProvider.CommandProvider.ExecuteControlCommandAsync(
                 string.Empty,
                 commandText);
