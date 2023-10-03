@@ -20,22 +20,33 @@ namespace Kustox.Runtime
 
         public static TableResult ToTableResult(this DataTable table, bool isScalar = false)
         {
-            var tableData = table.Rows
-                .Cast<DataRow>()
-                .Select(r => r.ItemArray.Select(o => AlignTypeToJsonFriendly(o!)))
-                .Select(r => r.ToImmutableArray())
-                .Cast<IImmutableList<object>>()
-                .ToImmutableArray();
-            var columns = table.Columns
-                  .Cast<DataColumn>()
-                  .Select(c => new ColumnSpecification(c.ColumnName, c.DataType.FullName!))
-                  .ToImmutableArray();
-            var result = new TableResult(isScalar, columns, tableData);
+            if (isScalar)
+            {
+                var scalarValue = table.Rows.Count > 0 && table.Rows[0].ItemArray.Length > 0
+                    ? table.Rows[0].ItemArray[0]
+                    : null;
 
-            return result;
+                return new TableResult(AlignTypeToJsonFriendly(scalarValue));
+            }
+            else
+            {
+                var tableData = table.Rows
+                    .Cast<DataRow>()
+                    .Select(r => r.ItemArray.Select(o => AlignTypeToJsonFriendly(o)))
+                    .Select(r => r.ToImmutableArray())
+                    .Cast<IImmutableList<object>>()
+                    .ToImmutableArray();
+                var columns = table.Columns
+                      .Cast<DataColumn>()
+                      .Select(c => new ColumnSpecification(c.ColumnName, c.DataType.FullName!))
+                      .ToImmutableArray();
+                var result = new TableResult(columns, tableData);
+
+                return result;
+            }
         }
 
-        private static object? AlignTypeToJsonFriendly(object obj)
+        private static object? AlignTypeToJsonFriendly(object? obj)
         {
             if (obj is sbyte)
             {

@@ -86,7 +86,9 @@ namespace Kustox.KustoState.DataObjects
                     Breadcrumb,
                     State,
                     CaptureName,
-                    new TableResult(IsResultScalar.Value, columns, ResultData!),
+                    IsResultScalar.Value
+                    ? new TableResult(ResultData![0][0])
+                    : new TableResult(columns, ResultData!),
                     Timestamp);
             }
             else

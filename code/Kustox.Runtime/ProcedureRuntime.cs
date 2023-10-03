@@ -306,19 +306,13 @@ namespace Kustox.Runtime
 
                     return array
                         .Cast<object>()
-                        .Select(o => new TableResult(
-                            true,
-                            ImmutableArray.Create(new ColumnSpecification("c", typeof(object))),
-                            ImmutableArray.Create(ImmutableArray.Create(o) as IImmutableList<object>)));
+                        .Select(o => new TableResult(o));
                 }
                 else
                 {
                     return enumatorValue
                         .GetColumnData(0)
-                        .Select(o => new TableResult(
-                            true,
-                            ImmutableArray.Create(enumatorValue.Columns.First()),
-                            ImmutableArray.Create(ImmutableArray.Create(o) as IImmutableList<object>)));
+                        .Select(o => new TableResult(o));
                 }
             }
         }
