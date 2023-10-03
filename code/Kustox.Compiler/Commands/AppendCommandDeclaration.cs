@@ -6,7 +6,7 @@ namespace Kustox.Compiler.Commands
     {
         public string TableName { get; set; } = string.Empty;
 
-        public string CaptureId { get; set; } = string.Empty;
+        public QueryDeclaration? Query { get; set; }
 
         public IImmutableList<PropertyDeclaration> Properties { get; set; } =
             ImmutableArray<PropertyDeclaration>.Empty;
@@ -27,10 +27,11 @@ namespace Kustox.Compiler.Commands
             {
                 throw new InvalidDataException($"No '{nameof(TableName)}'");
             }
-            if (string.IsNullOrWhiteSpace(CaptureId))
+            if (Query == null)
             {
-                throw new InvalidDataException($"No '{nameof(CaptureId)}'");
+                throw new InvalidDataException($"No '{nameof(Query)}'");
             }
+            Query.Validate();
         }
     }
 }

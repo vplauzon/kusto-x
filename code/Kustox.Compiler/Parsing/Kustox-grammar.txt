@@ -79,7 +79,7 @@ rule runProcedureCommand = "." "run" ("procedure" | "proc") "<|"
 rule appendCommand = "." "append" tableName:identifier
 	properties:optionalWithPropertyAssignationList
 	"<|"
-	captureId:identifier;
+	query:genericQuery;
 
 rule query = genericQuery;
 rule command = appendCommand:appendCommand

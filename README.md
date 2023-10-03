@@ -239,7 +239,9 @@ This is the [same command existing today](https://learn.microsoft.com/en-us/azur
 .run procedure <| {
     @capture names = datatable(name:string) ["Alice", "Bob"]
 
-    .append MyTable <| names
+    .append MyTable <|
+        names
+        | extend IsMember=true
 }
 ```
 
