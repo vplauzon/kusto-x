@@ -14,6 +14,7 @@ namespace Kustox.IntegratedTests
         {
             var script = @$"{{
     @capture-scalar myConstant = .show version | take 0
+
 }}";
             var output = await RunInPiecesAsync(script);
             var result = output.Result;
@@ -107,6 +108,7 @@ namespace Kustox.IntegratedTests
     @capture-scalar myConstant = print {kqlValue}
 
     @capture-scalar myConstant2 = print myConstant
+
 }}";
             var output = await RunInPiecesAsync(script);
             var result = output.Result;
