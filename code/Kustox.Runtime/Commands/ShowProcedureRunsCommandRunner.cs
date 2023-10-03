@@ -22,6 +22,7 @@ namespace Kustox.Runtime.Commands
 
         public override async Task<TableResult> RunCommandAsync(
             CommandDeclaration command,
+            IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
             var runProc = command.ShowProcedureRuns!;

@@ -37,27 +37,28 @@ namespace Kustox.Runtime.Commands
 
         public async Task<TableResult> RunCommandAsync(
             CommandDeclaration command,
+            IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
             if (command.GenericCommand != null)
             {
-                return await _generic.RunCommandAsync(command, ct);
+                return await _generic.RunCommandAsync(command, captures, ct);
             }
             else if (command.ListBlobsCommand != null)
             {
-                return await _listBlobs.RunCommandAsync(command, ct);
+                return await _listBlobs.RunCommandAsync(command, captures, ct);
             }
             else if (command.RunProcedureCommand != null)
             {
-                return await _runProcedure.RunCommandAsync(command, ct);
+                return await _runProcedure.RunCommandAsync(command, captures, ct);
             }
             else if (command.ShowProcedureRuns != null)
             {
-                return await _showProcedureRuns.RunCommandAsync(command, ct);
+                return await _showProcedureRuns.RunCommandAsync(command, captures, ct);
             }
             else if (command.AppendCommand != null)
             {
-                return await _append.RunCommandAsync(command, ct);
+                return await _append.RunCommandAsync(command, captures, ct);
             }
             else
             {

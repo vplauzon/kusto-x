@@ -49,6 +49,7 @@ namespace Kustox.Runtime
             {
                 return await _commandRunnerRouter.RunCommandAsync(
                     statementDeclaration.Command,
+                    captures,
                     ct);
             }
             else

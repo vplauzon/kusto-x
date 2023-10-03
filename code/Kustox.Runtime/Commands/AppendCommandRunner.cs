@@ -1,6 +1,7 @@
 ﻿using Kusto.Cloud.Platform.Data;
 using Kustox.Compiler.Commands;
 using Kustox.Runtime.State.RunStep;
+using System.Collections.Immutable;
 
 namespace Kustox.Runtime.Commands
 {
@@ -13,6 +14,7 @@ namespace Kustox.Runtime.Commands
 
         public override async Task<TableResult> RunCommandAsync(
             CommandDeclaration command,
+            IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
             var commandText = @$"
