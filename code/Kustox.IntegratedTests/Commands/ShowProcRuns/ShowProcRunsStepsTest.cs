@@ -51,7 +51,7 @@ namespace Kustox.IntegratedTests.Commands.ShowProcRuns
             Assert.Equal(4, result.Data.Count);
             Assert.Equal(4, result
                 .GetColumnData(0)
-                .Where(s => (string)s == StepState.Completed.ToString())
+                .Where(s => (string)s! == StepState.Completed.ToString())
                 .Count());
         }
     }

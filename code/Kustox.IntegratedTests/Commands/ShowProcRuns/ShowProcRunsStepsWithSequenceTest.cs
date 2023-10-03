@@ -46,7 +46,7 @@ namespace Kustox.IntegratedTests.Commands.ShowProcRuns
 
             Assert.False(result.IsScalar);
             Assert.Single(result.Data);
-            Assert.Contains("print 2", (string)result.GetColumnData(0).First());
+            Assert.Contains("print 2", (string)result.GetColumnData(0).First()!);
         }
     }
 }
