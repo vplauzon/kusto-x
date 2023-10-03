@@ -22,11 +22,15 @@ namespace Kustox.Runtime
         {
             if (isScalar)
             {
-                var scalarValue = table.Rows.Count > 0 && table.Rows[0].ItemArray.Length > 0
-                    ? table.Rows[0].ItemArray[0]
-                    : null;
+                if (table.Rows.Count == 0 || table.Rows[0].ItemArray.Length == 0)
+                {
+                    throw new InvalidDataException($"No rows / columns in {table}");
+                }
+                var scalarValue = table.Rows[0].ItemArray[0];
 
-                return new TableResult(AlignTypeToJsonFriendly(scalarValue));
+                return new TableResult(
+                    table.Columns[0].DataType,
+                    AlignTypeToJsonFriendly(scalarValue));
             }
             else
             {

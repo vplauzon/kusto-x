@@ -54,7 +54,7 @@ namespace Kustox.KustoState.DataObjects
         }
 
         public string JobId { get; set; } = string.Empty;
-        
+
         public StepState State { get; set; }
 
         public string Script { get; set; } = string.Empty;
@@ -64,11 +64,11 @@ namespace Kustox.KustoState.DataObjects
         public string? CaptureName { get; set; }
 
         public bool? IsResultScalar { get; set; }
-        
+
         public IImmutableList<string>? ResultColumnNames { get; set; }
-        
+
         public IImmutableList<string>? ResultColumnTypes { get; set; }
-        
+
         public IImmutableList<IImmutableList<object>>? ResultData { get; set; }
 
         public DateTime Timestamp { get; set; } = DateTime.UtcNow;
@@ -87,7 +87,7 @@ namespace Kustox.KustoState.DataObjects
                     State,
                     CaptureName,
                     IsResultScalar.Value
-                    ? new TableResult(ResultData![0][0])
+                    ? new TableResult(columns[0].ColumnType, ResultData![0][0])
                     : new TableResult(columns, ResultData!),
                     Timestamp);
             }

@@ -28,15 +28,18 @@ namespace Kustox.Runtime.State.RunStep
                     nameof(data),
                     "Some row(s) don't have the right column count");
             }
+            IsScalar = false;
             Columns = columns;
             Data = data;
         }
 
-        public TableResult(object? scalarData)
+        public TableResult(Type scalarType, object? scalarData)
         {
-            Columns = ImmutableArray<ColumnSpecification>.Empty;
+            IsScalar = true;
+            Columns = ImmutableArray<ColumnSpecification>.Empty.Add(
+                new ColumnSpecification("c", scalarType));
             Data = ImmutableArray<IImmutableList<object?>>.Empty.Add(
-                    ImmutableArray<object?>.Empty.Add(null));
+                    ImmutableArray<object?>.Empty.Add(scalarData));
         }
 
         public static TableResult CreateEmpty(string columnName, string oneCellContent)
@@ -48,7 +51,7 @@ namespace Kustox.Runtime.State.RunStep
                     ImmutableArray<object>.Empty.Add(oneCellContent)));
         }
 
-        public bool IsScalar => !Columns.Any();
+        public bool IsScalar { get; }
 
         public IImmutableList<ColumnSpecification> Columns { get; }
 
@@ -56,16 +59,14 @@ namespace Kustox.Runtime.State.RunStep
 
         public TableResult ToScalar()
         {
-            var scalarData = Data.Count > 0 && Data.First().Count > 0
-                ? Data
-                .Take(1)
-                .Select(r => r.Take(1).ToImmutableArray())
-                .Cast<IImmutableList<object?>>()
-                .ToImmutableArray()
-                : ImmutableArray<IImmutableList<object?>>.Empty.Add(
-                    ImmutableArray<object?>.Empty.Add(null));
-
-            return new TableResult(scalarData);
+            if (Data.Count > 0 && Data.First().Count > 0)
+            {
+                return new TableResult(Columns[0].ColumnType, Data[0][0]);
+            }
+            else
+            {
+                return new TableResult(typeof(object), null);
+            }
         }
 
         public string ToKustoExpression()
@@ -141,7 +142,7 @@ print {tmp} = dynamic({GetJsonData()})
                 .ToImmutableArray();
 
             return IsScalar
-                ? new TableResult(alignedData[0][0])
+                ? new TableResult(Columns[0].ColumnType, alignedData[0][0])
                 : new TableResult(Columns, alignedData);
         }
 
@@ -153,7 +154,7 @@ print {tmp} = dynamic({GetJsonData()})
                     nameof(results),
                     $"Union requires at list one {typeof(TableResult).Name}");
             }
-            if (!results.Any(r => r.IsScalar))
+            if (results.Any(r => r.IsScalar))
             {
                 throw new ArgumentOutOfRangeException(
                     nameof(results),
