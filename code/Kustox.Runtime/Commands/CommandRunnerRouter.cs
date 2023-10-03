@@ -17,6 +17,7 @@ namespace Kustox.Runtime.Commands
         private readonly CommandRunnerBase _listBlobs;
         private readonly CommandRunnerBase _runProcedure;
         private readonly CommandRunnerBase _showProcedureRuns;
+        private readonly CommandRunnerBase _append;
 
         public CommandRunnerRouter(
             ConnectionProvider connectionProvider,
@@ -31,6 +32,7 @@ namespace Kustox.Runtime.Commands
             _showProcedureRuns = new ShowProcedureRunsCommandRunner(
                 connectionProvider,
                 storageHub);
+            _append = new AppendCommandRunner(connectionProvider);
         }
 
         public async Task<TableResult> RunCommandAsync(
@@ -52,6 +54,10 @@ namespace Kustox.Runtime.Commands
             else if (command.ShowProcedureRuns != null)
             {
                 return await _showProcedureRuns.RunCommandAsync(command, ct);
+            }
+            else if (command.AppendCommand != null)
+            {
+                return await _append.RunCommandAsync(command, ct);
             }
             else
             {

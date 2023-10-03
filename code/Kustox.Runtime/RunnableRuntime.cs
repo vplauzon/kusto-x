@@ -63,16 +63,7 @@ namespace Kustox.Runtime
             IImmutableDictionary<string, TableResult?> captures,
             CancellationToken ct)
         {
-            var queryBlock = (QueryBlock)KustoCode.Parse(query).Syntax;
-            var nameReferences = queryBlock
-                .GetDescendants<NameReference>()
-                .Select(n => n.Name.SimpleName)
-                .ToImmutableArray();
-            var capturedValues = nameReferences
-                .Select(n => KeyValuePair.Create(n, captures.GetCapturedValueIfExist(n)))
-                .Where(p => p.Value != null)
-                .ToImmutableArray();
-            var queryPrefix = BuildQueryPrefix(capturedValues);
+            var queryPrefix = QueryHelper.BuildQueryPrefix(query, captures);
             var reader = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
                 string.Empty,
                 queryPrefix + query,
@@ -80,22 +71,6 @@ namespace Kustox.Runtime
             var table = reader.ToDataSet().Tables[0];
 
             return table.ToTableResult();
-        }
-
-        private string BuildQueryPrefix(
-            IImmutableList<KeyValuePair<string, TableResult>> capturedValues)
-        {
-            var builder = new StringBuilder();
-
-            foreach (var value in capturedValues)
-            {
-                var name = value.Key;
-                var result = value.Value;
-
-                builder.AppendLine($"let {name} = {result.ToKustoExpression()}");
-            }
-
-            return builder.ToString();
         }
         #endregion
     }
