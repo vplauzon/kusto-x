@@ -76,9 +76,14 @@ rule runProcedureCommand = "." "run" ("procedure" | "proc") "<|"
 	rootSequence:sequenceContent => {
 		"rootSequence":rootSequence
 	};
+rule appendCommand = "." "append" tableName:identifier
+	properties:optionalWithPropertyAssignationList
+	"<|"
+	captureId:identifier;
 
 rule query = genericQuery;
-rule command = runProcedureCommand:runProcedureCommand
+rule command = appendCommand:appendCommand
+	| runProcedureCommand:runProcedureCommand
 	| showProcedureRuns:showProcedureRunsFamily
 	| listBlobsCommand:listBlobsCommand
 	| queueIngestCommand:queueIngestCommand

@@ -34,6 +34,7 @@ namespace Kustox.Compiler
 
             foreach (var property in Properties)
             {
+                property.Validate();
                 if (property.Id != CONCURRENCY_PROPERTY)
                 {
                     throw new InvalidOperationException(
