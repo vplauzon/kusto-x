@@ -28,6 +28,7 @@ namespace Kustox.IntegratedTests.Commands
     @capture-scalar b = print 2;
 
     print a+b
+
 }";
                 var statement = Compiler.CompileStatement(script)!;
                 var jobIdResult = await environmentRuntime.RunnableRuntime.RunStatementAsync(

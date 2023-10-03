@@ -19,6 +19,7 @@ namespace Kustox.IntegratedTests.Commands
         datatable(Id:string) [""Alice"", ""Bob""]
 
     AppendQuery
+
 }}";
             var output = await RunInPiecesAsync(script, null);
 
@@ -44,6 +45,7 @@ namespace Kustox.IntegratedTests.Commands
         myData
 
     AppendQuery
+
 }}";
             var output = await RunInPiecesAsync(script, null);
 
@@ -70,6 +72,7 @@ namespace Kustox.IntegratedTests.Commands
         | extend IsMember = true
 
     AppendTransform
+
 }}";
             var output = await RunInPiecesAsync(script, null);
 

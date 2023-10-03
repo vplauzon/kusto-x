@@ -82,6 +82,7 @@ namespace Kustox.IntegratedTests
         Real=42.83, String='Hello', TimeSpan=4m, Decimal=decimal(42.43)
 
     @capture-scalar myConstant2 = myTable | project {projection}
+
 }}";
             var output = await RunInPiecesAsync(script, maximumNumberOfSteps);
 

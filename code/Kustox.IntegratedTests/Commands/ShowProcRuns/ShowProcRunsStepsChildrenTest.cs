@@ -15,10 +15,12 @@ namespace Kustox.IntegratedTests.Commands.ShowProcRuns
             var procScript = @"{
     @capture names = datatable(name:string) [""Alice"", ""Bob""]
 
-    @foreach(name in names) with(concurrency=2)
-    {
+    @foreach(name in names) with(concurrency=2) {
         print name=name
-    }}";
+
+    }
+
+}";
             var output = await RunInPiecesAsync(procScript, null);
             var jobId = output.JobId;
             var showScript0 = $".show proc runs '{jobId}' steps [0] children";
@@ -46,6 +48,7 @@ namespace Kustox.IntegratedTests.Commands.ShowProcRuns
     print 'b'
 
     print 'c'
+
 }";
             var output = await RunInPiecesAsync(procScript, null);
             var jobId = output.JobId;

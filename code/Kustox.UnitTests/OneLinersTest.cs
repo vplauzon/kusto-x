@@ -21,6 +21,7 @@ namespace Kustox.UnitTests
         {
             var script = @".run procedure <| {
     @capture-scalar myConstant = print 2
+
 }";
             var statement = new KustoxCompiler().CompileStatement(script);
 
@@ -42,6 +43,7 @@ namespace Kustox.UnitTests
         {
             var script = @".run procedure <| {
     @capture-scalar myVersionTable = .show version
+
 }";
             var statement = new KustoxCompiler().CompileStatement(script);
 
@@ -64,6 +66,7 @@ namespace Kustox.UnitTests
         {
             var script = @".run procedure <| {
     .create table T(Id:string)
+
 }";
             var statement = new KustoxCompiler().CompileStatement(script);
 

@@ -14,6 +14,7 @@ namespace Kustox.IntegratedTests
         {
             var script = @$"{{
     @capture-scalar myConstant = .show version | take 0
+
 }}";
             var output = await RunInPiecesAsync(script);
             var result = output.Result;
@@ -44,6 +45,7 @@ namespace Kustox.IntegratedTests
         {{ ""user"":""bit"", ""events"":[1,2,3], ""profile"": {{""memory"": 42}} }})
 
     @capture-scalar myConstant2 = print toint(myConstant.profile.memory)
+
 }}";
             var output = await RunInPiecesAsync(script);
             var result = output.Result;
@@ -107,6 +109,7 @@ namespace Kustox.IntegratedTests
     @capture-scalar myConstant = print {kqlValue}
 
     @capture-scalar myConstant2 = print myConstant
+
 }}";
             var output = await RunInPiecesAsync(script);
             var result = output.Result;

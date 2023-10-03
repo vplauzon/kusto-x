@@ -4,11 +4,11 @@ namespace Kustox.Compiler
 {
     public class KustoxCompiler
     {
-        private readonly KustoxParser _parser = new KustoxParser();
+        private readonly static KustoxParser _parser = new KustoxParser();
 
         public StatementDeclaration? CompileStatement(string text)
         {
-            var declaration = _parser.ParseStatement(text);
+            var declaration = _parser.ParseStatement(text + "\n\n");
 
             if (declaration != null)
             {

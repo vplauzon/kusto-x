@@ -34,6 +34,7 @@ namespace Kustox.UnitTests
             var script = @".run procedure <| {
     @foreach(n in names){
         print 2
+
     }
 }";
             var statement = new KustoxCompiler().CompileStatement(script);

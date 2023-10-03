@@ -11,6 +11,7 @@ namespace Kustox.UnitTests
     @capture-scalar myConstant1 = print 2
 
     @capture-scalar myConstant2 = print 4
+
 }";
             var statement = new KustoxCompiler().CompileStatement(script);
 

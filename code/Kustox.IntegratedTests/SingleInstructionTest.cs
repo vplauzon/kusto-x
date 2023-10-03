@@ -19,6 +19,7 @@ namespace Kustox.IntegratedTests
         {
             var script = @"{
     @capture-scalar myConstant = print 2
+
 }";
 
             await RunInPiecesAsync(script);
@@ -29,6 +30,7 @@ namespace Kustox.IntegratedTests
         {
             var script = @"{
     @capture myVersion = .show version
+
 }";
 
             await RunInPiecesAsync(script);
@@ -39,6 +41,7 @@ namespace Kustox.IntegratedTests
         {
             var script = @"{
     .show version
+
 }";
 
             await RunInPiecesAsync(script);

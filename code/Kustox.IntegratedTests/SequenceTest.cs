@@ -13,6 +13,7 @@ namespace Kustox.IntegratedTests
     @capture-scalar myConstant = print 2
 
     @capture-scalar myConstant2 = print dynamic({'Name':'Test', 'Quantity':45.4})
+
 }";
 
             await RunInPiecesAsync(script);
@@ -25,6 +26,7 @@ namespace Kustox.IntegratedTests
     @capture myVersion = .show version
 
     @capture-scalar myConstant = myVersion | project ServiceType
+
 }";
 
             await RunInPiecesAsync(script);
