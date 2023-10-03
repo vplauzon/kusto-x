@@ -34,6 +34,7 @@ namespace Kustox.IntegratedTests
 
     @foreach(i in myRange){
         print toint(i)
+
     }
 }";
             var output = await RunInPiecesAsync(script);
@@ -61,6 +62,7 @@ namespace Kustox.IntegratedTests
 
     @foreach(i in myRange) with(concurrency=3){
         print toint(i)
+
     }
 }";
             var numberOfSteps = new[] { 100, 5, 1 };

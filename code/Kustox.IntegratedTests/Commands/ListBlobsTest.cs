@@ -31,6 +31,7 @@ namespace Kustox.IntegratedTests.Commands
     
     blobs
     | project Name
+
 }}";
             var output = await RunInPiecesAsync(script);
 

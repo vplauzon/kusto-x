@@ -14,6 +14,7 @@ namespace Kustox.IntegratedTests.Commands.ShowProcRuns
         {
             var procScript = @"{
     .show version
+
 }";
             var output = await RunInPiecesAsync(procScript, null);
             var jobId = output.JobId;
@@ -30,6 +31,7 @@ namespace Kustox.IntegratedTests.Commands.ShowProcRuns
         {
             var procScript = @"{
     .show version
+
 }";
             var output = await RunInPiecesAsync(procScript, null);
             var jobId = output.JobId;

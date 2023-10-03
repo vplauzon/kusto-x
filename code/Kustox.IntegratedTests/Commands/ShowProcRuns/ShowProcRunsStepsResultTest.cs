@@ -17,6 +17,7 @@ namespace Kustox.IntegratedTests.Commands.ShowProcRuns
     print 'b'
 
     print 'c'
+
 }";
             var output = await RunInPiecesAsync(procScript, null);
             var jobId = output.JobId;
@@ -38,6 +39,7 @@ namespace Kustox.IntegratedTests.Commands.ShowProcRuns
     .show version
 
     print 3
+
 }";
             var output = await RunInPiecesAsync(procScript, null);
             var jobId = output.JobId;

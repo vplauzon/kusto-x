@@ -45,6 +45,7 @@ namespace Kustox.IntegratedTests
         {{ ""user"":""bit"", ""events"":[1,2,3], ""profile"": {{""memory"": 42}} }})
 
     @capture-scalar myConstant2 = print toint(myConstant.profile.memory)
+
 }}";
             var output = await RunInPiecesAsync(script);
             var result = output.Result;
