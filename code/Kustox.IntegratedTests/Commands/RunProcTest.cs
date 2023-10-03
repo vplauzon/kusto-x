@@ -34,7 +34,7 @@ namespace Kustox.IntegratedTests.Commands
                     statement,
                     ImmutableDictionary<string, TableResult?>.Empty,
                     ct);
-                var jobId = (string)jobIdResult.Data[0][0];
+                var jobId = (string)jobIdResult.Data[0][0]!;
                 //  Timeout for completion:  account for running on a laptop tethering on mobile!
                 var cancelSource = new CancellationTokenSource(TimeSpan.FromSeconds(12));
 

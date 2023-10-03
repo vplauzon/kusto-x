@@ -34,7 +34,7 @@ namespace Kustox.IntegratedTests.Commands.ShowProcRuns
             Assert.Equal(3, result1.Data.Count);
             Assert.Empty(result1
                 .GetColumnData("State")
-                .Where(s => (string)s != StepState.Completed.ToString()));
+                .Where(s => (string)s! != StepState.Completed.ToString()));
         }
 
         [Fact]
