@@ -32,7 +32,7 @@ namespace Kustox.Runtime.Commands
                 true,
                 ct);
             var result = new TableResult(
-                true,
+                false,
                 COLUMN_SPECS,
                 ImmutableArray<IImmutableList<object>>
                 .Empty

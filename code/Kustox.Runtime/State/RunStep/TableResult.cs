@@ -42,15 +42,18 @@ namespace Kustox.Runtime.State.RunStep
                         + $" but there are {data.First().Count()}");
                 }
             }
-            if (columns.Count == 0)
+            else
             {
-                throw new ArgumentOutOfRangeException(nameof(columns), "There are no columns!");
-            }
-            if (data.Select(row => row.Count()).Any(l => l != columns.Count()))
-            {
-                throw new ArgumentOutOfRangeException(
-                    nameof(data),
-                    "Some row(s) don't have the right column count");
+                if (columns.Count == 0)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(columns), "There are no columns!");
+                }
+                if (data.Select(row => row.Count()).Any(l => l != columns.Count()))
+                {
+                    throw new ArgumentOutOfRangeException(
+                        nameof(data),
+                        "Some row(s) don't have the right column count");
+                }
             }
             Columns = columns;
             Data = data;
