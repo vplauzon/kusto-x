@@ -15,33 +15,9 @@ namespace Kustox.Runtime.State.RunStep
     public class TableResult
     {
         public TableResult(
-            bool isScalar,
             IImmutableList<ColumnSpecification> columns,
-            IImmutableList<IImmutableList<object>> data)
+            IImmutableList<IImmutableList<object?>> data)
         {
-            IsScalar = isScalar;
-            if (isScalar)
-            {
-                if (columns.Count != 1)
-                {
-                    throw new ArgumentOutOfRangeException(
-                        nameof(columns),
-                        $"For scalar, must be a single column but there are {columns.Count()}");
-                }
-                if (data.Count != 1)
-                {
-                    throw new ArgumentOutOfRangeException(
-                        nameof(data),
-                        $"For scalar, must be a single row but there are {data.Count()}");
-                }
-                if (data.First().Count != 1)
-                {
-                    throw new ArgumentOutOfRangeException(
-                        nameof(data),
-                        $"For scalar, must be a single column in the single row"
-                        + $" but there are {data.First().Count()}");
-                }
-            }
             if (columns.Count == 0)
             {
                 throw new ArgumentOutOfRangeException(nameof(columns), "There are no columns!");
@@ -52,14 +28,23 @@ namespace Kustox.Runtime.State.RunStep
                     nameof(data),
                     "Some row(s) don't have the right column count");
             }
+            IsScalar = false;
             Columns = columns;
             Data = data;
+        }
+
+        public TableResult(Type scalarType, object? scalarData)
+        {
+            IsScalar = true;
+            Columns = ImmutableArray<ColumnSpecification>.Empty.Add(
+                new ColumnSpecification("c", scalarType));
+            Data = ImmutableArray<IImmutableList<object?>>.Empty.Add(
+                    ImmutableArray<object?>.Empty.Add(scalarData));
         }
 
         public static TableResult CreateEmpty(string columnName, string oneCellContent)
         {
             return new TableResult(
-                false,
                 ImmutableArray<ColumnSpecification>.Empty.Add(
                     new ColumnSpecification(columnName, typeof(string))),
                 ImmutableArray<IImmutableList<object>>.Empty.Add(
@@ -70,36 +55,18 @@ namespace Kustox.Runtime.State.RunStep
 
         public IImmutableList<ColumnSpecification> Columns { get; }
 
-        public IImmutableList<IImmutableList<object>> Data { get; }
+        public IImmutableList<IImmutableList<object?>> Data { get; }
 
         public TableResult ToScalar()
         {
-            return new TableResult(
-                true,
-                Columns.Count == 1 ? Columns : Columns.Take(1).ToImmutableArray(),
-                Data.Count == 1 && Data.First().Count == 1
-                ? Data
-                : Data
-                .Take(1)
-                .Select(r => r.Take(1).ToImmutableArray())
-                .Cast<IImmutableList<object>>()
-                .ToImmutableArray());
-        }
-
-        public DataTable? ToDataTable()
-        {
-            var table = new DataTable();
-
-            foreach (var column in Columns)
+            if (Data.Count > 0 && Data.First().Count > 0)
             {
-                table.Columns.Add(new DataColumn(column.ColumnName, column.ColumnType));
+                return new TableResult(Columns[0].ColumnType, Data[0][0]);
             }
-            foreach (var dataRow in Data)
+            else
             {
-                table.Rows.Add(dataRow.ToArray());
+                return new TableResult(typeof(object), null);
             }
-
-            return table;
         }
 
         public string ToKustoExpression()
@@ -146,7 +113,7 @@ print {tmp} = dynamic({GetJsonData()})
             return JsonSerializer.Serialize(Data);
         }
 
-        public IEnumerable<object> GetColumnData(int columnIndex)
+        public IEnumerable<object?> GetColumnData(int columnIndex)
         {
             foreach (var array in Data)
             {
@@ -154,7 +121,7 @@ print {tmp} = dynamic({GetJsonData()})
             }
         }
 
-        public IEnumerable<object> GetColumnData(string columnName)
+        public IEnumerable<object?> GetColumnData(string columnName)
         {
             for (int i = 0; i < Columns.Count; i++)
             {
@@ -174,7 +141,9 @@ print {tmp} = dynamic({GetJsonData()})
                 .Cast<IImmutableList<object>>()
                 .ToImmutableArray();
 
-            return new TableResult(IsScalar, Columns, alignedData);
+            return IsScalar
+                ? new TableResult(Columns[0].ColumnType, alignedData[0][0])
+                : new TableResult(Columns, alignedData);
         }
 
         public static TableResult Union(IEnumerable<TableResult> results)
@@ -184,6 +153,12 @@ print {tmp} = dynamic({GetJsonData()})
                 throw new ArgumentOutOfRangeException(
                     nameof(results),
                     $"Union requires at list one {typeof(TableResult).Name}");
+            }
+            if (results.Any(r => r.IsScalar))
+            {
+                throw new ArgumentOutOfRangeException(
+                    nameof(results),
+                    $"Union requires non scalar {typeof(TableResult).Name}");
             }
             if (results.Any(r => r == null))
             {
@@ -204,7 +179,7 @@ print {tmp} = dynamic({GetJsonData()})
                 }
             }
 
-            var datas = new Stack<IEnumerable<IImmutableList<object>>>(
+            var datas = new Stack<IEnumerable<IImmutableList<object?>>>(
                 results.Select(r => r.Data).Reverse());
 
             while (datas.Count() > 1)
@@ -218,10 +193,10 @@ print {tmp} = dynamic({GetJsonData()})
 
             var allUnion = datas.Pop().ToImmutableArray();
 
-            return new TableResult(false, template, allUnion);
+            return new TableResult(template, allUnion);
         }
 
-        private static object AlignWithNativeTypes(object item)
+        private static object? AlignWithNativeTypes(object? item)
         {
             if (item is IEnumerable enumerable)
             {

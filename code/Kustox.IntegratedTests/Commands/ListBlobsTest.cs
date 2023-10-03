@@ -40,8 +40,8 @@ namespace Kustox.IntegratedTests.Commands
             Assert.Equal(3, output.Result.Data.Count());
 
             var names = output.Result.Data
-                .Select(d => d.First().ToString()!)
-                .Select(n => n.Split('/').Last())
+                .Select(d => d.First()?.ToString())
+                .Select(n => n?.Split('/').Last())
                 .Order()
                 .ToImmutableArray();
 

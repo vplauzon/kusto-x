@@ -19,6 +19,6 @@ namespace Kustox.Workbench.Controllers.Language
 
         public IImmutableList<ColumnOutput>? Columns { get; set; }
 
-        public IImmutableList<IImmutableList<object>>? Data { get; set; }
+        public IImmutableList<IImmutableList<object?>>? Data { get; set; }
     }
 }

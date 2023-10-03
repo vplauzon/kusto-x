@@ -50,7 +50,7 @@ namespace Kustox.Runtime.Commands
                 }.ToImmutableArray())
                 .Cast<IImmutableList<object>>()
                 .ToImmutableArray();
-            var result = new TableResult(false, columns, data);
+            var result = new TableResult(columns, data);
 
             return result;
         }

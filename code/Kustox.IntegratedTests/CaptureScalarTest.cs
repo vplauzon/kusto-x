@@ -10,6 +10,19 @@ namespace Kustox.IntegratedTests
     public class CaptureScalarTest : TestBase
     {
         [Fact]
+        public async Task EmptyResult()
+        {
+            var script = @$"{{
+    @capture-scalar myConstant = .show version | take 0
+}}";
+            var output = await RunInPiecesAsync(script);
+            var result = output.Result;
+
+            Assert.NotNull(result);
+            Assert.Null(result.Data[0][0]);
+        }
+
+        [Fact]
         public async Task Bool()
         {
             await TestScalarAsync("true", true);

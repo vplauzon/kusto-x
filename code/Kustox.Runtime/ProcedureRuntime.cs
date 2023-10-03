@@ -9,6 +9,7 @@ using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State.RunStep;
 using System.Collections;
 using System.Collections.Immutable;
+using System.Linq;
 using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
@@ -306,19 +307,13 @@ namespace Kustox.Runtime
 
                     return array
                         .Cast<object>()
-                        .Select(o => new TableResult(
-                            true,
-                            ImmutableArray.Create(new ColumnSpecification("c", typeof(object))),
-                            ImmutableArray.Create(ImmutableArray.Create(o) as IImmutableList<object>)));
+                        .Select(o => new TableResult(typeof(object), o));
                 }
                 else
                 {
                     return enumatorValue
                         .GetColumnData(0)
-                        .Select(o => new TableResult(
-                            true,
-                            ImmutableArray.Create(enumatorValue.Columns.First()),
-                            ImmutableArray.Create(ImmutableArray.Create(o) as IImmutableList<object>)));
+                        .Select(o => new TableResult(enumatorValue.Columns[0].ColumnType, o));
                 }
             }
         }
