@@ -37,7 +37,7 @@ rule forEach = "@foreach" "(" cursor:identifier "in" enumerator:identifier ")"
 	"enumerator":enumerator,
 	"sequence":sequence
 };
-rule capturable = forEach:forEach | query:query | command:command;
+rule capturable = forEach:forEach | query:genericQuery | command:command;
 rule captureScalar = "@capture-scalar" id:identifier "="
 	capturable:capturable => merge({
 		"capture":{
@@ -64,13 +64,17 @@ rule sequenceContent = "{" sequenceItems:sequenceItemList? "}"
 
 #	Commands and queries:  stuff that can be run
 rule integerList = head:integer tail:("," i:integer => i)* => prepend(head, tail);
-rule(interleave=false) genericKql = ((. - "\n")+ - blockSpacer*) => text;
-rule(interleave=false) genericKqlBlock = (genericKql "\n")* genericKql => text;
+rule(interleave=false) genericKqlLine = (. - "\n")+ - blockSpacer* => text;
+rule(interleave=false) genericKqlBlock = content:((genericKqlLine "\n")* genericKqlLine => text)
+	doubleReturn:("\n" blockSpacer* "\n")
+	=> content;
 rule listBlobsCommand = "." "list" "blobs" rootUrl:quotedString => {'rootUrl':rootUrl};
 rule queueIngestCommand = "." "queue" "ingest"=> "QueueIngest";
-rule(interleave=false) genericQuery = (. - ".") genericKqlBlock => { "code": text };
+rule(interleave=false) genericQuery = prefix:(. - ".") block:genericKqlBlock => {
+	"code": concat(prefix, block)
+};
 rule pipeGenericQuery = "|" q:genericQuery => q;
-rule(interleave=false) genericCommand = "." genericKqlBlock => { "code": text };
+rule genericCommand = "." genericKqlBlock => { "code": text };
 rule runProcedureCommand = "." "run" ("procedure" | "proc") "<|"
 	properties:optionalWithPropertyAssignationList
 	rootSequence:sequenceContent => {
@@ -81,7 +85,6 @@ rule appendCommand = "." "append" tableName:identifier
 	"<|"
 	query:genericQuery;
 
-rule query = genericQuery;
 rule command = appendCommand:appendCommand
 	| runProcedureCommand:runProcedureCommand
 	| showProcedureRuns:showProcedureRunsFamily
@@ -119,4 +122,4 @@ rule showProcedureRunsSteps = showProcedureRunsPrefix  jobId:quotedString "steps
 rule showProcedureRunsFamily = showProcedureRuns | showProcedureRunsOptions | showProcedureRunsSteps;
 
 #	main rule
-rule main = m:(query:query | command:command) padding* => m;
+rule main = content:(query:genericQuery | command:command) padding* => content;

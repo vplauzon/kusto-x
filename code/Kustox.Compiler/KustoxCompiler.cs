@@ -8,7 +8,7 @@ namespace Kustox.Compiler
 
         public StatementDeclaration? CompileStatement(string text)
         {
-            var declaration = _parser.ParseStatement(text);
+            var declaration = _parser.ParseStatement(text + "\n\n");
 
             if (declaration != null)
             {
