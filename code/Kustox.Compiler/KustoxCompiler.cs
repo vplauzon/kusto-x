@@ -4,7 +4,7 @@ namespace Kustox.Compiler
 {
     public class KustoxCompiler
     {
-        private readonly KustoxParser _parser = new KustoxParser();
+        private readonly static KustoxParser _parser = new KustoxParser();
 
         public StatementDeclaration? CompileStatement(string text)
         {
