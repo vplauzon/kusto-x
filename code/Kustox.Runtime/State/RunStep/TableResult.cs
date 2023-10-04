@@ -76,7 +76,7 @@ namespace Kustox.Runtime.State.RunStep
                 var scalarValue = Data.First().First();
                 var scalarKustoType = Columns.First().GetKustoType();
                 var dynamicValue = $"dynamic({JsonSerializer.Serialize(scalarValue)})";
-                var finalValue = $"to{scalarKustoType}({dynamicValue});";
+                var finalValue = $"to{scalarKustoType}({dynamicValue})";
 
                 return finalValue;
             }
