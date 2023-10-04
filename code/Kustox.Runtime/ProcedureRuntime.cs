@@ -117,9 +117,19 @@ namespace Kustox.Runtime
                     captures,
                     ct);
             }
+            else if (block.If != null)
+            {
+                return await RunIfAsync(
+                    block.If,
+                    block.Capture?.IsScalarCapture ?? false,
+                    stepIndex,
+                    levelContext,
+                    captures,
+                    ct);
+            }
             else
             {
-                throw new NotSupportedException("runnable must be either query or command");
+                throw new NotSupportedException("Unknown runnable");
             }
         }
         #endregion
@@ -322,6 +332,73 @@ namespace Kustox.Runtime
                         .Select(o => new TableResult(enumatorValue.Columns[0].ColumnType, o));
                 }
             }
+        }
+        #endregion
+
+        #region If
+        private async Task<TableResult> RunIfAsync(
+            IfDeclaration ifDeclaration,
+            bool isScalarCapture,
+            int stepIndex,
+            RuntimeLevelContext levelContext,
+            IImmutableDictionary<string, TableResult?> captures,
+            CancellationToken ct)
+        {
+            var conditionResult = captures.GetCapturedValueIfExist(ifDeclaration.Condition);
+
+            if (conditionResult == null)
+            {
+                throw new InvalidOperationException(
+                    $"Condition '{ifDeclaration.Condition}' isn't defined previously from "
+                    + $"'{ifDeclaration.Code}'");
+            }
+            if (!conditionResult.IsScalar)
+            {
+                throw new InvalidOperationException(
+                    $"Condition '{ifDeclaration.Condition}' isn't defined as a scalar " +
+                    $"to be used in '{ifDeclaration.Code}'");
+            }
+            if (!(conditionResult.AlignDataWithNativeTypes().Data[0][0] is bool))
+            {
+                throw new InvalidOperationException(
+                    $"Condition '{ifDeclaration.Condition}' must be a boolean to be used in " +
+                    $"to be used in '{ifDeclaration.Code}'");
+            }
+
+            var conditionValue = (bool)conditionResult.AlignDataWithNativeTypes().Data[0][0]!;
+            var branchSequence = conditionValue
+                ? ifDeclaration.ThenSequence
+                : ifDeclaration.ElseSequence;
+
+            if (branchSequence != null && branchSequence.Blocks.Any())
+            {
+                var subLevelContext = levelContext.GoDownOneLevel(
+                    conditionValue ? 0 : 1,
+                    branchSequence.Code);
+                var result = subLevelContext.LatestProcedureRunStep?.Result;
+
+                if (subLevelContext.LatestProcedureRunStep?.State != StepState.Completed)
+                {
+                    await levelContext.PersistRunningStepAsync(ct);
+                    await subLevelContext.PersistRunningStepAsync(ct);
+                    result = await RunSequenceAsync(
+                        branchSequence,
+                        subLevelContext,
+                        captures,
+                        ct);
+                    await subLevelContext.PersistCompleteStepAsync(
+                        null,
+                        result ?? new TableResult(typeof(object), null),
+                        ct);
+                }
+
+                if (result != null)
+                {
+                    return result;
+                }
+            }
+
+            return new TableResult(typeof(object), null);
         }
         #endregion
     }
