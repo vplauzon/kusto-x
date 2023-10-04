@@ -38,7 +38,7 @@ rule forEach = "@foreach" "(" cursor:identifier "in" enumerator:identifier ")"
 	"sequence":sequence
 };
 rule if = "@if" condition:identifier thenSequence:sequenceContent
-	else:("else" elseSequence:sequenceContent => elseSequence)? => {
+	else:("@else" elseSequence:sequenceContent => elseSequence)? => {
 		"code":text,
 		"condition" : condition,
 		"thenSequence" : thenSequence,
