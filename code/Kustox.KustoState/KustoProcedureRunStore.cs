@@ -62,6 +62,7 @@ Run
     | project-rename StartedOn=Timestamp) on JobId
 | extend Duration=iif(State=='Completed', Timestamp-StartedOn, timespan(null))
 {jobClause}
+| order by Timestamp desc
 {PROJECT_CLAUSE}
 {query}";
             var runsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
@@ -82,7 +83,7 @@ Run
             var script = $@"
 Run
 | where JobId == '{jobId}'
-| order by Timestamp asc
+| order by Timestamp desc
 {query}";
             var runsData = await _connectionProvider.QueryProvider.ExecuteQueryAsync(
                 string.Empty,
