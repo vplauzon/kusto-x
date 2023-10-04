@@ -5,7 +5,7 @@ namespace Kustox.UnitTests.Commands
     public class DeleteTest
     {
         [Fact]
-        public void Vanila()
+        public void SimpleQuery()
         {
             var script = @$"
 .delete table MyTable records <|
