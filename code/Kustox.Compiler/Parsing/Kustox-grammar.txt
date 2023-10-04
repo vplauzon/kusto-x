@@ -37,7 +37,14 @@ rule forEach = "@foreach" "(" cursor:identifier "in" enumerator:identifier ")"
 	"enumerator":enumerator,
 	"sequence":sequence
 };
-rule capturable = forEach:forEach | query:genericQuery | command:command;
+rule if = "@if" condition:identifier thenSequence:sequenceContent
+	else:("@else" elseSequence:sequenceContent => elseSequence)? => {
+		"code":text,
+		"condition" : condition,
+		"thenSequence" : thenSequence,
+		"elseSequence" : firstOrNull(else)
+	};
+rule capturable = forEach:forEach | if:if | query:genericQuery | command:command;
 rule captureScalar = "@capture-scalar" id:identifier "="
 	capturable:capturable => merge({
 		"capture":{
