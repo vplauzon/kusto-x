@@ -30,16 +30,9 @@ namespace Kustox.Compiler.Parsing
 
             if (match != null)
             {
-                if (match.Text.Length != text.Length)
-                {
-                    throw new InvalidDataException($"Can't parse statement:  '{text}'");
-                }
-                else
-                {
-                    var plan = match.ComputeTypedOutput<T>();
+                var plan = match.ComputeTypedOutput<T>();
 
-                    return plan;
-                }
+                return plan;
             }
             else
             {
