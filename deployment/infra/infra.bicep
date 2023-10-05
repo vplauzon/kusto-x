@@ -45,17 +45,3 @@ module registryModule 'registry.bicep' = {
     location: location
   }
 }
-
-// module appModule 'app.bicep' = {
-//   name: '${environment}-appDeploy'
-//   params: {
-//     location: location
-//     environment: environment
-//     workbenchVersion: workbenchVersion
-//     apiVersion: apiVersion
-//     suffix: suffix
-//     tenantId: tenantId
-//     appId: appId
-//     appSecret: appSecret
-//   }
-// }

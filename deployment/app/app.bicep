@@ -4,12 +4,10 @@
 param location string = resourceGroup().location
 @description('Resource prefix, typically the name of the environment')
 param environment string
+@description('Suffix used for resources')
+param suffix string
 @description('Workbench container\'s full version')
 param workbenchVersion string
-@description('API container\'s full version')
-param apiVersion string
-@description('Suffix to resource, typically to make the resource name unique')
-param suffix string
 @description('AAD Tenant Id')
 param tenantId string
 @description('AAD App Id')
@@ -130,96 +128,9 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
           }
           validation: {
             allowedAudiences: []
-          }
-        }
-      }
-      login: {
-        preserveUrlFragmentsForLogins: false
-      }
-      platform: {
-        enabled: true
-      }
-    }
-  }
-}
-
-resource api 'Microsoft.App/containerApps@2022-10-01' = {
-  name: '${environment}-app-api-${suffix}'
-  location: location
-  dependsOn: [
-    userIdentityRbacAuthorization
-  ]
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${containerFetchingIdentity.id}': {}
-    }
-  }
-  properties: {
-    configuration: {
-      activeRevisionsMode: 'Single'
-      ingress: {
-        allowInsecure: false
-        exposedPort: 0
-        external: true
-        targetPort: 80
-        transport: 'auto'
-        traffic: [
-          {
-            latestRevision: true
-            weight: 100
-          }
-        ]
-      }
-      registries: [
-        {
-          identity: containerFetchingIdentity.id
-          server: registry.properties.loginServer
-        }
-      ]
-      secrets: [
-        {
-          name: appSecretName
-          value: appSecret
-        }
-      ]
-    }
-    environmentId: appEnvironment.id
-    template: {
-      containers: [
-        {
-          image: '${registry.name}.azurecr.io/kustox/api:${apiVersion}'
-          name: 'main-api'
-          resources: {
-            cpu: '0.25'
-            memory: '0.5Gi'
-          }
-        }
-      ]
-      scale: {
-        minReplicas: 1
-        maxReplicas: 1
-      }
-    }
-  }
-
-  resource symbolicname 'authConfigs' = {
-    name: 'current'
-    properties: {
-      globalValidation: {
-        redirectToProvider: 'azureactivedirectory'
-        unauthenticatedClientAction: 'RedirectToLoginPage'
-      }
-      identityProviders: {
-        azureActiveDirectory: {
-          isAutoProvisioned: false
-          registration: {
-            clientId: appId
-            clientSecretSettingName: appSecretName
-            openIdIssuer: 'https://sts.windows.net/${tenantId}/v2.0'
-          }
-          validation: {
-            allowedAudiences: []
+            defaultAuthorizationPolicy: {
+              allowedApplications: []
+            }
           }
         }
       }
@@ -234,4 +145,3 @@ resource api 'Microsoft.App/containerApps@2022-10-01' = {
 }
 
 output workbenchUrl string = workbench.properties.latestRevisionFqdn
-output apiUrl string = api.properties.latestRevisionFqdn
