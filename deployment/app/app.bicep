@@ -22,6 +22,10 @@ resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' ex
   name: '${environment}registry${suffix}'
 }
 
+resource kusto 'Microsoft.Kusto/clusters@2023-05-02' existing = {
+  name: 'kustox${suffix}'
+}
+
 resource containerFetchingIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${environment}-id-container-${suffix}'
   location: location
@@ -102,6 +106,32 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
             cpu: '0.25'
             memory: '0.5Gi'
           }
+          env: [
+            {
+              name: 'kustoCluster'
+              value: kusto.properties.uri
+            }
+            {
+              name: 'kustoDb-sandbox'
+              value: '${environment}-sandbox'
+            }
+            {
+              name: 'kustoDb-state'
+              value: environment
+            }
+            {
+              name: 'tenantId'
+              value: tenantId
+            }
+            {
+              name: 'appId'
+              value: appId
+            }
+            {
+              name: 'appKey'
+              value: appSecret
+            }
+          ]
         }
       ]
       scale: {
