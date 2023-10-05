@@ -76,19 +76,37 @@ namespace Kustox.Runtime.State.RunStep
                 var scalarValue = Data.First().First();
                 var scalarKustoType = Columns.First().GetKustoType();
                 var dynamicValue = $"dynamic({JsonSerializer.Serialize(scalarValue)})";
-                var finalValue = $"to{scalarKustoType}({dynamicValue});";
+                var finalValue = $"to{scalarKustoType}({dynamicValue})";
 
                 return finalValue;
             }
             else
             {
-                var tmp = "__" + Guid.NewGuid().ToString("N");
-                var tableValue = @$"
-print {tmp} = dynamic({GetJsonData()})
-| mv-expand {tmp}
-| project {ToDynamicProjection(tmp)};";
+                var columnDeclaration = Columns
+                    .Select(c => $"['{c.ColumnName}']:{c.GetKustoType()}");
+                Func<(ColumnSpecification, object?), string> renderData = p =>
+                {
+                    var kustoType = p.Item1.GetKustoType();
+                    var jsonValue = JsonSerializer.Serialize(p.Item2);
 
-                return tableValue;
+                    if (kustoType == "string")
+                    {
+                        return jsonValue;
+                    }
+                    else
+                    {
+                        return $"{kustoType}({jsonValue})";
+                    }
+                };
+                var data = Data
+                    .Select(row => row.Zip(Columns, (d, c) => (c, d)).Select(p => renderData(p)))
+                    .SelectMany(r => r);
+                var expression = @$"
+datatable({string.Join(", ", columnDeclaration)}) [
+{string.Join(", " + Environment.NewLine, data)}
+]";
+
+                return expression;
             }
         }
 
@@ -106,11 +124,6 @@ print {tmp} = dynamic({GetJsonData()})
             var kql = string.Join(", ", projections);
 
             return kql;
-        }
-
-        public string GetJsonData()
-        {
-            return JsonSerializer.Serialize(Data);
         }
 
         public IEnumerable<object?> GetColumnData(int columnIndex)

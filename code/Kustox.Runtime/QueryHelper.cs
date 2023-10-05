@@ -34,7 +34,7 @@ namespace Kustox.Runtime
                 var name = value.Key;
                 var result = value.Value;
 
-                builder.AppendLine($"let {name} = {result.ToKustoExpression()}");
+                builder.AppendLine($"let {name} = {result.ToKustoExpression()};");
             }
 
             return builder.ToString();

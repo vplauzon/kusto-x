@@ -1,6 +1,5 @@
 ﻿using Kustox.Compiler.Commands;
 using Kustox.Runtime.State;
-using Kustox.Runtime.State.Run;
 using Kustox.Runtime.State.RunStep;
 using System;
 using System.Collections.Generic;
@@ -18,6 +17,7 @@ namespace Kustox.Runtime.Commands
         private readonly CommandRunnerBase _runProcedure;
         private readonly CommandRunnerBase _showProcedureRuns;
         private readonly CommandRunnerBase _append;
+        private readonly CommandRunnerBase _delete;
 
         public CommandRunnerRouter(
             ConnectionProvider connectionProvider,
@@ -33,6 +33,7 @@ namespace Kustox.Runtime.Commands
                 connectionProvider,
                 storageHub);
             _append = new AppendCommandRunner(connectionProvider);
+            _delete = new DeleteCommandRunner(connectionProvider);
         }
 
         public async Task<TableResult> RunCommandAsync(
@@ -59,6 +60,10 @@ namespace Kustox.Runtime.Commands
             else if (command.AppendCommand != null)
             {
                 return await _append.RunCommandAsync(command, captures, ct);
+            }
+            else if (command.DeleteCommand != null)
+            {
+                return await _delete.RunCommandAsync(command, captures, ct);
             }
             else
             {

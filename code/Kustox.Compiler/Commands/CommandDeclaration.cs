@@ -15,6 +15,8 @@ namespace Kustox.Compiler.Commands
         public GenericCommandDeclaration? GenericCommand { get; set; }
 
         public AppendCommandDeclaration? AppendCommand { get; set; }
+        
+        public DeleteCommandDeclaration? DeleteCommand { get; set; }
 
         public RunProcedureCommandDeclaration? RunProcedureCommand { get; set; }
 
@@ -27,6 +29,7 @@ namespace Kustox.Compiler.Commands
             base.Validate();
 
             var commandCount = (AppendCommand == null ? 0 : 1)
+                + (DeleteCommand == null ? 0 : 1)
                 + (RunProcedureCommand == null ? 0 : 1)
                 + (ShowProcedureRuns == null ? 0 : 1)
                 + (ListBlobsCommand == null ? 0 : 1)
@@ -39,6 +42,7 @@ namespace Kustox.Compiler.Commands
                     + $" {typeof(CommandDeclaration).Name}");
             }
             AppendCommand?.Validate();
+            DeleteCommand?.Validate();
             RunProcedureCommand?.Validate();
             ShowProcedureRuns?.Validate();
             ListBlobsCommand?.Validate();

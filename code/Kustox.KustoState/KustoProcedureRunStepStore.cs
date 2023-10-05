@@ -73,6 +73,7 @@ RunStep
 {RUN_STEPS_WITH_DURATION}
 {breadcrumbFilter}
 | where JobId=='{_jobId}'
+| order by Timestamp desc
 {PROJECT_CLAUSE}
 {query}";
             var table = await QueryAsync(script, ct);
@@ -90,7 +91,7 @@ RunStep
 | where JobId=='{_jobId}'
 | extend BreadcrumbId=tostring(Breadcrumb)
 {GetBreadcrumbFilter(breadcrumb)}
-| order by Timestamp asc
+| order by Timestamp desc
 | project-away BreadcrumbId
 {query}";
             var table = await QueryAsync(script, ct);
@@ -110,7 +111,7 @@ RunStep
     and BreadcrumbId == '[{string.Join(',', breadcrumb)}]')
     or (array_length(Breadcrumb) == {breadcrumb.Count+1}
     and BreadcrumbId startswith '[{string.Join(',', breadcrumb)},')
-| order by Timestamp asc
+| order by Timestamp desc
 {PROJECT_CLAUSE}
 {query}";
             var table = await QueryAsync(script, ct);
