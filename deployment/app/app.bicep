@@ -56,7 +56,7 @@ resource symbolicname 'Microsoft.Kusto/clusters/principalAssignments@2023-05-02'
   name: 'orchestrator-assignment'
   parent: kusto
   properties: {
-    principalId: orchestratorIdentity.id
+    principalId: orchestratorIdentity.properties.principalId
     principalType: 'App'
     role: 'AllDatabasesAdmin'
     tenantId: tenantId
