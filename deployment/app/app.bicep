@@ -26,13 +26,20 @@ resource kusto 'Microsoft.Kusto/clusters@2023-05-02' existing = {
   name: 'kustox${suffix}'
 }
 
+//  Identity pulling the containers from the registry
 resource containerFetchingIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${environment}-id-container-${suffix}'
   location: location
 }
 
+//  Identity orchestrating, i.e. accessing Kusto + Storage
+resource orchestratorIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${environment}-id-orchestrator-${suffix}'
+  location: location
+}
+
 //  We also need to authorize the user identity to pull container images from the registry
-resource userIdentityRbacAuthorization 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource containerFetchingIdentityRbacAuthorization 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(containerFetchingIdentity.id, registry.id, 'rbac')
   scope: registry
 
@@ -41,6 +48,18 @@ resource userIdentityRbacAuthorization 'Microsoft.Authorization/roleAssignments@
     principalId: containerFetchingIdentity.properties.principalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+  }
+}
+
+//  Give the orchestrator identity admin rights on the cluster's data plane
+resource symbolicname 'Microsoft.Kusto/clusters/principalAssignments@2023-05-02' = {
+  name: 'orchestrator-assignment'
+  parent: kusto
+  properties: {
+    principalId: orchestratorIdentity.id
+    principalType: 'App'
+    role: 'AllDatabasesAdmin'
+    tenantId: tenantId
   }
 }
 
@@ -118,18 +137,6 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
             {
               name: 'kustoDb-state'
               value: environment
-            }
-            {
-              name: 'tenantId'
-              value: tenantId
-            }
-            {
-              name: 'appId'
-              value: appId
-            }
-            {
-              name: 'appKey'
-              value: appSecret
             }
           ]
         }
