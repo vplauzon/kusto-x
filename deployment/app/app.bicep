@@ -78,7 +78,7 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
   name: '${environment}-app-workbench-${suffix}'
   location: location
   dependsOn: [
-    userIdentityRbacAuthorization
+    containerFetchingIdentityRbacAuthorization
   ]
   identity: {
     type: 'UserAssigned'
