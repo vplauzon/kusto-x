@@ -84,6 +84,7 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
     type: 'UserAssigned'
     userAssignedIdentities: {
       '${containerFetchingIdentity.id}': {}
+      '${orchestratorIdentity.id}': {}
     }
   }
   properties: {
