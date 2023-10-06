@@ -89,6 +89,8 @@ namespace Kustox.Workbench
 
         private static TokenCredential CreateTokenCredential()
         {
+            var userIdentityResourceId =
+                Environment.GetEnvironmentVariable("userIdentityResourceId");
             var tenantId = Environment.GetEnvironmentVariable("tenantId");
             var appId = Environment.GetEnvironmentVariable("appId");
             var appKey = Environment.GetEnvironmentVariable("appKey");
@@ -97,7 +99,15 @@ namespace Kustox.Workbench
                 || string.IsNullOrWhiteSpace(appId)
                 || string.IsNullOrWhiteSpace(appKey))
             {
-                return new ManagedIdentityCredential();
+                if (string.IsNullOrWhiteSpace(userIdentityResourceId))
+                {
+                    return new ManagedIdentityCredential();
+                }
+                else
+                {
+                    return new ManagedIdentityCredential(
+                        new ResourceIdentifier(userIdentityResourceId));
+                }
             }
             else
             {

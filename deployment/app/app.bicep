@@ -138,6 +138,10 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
               name: 'kustoDb-state'
               value: environment
             }
+            {
+              name: 'userIdentityResourceId'
+              value: orchestratorIdentity.id
+            }
           ]
         }
       ]
