@@ -66,9 +66,9 @@ jobs:
           --registry $registry \
           --file deployment/docker/workbench/Dockerfile workbench
 
-    # - name: Deploy infra
-    #   run: |
-    #     cd deployment/infra
-    #     bash deploy-infra.sh ${{ secrets.RESOURCE_GROUP }} $environment \
-    #     ${{ steps.patch-version-workbench.outputs.full-version }} \
-    #     ${{ secrets.TENANT_ID }}  ${{ secrets.APP_ID }} ${{ secrets.APP_SECRET }}
+    - name: Deploy App
+      run: |
+        cd deployment/app
+        bash deploy-app.sh ${{ secrets.RESOURCE_GROUP }} $environment \
+        ${{ steps.patch-version-workbench.outputs.full-version }} \
+        ${{ secrets.TENANT_ID }}  ${{ secrets.APP_ID }} ${{ secrets.APP_SECRET }}

@@ -4,12 +4,10 @@
 param location string = resourceGroup().location
 @description('Resource prefix, typically the name of the environment')
 param environment string
+@description('Suffix used for resources')
+param suffix string
 @description('Workbench container\'s full version')
 param workbenchVersion string
-@description('API container\'s full version')
-param apiVersion string
-@description('Suffix to resource, typically to make the resource name unique')
-param suffix string
 @description('AAD Tenant Id')
 param tenantId string
 @description('AAD App Id')
@@ -24,13 +22,24 @@ resource registry 'Microsoft.ContainerRegistry/registries@2023-01-01-preview' ex
   name: '${environment}registry${suffix}'
 }
 
+resource kusto 'Microsoft.Kusto/clusters@2023-05-02' existing = {
+  name: 'kustox${suffix}'
+}
+
+//  Identity pulling the containers from the registry
 resource containerFetchingIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
   name: '${environment}-id-container-${suffix}'
   location: location
 }
 
+//  Identity orchestrating, i.e. accessing Kusto + Storage
+resource orchestratorIdentity 'Microsoft.ManagedIdentity/userAssignedIdentities@2023-01-31' = {
+  name: '${environment}-id-orchestrator-${suffix}'
+  location: location
+}
+
 //  We also need to authorize the user identity to pull container images from the registry
-resource userIdentityRbacAuthorization 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
+resource containerFetchingIdentityRbacAuthorization 'Microsoft.Authorization/roleAssignments@2022-04-01' = {
   name: guid(containerFetchingIdentity.id, registry.id, 'rbac')
   scope: registry
 
@@ -39,6 +48,18 @@ resource userIdentityRbacAuthorization 'Microsoft.Authorization/roleAssignments@
     principalId: containerFetchingIdentity.properties.principalId
     principalType: 'ServicePrincipal'
     roleDefinitionId: resourceId('Microsoft.Authorization/roleDefinitions', '7f951dda-4ed3-4680-a7ca-43fe172d538d')
+  }
+}
+
+//  Give the orchestrator identity admin rights on the cluster's data plane
+resource symbolicname 'Microsoft.Kusto/clusters/principalAssignments@2023-05-02' = {
+  name: 'orchestrator-assignment'
+  parent: kusto
+  properties: {
+    principalId: orchestratorIdentity.properties.principalId
+    principalType: 'App'
+    role: 'AllDatabasesAdmin'
+    tenantId: tenantId
   }
 }
 
@@ -57,12 +78,13 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
   name: '${environment}-app-workbench-${suffix}'
   location: location
   dependsOn: [
-    userIdentityRbacAuthorization
+    containerFetchingIdentityRbacAuthorization
   ]
   identity: {
     type: 'UserAssigned'
     userAssignedIdentities: {
       '${containerFetchingIdentity.id}': {}
+      '${orchestratorIdentity.id}': {}
     }
   }
   properties: {
@@ -104,6 +126,24 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
             cpu: '0.25'
             memory: '0.5Gi'
           }
+          env: [
+            {
+              name: 'kustoCluster'
+              value: kusto.properties.uri
+            }
+            {
+              name: 'kustoDb-sandbox'
+              value: '${environment}-sandbox'
+            }
+            {
+              name: 'kustoDb-state'
+              value: environment
+            }
+            {
+              name: 'userIdentityResourceId'
+              value: orchestratorIdentity.id
+            }
+          ]
         }
       ]
       scale: {
@@ -130,96 +170,9 @@ resource workbench 'Microsoft.App/containerApps@2022-10-01' = {
           }
           validation: {
             allowedAudiences: []
-          }
-        }
-      }
-      login: {
-        preserveUrlFragmentsForLogins: false
-      }
-      platform: {
-        enabled: true
-      }
-    }
-  }
-}
-
-resource api 'Microsoft.App/containerApps@2022-10-01' = {
-  name: '${environment}-app-api-${suffix}'
-  location: location
-  dependsOn: [
-    userIdentityRbacAuthorization
-  ]
-  identity: {
-    type: 'UserAssigned'
-    userAssignedIdentities: {
-      '${containerFetchingIdentity.id}': {}
-    }
-  }
-  properties: {
-    configuration: {
-      activeRevisionsMode: 'Single'
-      ingress: {
-        allowInsecure: false
-        exposedPort: 0
-        external: true
-        targetPort: 80
-        transport: 'auto'
-        traffic: [
-          {
-            latestRevision: true
-            weight: 100
-          }
-        ]
-      }
-      registries: [
-        {
-          identity: containerFetchingIdentity.id
-          server: registry.properties.loginServer
-        }
-      ]
-      secrets: [
-        {
-          name: appSecretName
-          value: appSecret
-        }
-      ]
-    }
-    environmentId: appEnvironment.id
-    template: {
-      containers: [
-        {
-          image: '${registry.name}.azurecr.io/kustox/api:${apiVersion}'
-          name: 'main-api'
-          resources: {
-            cpu: '0.25'
-            memory: '0.5Gi'
-          }
-        }
-      ]
-      scale: {
-        minReplicas: 1
-        maxReplicas: 1
-      }
-    }
-  }
-
-  resource symbolicname 'authConfigs' = {
-    name: 'current'
-    properties: {
-      globalValidation: {
-        redirectToProvider: 'azureactivedirectory'
-        unauthenticatedClientAction: 'RedirectToLoginPage'
-      }
-      identityProviders: {
-        azureActiveDirectory: {
-          isAutoProvisioned: false
-          registration: {
-            clientId: appId
-            clientSecretSettingName: appSecretName
-            openIdIssuer: 'https://sts.windows.net/${tenantId}/v2.0'
-          }
-          validation: {
-            allowedAudiences: []
+            defaultAuthorizationPolicy: {
+              allowedApplications: []
+            }
           }
         }
       }
@@ -234,4 +187,3 @@ resource api 'Microsoft.App/containerApps@2022-10-01' = {
 }
 
 output workbenchUrl string = workbench.properties.latestRevisionFqdn
-output apiUrl string = api.properties.latestRevisionFqdn
